@@ -5,6 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormField } from "@/components/ui/form"
 import { Variant } from "@/lib/type"
 import { zodResolver } from "@hookform/resolvers/zod"
+import axios from "axios"
+import { signIn } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import FormInput from "./form/form-input"
@@ -21,6 +25,9 @@ const formSchema = z.object({
 })
 
 const FormSignup = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAction<Variant>> }) => {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -32,8 +39,27 @@ const FormSignup = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateA
     }
   })
 
-  const onSubmit = (value: z.infer<typeof formSchema>) => {
-    console.log(value)
+  const onSubmit = async (value: z.infer<typeof formSchema>) => {
+    const { email, displayname, username, password } = value
+
+    try {
+      setIsLoading(true)
+      await axios.post("/api/auth/signup", value)
+
+      await signIn("credentials", {
+        redirect: false,
+        email,
+        displayname,
+        username,
+        password
+      })
+
+      router.push("/home")
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -82,10 +108,12 @@ const FormSignup = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateA
                 )}
               />
               <div className="space-y-2">
-                <Button variant="primary" className="w-full font-medium">Sign Up</Button>
+                <Button variant="primary" className="w-full font-medium" disabled={isLoading}>
+                  {isLoading ? "Loading" : "Sign Up"}
+                </Button>
                 <div className="flex items-center space-x-1">
                   <p className="text-xs text-zinc-400">Already have an account?</p>
-                  <button type="button" className="text-xs text-sky-500 hover:underline underline-offset-2" onClick={() => setVariant("LOGIN")}>Login</button>
+                  <button type="button" className="text-xs text-sky-500 hover:underline underline-offset-2" onClick={() => setVariant("LOGIN")} disabled={isLoading}>Login</button>
                 </div>
               </div>
             </div>

@@ -2,9 +2,12 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Form, FormField, FormItem } from "@/components/ui/form"
+import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form"
 import { Variant } from "@/lib/type"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { signIn } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import FormInput from "./form/form-input"
@@ -15,6 +18,10 @@ const formSchema = z.object({
 })
 
 const FormLogin = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAction<Variant>> }) => {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState("")
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -23,8 +30,32 @@ const FormLogin = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAc
     }
   })
 
-  const onSubmit = (value: z.infer<typeof formSchema>) => {
-    console.log(value)
+  const onSubmit = async (value: z.infer<typeof formSchema>) => {
+    const { email, password } = value
+
+    try {
+      setIsLoading(true)
+      const res = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+        callbackUrl: `${window.location.origin}/home`
+      })
+      
+      if (res?.error) {
+        setErrorMsg(res.error)
+      }
+      
+      if (res?.url) {
+        router.push(res.url)
+        setErrorMsg("")
+      }
+
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -52,17 +83,19 @@ const FormLogin = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAc
                 render={({ field }) => (
                   <FormItem>
                     <div className="space-y-2">
-                      <FormInput required title="password" type="password" field={field} />
+                      <FormInput required title="password" type="password" errorMsg={errorMsg} field={field} />
                       <button type="button" className="text-xs text-sky-500 hover:underline underline-offset-2">Forgot your password?</button>
                     </div>
                   </FormItem>
                 )}
               />
               <div className="space-y-2">
-                <Button variant="primary" className="w-full font-medium">Log In</Button>
+                <Button variant="primary" className="w-full font-medium" disabled={isLoading}>
+                  {isLoading ? "Loading" : "Login"}
+                </Button>
                 <div className="flex items-center space-x-1">
                   <p className="text-xs text-zinc-400">Didn't have an account?</p>
-                  <button type="button" className="text-xs text-sky-500 hover:underline underline-offset-2" onClick={() => setVariant("SIGNUP")}>Sign Up</button>
+                  <button type="button" className="text-xs text-sky-500 hover:underline underline-offset-2" disabled={isLoading} onClick={() => setVariant("SIGNUP")}>Sign Up</button>
                 </div>
               </div>
             </div>

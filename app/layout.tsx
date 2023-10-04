@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Noto_Sans } from 'next/font/google'
 import './globals.css'
+import AuthContext from '@/app/context/AuthContext'
 
 const inter = Noto_Sans({ subsets: ['latin'], weight: "400" })
 
@@ -16,7 +17,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <AuthContext>
+          {children}
+        </AuthContext>
+      </body>
     </html>
   )
 }
