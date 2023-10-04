@@ -9,3 +9,5 @@ export type NextApiResponseServerIo = NextApiResponse & {
     }
   }
 }
+
+export type Variant = "LOGIN" | "SIGNUP"

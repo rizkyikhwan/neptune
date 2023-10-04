@@ -2,18 +2,19 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
+import { Form, FormField, FormItem } from "@/components/ui/form"
+import { Variant } from "@/lib/type"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import InputForm from "./input-form"
+import FormInput from "./form/form-input"
 
 const formSchema = z.object({
   email: z.string().min(1, "This field has to be filled.").email("This is not a valid email."),
   password: z.string().min(1, "This field has to be filled.")
 })
 
-const FormLogin = () => {
+const FormLogin = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAction<Variant>> }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -27,7 +28,7 @@ const FormLogin = () => {
   }
 
   return (
-    <Card className="w-full border-0 rounded-none md:rounded-md md:max-w-lg bg-[#313338] text-secondary z-10 min-h-screen md:min-h-min">
+    <Card className="w-full border-0 rounded-none sm:rounded-md sm:max-w-lg bg-[#313338] text-secondary z-10 min-h-screen sm:min-h-min shadow-none sm:shadow-md">
       <CardHeader className="text-center">
         <CardTitle className="text-xl font-medium tracking-wide">Hi mate!</CardTitle>
         <CardDescription className="text-zinc-400">Let's meet new people and join the community.</CardDescription>
@@ -41,10 +42,7 @@ const FormLogin = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormControl>
-                      <InputForm required title="email" type="email" className="border-0 rounded-sm focus-visible:ring-0 focus-visible:ring-offset-0 bg-zinc-800 text-zinc-300" {...field} />
-                    </FormControl>
-                    <FormMessage />
+                    <FormInput required title="email" type="email" field={field} />
                   </FormItem>
                 )}
               />
@@ -53,14 +51,20 @@ const FormLogin = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormControl>
-                      <InputForm required title="password" type="password" className="border-0 rounded-sm focus-visible:ring-0 focus-visible:ring-offset-0 bg-zinc-800 text-zinc-300" {...field} />
-                    </FormControl>
-                    <FormMessage />
+                    <div className="space-y-2">
+                      <FormInput required title="password" type="password" field={field} />
+                      <button type="button" className="text-xs text-sky-500 hover:underline underline-offset-2">Forgot your password?</button>
+                    </div>
                   </FormItem>
                 )}
               />
-              <Button variant="primary" className="w-full font-medium">Log In</Button>
+              <div className="space-y-2">
+                <Button variant="primary" className="w-full font-medium">Log In</Button>
+                <div className="flex items-center space-x-1">
+                  <p className="text-xs text-zinc-400">Didn't have an account?</p>
+                  <button type="button" className="text-xs text-sky-500 hover:underline underline-offset-2" onClick={() => setVariant("SIGNUP")}>Sign Up</button>
+                </div>
+              </div>
             </div>
           </form>
         </Form>
