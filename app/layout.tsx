@@ -2,6 +2,10 @@ import type { Metadata } from 'next'
 import { Noto_Sans } from 'next/font/google'
 import './globals.css'
 import AuthContext from '@/app/context/AuthContext'
+import ProgressBarProvider from '@/components/providers/progressbar-provider'
+import { ThemeProvider } from '@/components/providers/theme-provider'
+import { Toaster } from '@/components/ui/toaster'
+import ModalProvider from '@/components/providers/modal-provider'
 
 const inter = Noto_Sans({ subsets: ['latin'], weight: "400" })
 
@@ -16,10 +20,16 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <AuthContext>
-          {children}
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="dischat-theme">
+            <ProgressBarProvider>
+              <ModalProvider />
+              {children}
+              <Toaster />
+            </ProgressBarProvider>
+          </ThemeProvider>
         </AuthContext>
       </body>
     </html>

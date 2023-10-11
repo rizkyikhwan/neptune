@@ -1,12 +1,16 @@
-import { getAuthSession } from "@/lib/nextAuth"
+import { currentUser } from "@/lib/currentUser"
 import BG from "@/public/image/bg.png"
 import { redirect } from "next/navigation"
 
 const AuthLayout = async ({ children }: { children: React.ReactNode }) => {
-  const session = await getAuthSession()
+  const user = await currentUser()
 
-  if (session?.user) {
-    redirect("/home")
+  if (user) {
+    if (user.emailVerified) {
+      return redirect("/verification")
+    }
+
+    return redirect("/explore")
   }
 
   return (

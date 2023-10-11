@@ -1,7 +1,7 @@
 "use client"
 
-import FormLogin from "@/components/form-login"
-import FormSignup from "@/components/form-signup"
+import FormLogin from "@/components/form-action/form-login"
+import FormSignup from "@/components/form-action/form-signup"
 import { Variant } from "@/lib/type"
 import { AnimatePresence, Spring, motion } from "framer-motion"
 import { useState } from "react"

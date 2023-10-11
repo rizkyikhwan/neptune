@@ -16,8 +16,15 @@ model User {
   email String @unique
   emailVerified Boolean @default(false)
   displayname String?
-  username String
+  username String @unique
   password String
+
+  resetPasswordToken String? @unique
+  resetPasswordTokenExpiry DateTime?
+
+  verifyToken String @unique
+  verifyTokenExpiry DateTime @default(now())
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

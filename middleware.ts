@@ -8,6 +8,7 @@ export default withAuth({
 
 export const config = {
   matcher: [
-    "/home"
+    "/explore",
+    "/verification/:path*"
   ]
 }

@@ -1,11 +1,17 @@
-import { getAuthSession } from "@/lib/nextAuth"
+import { currentUser } from "@/lib/currentUser"
+import { redirect } from "next/navigation"
 
 const HomeLayout = async ({ children }: { children: React.ReactNode }) => {
-  const session = await getAuthSession()
+  const user = await currentUser()
+
+  if (!user?.emailVerified) {
+    return redirect("/verification")
+  }
 
   return (
     <main>
-      <p>{session?.user.id}</p>
+      <p>user id: {user?.id}</p>
+      <p>email verification: {`${user?.emailVerified}`}</p>
       {children}
     </main>
   )
