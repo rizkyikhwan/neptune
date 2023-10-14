@@ -1,13 +1,16 @@
 import nodemailer from "nodemailer";
 import { EmailType } from "./type";
+import { render } from "@react-email/render";
+import VerifyEmail from "@/components/email/verify-email";
 
 interface SendEmailType {
+  username: string
   email: string,
   token: string | null,
   type: EmailType
 }
 
-export const sendEmail = async ({ email, token, type }: SendEmailType) => {
+export const sendEmail = async ({ username, email, token, type }: SendEmailType) => {
   try {
     const transport = nodemailer.createTransport({
       host: "sandbox.smtp.mailtrap.io",
@@ -22,7 +25,8 @@ export const sendEmail = async ({ email, token, type }: SendEmailType) => {
       from: "test@email.com",
       to: email,
       subject: type === "Verify Email" ? "Verify your email" : type === "Reset Password" ? "Reset your password" : "No reply",
-      html: type === "Verify Email" ? `<p>Click this link http://localhost:3000/verification/${token} to verify your email` : type === "Reset Password" ? `<p>Follow the link . http://localhost:3000/reset-password/${token} to reset the password for your user before 30 minutes` : "No reply"
+      // html: type === "Verify Email" ? `<p>Click this link http://localhost:3000/verification/${token} to verify your email` : type === "Reset Password" ? `<p>Follow the link . http://localhost:3000/reset-password/${token} to reset the password for your user before 30 minutes` : "No reply"
+      html: type === "Verify Email" ? render(VerifyEmail({ username, token })) : type === "Reset Password" ? `<p>Follow the link . http://localhost:3000/reset-password/${token} to reset the password for your user before 30 minutes` : "No reply"
     }
 
     const mailResponse = await transport.sendMail(mailOptions)

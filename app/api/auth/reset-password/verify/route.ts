@@ -32,7 +32,7 @@ export async function PATCH(req: Request) {
       }
     })
 
-    await sendEmail({ email: createToken.email, token: createToken.resetPasswordToken, type: "Reset Password" })
+    await sendEmail({ username: user.username, email: createToken.email, token: createToken.resetPasswordToken, type: "Reset Password" })
 
     return NextResponse.json(createToken, { status: 201 })
   } catch (error) {

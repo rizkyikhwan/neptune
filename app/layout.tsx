@@ -23,7 +23,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <AuthContext>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="dischat-theme">
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="notshy-theme">
             <ProgressBarProvider>
               <ModalProvider />
               {children}

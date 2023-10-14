@@ -17,7 +17,7 @@ interface CardVerificationProps {
 const CardVerification = ({ email }: CardVerificationProps) => {
   const { secondsLeft, start } = useCountdown()
   const [isLoading, setIsLoading] = useState(false)
-  
+
   const handleResendEmail = async () => {
     setIsLoading(true)
     try {
@@ -39,23 +39,22 @@ const CardVerification = ({ email }: CardVerificationProps) => {
         <div className="space-y-2.5">
           <h6 className="font-medium text-zinc-200 text-lg tracking-wide">Verification email sent!</h6>
           <p className="text-sm text-zinc-300 ">
-            We have sent a confirmation link to <b>{email}</b> Check your email for a link to sign in. 
-            Please confirm your email before 30 minutes or resend email verification.
+            We have sent a confirmation link to <b>{email}</b> Check your email for a link to sign in. This token is extremely sensitive, treat it like a password and do not share it with anyone.
           </p>
           <div>
             <p className="text-xs text-zinc-400">Didn't get a confirmation mail?</p>
             <p className="text-xs text-zinc-400">
               <span>
                 Check your spam folder or
-              </span> 
-              <button 
-                type="button" 
-                className="text-xs text-sky-500 hover:underline underline-offset-2 disabled:opacity-75 disabled:hover:no-underline ml-1" 
-                disabled={isLoading || secondsLeft > 0} 
+              </span>
+              <button
+                type="button"
+                className="text-xs text-sky-500 hover:underline underline-offset-2 disabled:opacity-75 disabled:hover:no-underline ml-1"
+                disabled={isLoading || secondsLeft > 0}
                 onClick={() => handleResendEmail()}
               >
                 <p className="flex items-center">
-                  <span>resend email</span> {isLoading && <Loader2 className="animate-spin w-3 h-3 ml-0.5" />} {secondsLeft > 0  && <span className="ml-0.5">{secondsLeft}s</span>}
+                  <span>resend email</span> {isLoading && <Loader2 className="animate-spin w-3 h-3 ml-0.5" />} {secondsLeft > 0 && <span className="ml-0.5">{secondsLeft}s</span>}
                 </p>
               </button>
             </p>

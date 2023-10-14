@@ -77,35 +77,35 @@ const FormSignup = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateA
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-5">
-            <FormField 
+            <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormInput required title="email" type="email" field={field} />
               )}
             />
-            <FormField 
+            <FormField
               control={form.control}
               name="displayname"
               render={({ field }) => (
                 <FormInput title="display name" field={field} />
               )}
             />
-            <FormField 
+            <FormField
               control={form.control}
               name="username"
               render={({ field }) => (
                 <FormInput required title="username" field={field} />
               )}
             />
-            <FormField 
+            <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
                 <FormInput required title="password" type="password" field={field} />
               )}
             />
-            <FormField 
+            <FormField
               control={form.control}
               name="confirmPassword"
               render={({ field }) => (

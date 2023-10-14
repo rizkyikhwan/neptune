@@ -9,7 +9,7 @@ interface ResetPasswordProps {
 }
 
 const ResetPasswordPage = async ({ params }: ResetPasswordProps) => {
-  const { token } = params  
+  const { token } = params
 
   if (!token) {
     redirect("/")
@@ -36,7 +36,7 @@ const ResetPasswordPage = async ({ params }: ResetPasswordProps) => {
 
   return (
     <>
-      <FormResetPassword token={token} />
+      <FormResetPassword userId={checkTokenPassword.id} token={token} />
     </>
   )
 }

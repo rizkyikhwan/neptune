@@ -10,19 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  email String @unique
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  email         String  @unique
   emailVerified Boolean @default(false)
-  displayname String?
-  username String @unique
-  password String
+  displayname   String?
+  username      String  @unique
+  password      String
 
-  resetPasswordToken String? @unique
+  resetPasswordToken       String?
   resetPasswordTokenExpiry DateTime?
 
-  verifyToken String @unique
+  verifyToken       String   @unique
   verifyTokenExpiry DateTime @default(now())
 
   createdAt DateTime @default(now())

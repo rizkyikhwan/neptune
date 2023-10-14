@@ -24,7 +24,7 @@ export async function PATCH(req: Request) {
       }
     })
 
-    await sendEmail({ email: user.email, token: emailVerify.verifyToken, type: "Verify Email" })
+    await sendEmail({ username: user.username, email: user.email, token: emailVerify.verifyToken, type: "Verify Email" })
 
     return NextResponse.json(emailVerify)
   } catch (error) {

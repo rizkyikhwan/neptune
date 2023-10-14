@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     })
 
     if (checkEmailAlreadyUsed) {
-      return NextResponse.json({ message: "Your account may already exist, try to login or reset your password"}, { status: 409 })
+      return NextResponse.json({ message: "Your account may already exist, try to login or reset your password" }, { status: 409 })
     }
 
     const checkUsernameAlreadyUsed = await db.user.findUnique({
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     })
 
     if (checkUsernameAlreadyUsed) {
-      return NextResponse.json({ message: "Username already exist, try to another username"}, { status: 409 })
+      return NextResponse.json({ message: "Username already exist, try to another username" }, { status: 409 })
     }
 
     const user = await db.user.create({
@@ -43,11 +43,11 @@ export async function POST(req: Request) {
         username,
         displayname,
         password: hasedPassword,
-        verifyToken: uuidv4().replace(/-/g, ""),
+        verifyToken: uuidv4().replace(/-/g, "")
       }
     })
 
-    await sendEmail({ email, token: user.verifyToken, type: "Verify Email" })
+    await sendEmail({ username, email, token: user.verifyToken, type: "Verify Email" })
 
     return NextResponse.json(user, { status: 200 })
   } catch (error) {

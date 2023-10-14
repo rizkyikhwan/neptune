@@ -23,9 +23,15 @@ const formSchema = z.object({
   message: "Password doesn't match."
 })
 
-const FormResetPassword = ({ token }: { token: string }) => {
+interface FormResetPasswordProps {
+  token: string
+  userId: string
+}
+
+const FormResetPassword = ({ token, userId }: FormResetPasswordProps) => {
   const router = useRouter()
   const { toast } = useToast()
+  const { secondsLeft, start } = useCountdown()
 
   const [isDisabled, setIsDisabled] = useState(false)
 
@@ -41,13 +47,15 @@ const FormResetPassword = ({ token }: { token: string }) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/auth/reset-password/${token}`, values)
+      await axios.patch(`/api/auth/reset-password/${token}`, { ...values, userId })
 
       toast({
         variant: "success",
         title: "Success update password",
-        description: "Your password has been successfully update. Go to login page in 3 seconds"
+        description: "Your password has been successfully update."
       })
+
+      start(3)
 
       setIsDisabled(true)
 
@@ -61,7 +69,7 @@ const FormResetPassword = ({ token }: { token: string }) => {
         title: "Something went wrong.",
         description: error.response.data.message,
       })
-    }    
+    }
   }
 
   return (
@@ -69,14 +77,14 @@ const FormResetPassword = ({ token }: { token: string }) => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-5">
-            <FormField 
+            <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
                 <FormInput title="new password" type="password" field={field} />
               )}
             />
-            <FormField 
+            <FormField
               control={form.control}
               name="confirmPassword"
               render={({ field }) => (
@@ -85,7 +93,7 @@ const FormResetPassword = ({ token }: { token: string }) => {
             />
             <div className="space-y-2">
               <Button variant="primary" className="w-full font-medium" disabled={isLoading || isDisabled}>
-                {isLoading ? <Loader2 className="animate-spin" /> : "Update Password"}
+                {secondsLeft > 0 ? `Go to login page in ${secondsLeft}` : isLoading ? <Loader2 className="animate-spin" /> : "Update Password"}
               </Button>
             </div>
           </div>

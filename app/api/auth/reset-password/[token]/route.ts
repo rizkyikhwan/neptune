@@ -11,9 +11,9 @@ interface ResetPasswordParams {
 export async function PATCH(req: Request, { params }: ResetPasswordParams) {
   try {
     const body = await req.json()
-    const { password } = body
+    const { password, userId } = body
     const { token } = params
-    
+
     if (!token) {
       return NextResponse.json({ message: "Token is missing" }, { status: 404 })
     }
@@ -27,6 +27,7 @@ export async function PATCH(req: Request, { params }: ResetPasswordParams) {
 
     const updatePassword = await db.user.update({
       where: {
+        id: userId,
         resetPasswordToken: token
       },
       data: {
