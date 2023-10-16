@@ -6,6 +6,7 @@ import ProgressBarProvider from '@/components/providers/progressbar-provider'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 import ModalProvider from '@/components/providers/modal-provider'
+import { cn } from '@/lib/utils'
 
 const inter = Noto_Sans({ subsets: ['latin'], weight: "400" })
 
@@ -21,9 +22,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={cn(inter.className, "bg-white dark:bg-dark-primary")}>
         <AuthContext>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="notshy-theme">
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="neptune-theme">
             <ProgressBarProvider>
               <ModalProvider />
               {children}

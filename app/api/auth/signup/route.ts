@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid"
 
 import { db } from "@/lib/db"
 import { sendEmail } from "@/lib/mailer"
+import { randomHexColor } from "@/lib/utils"
 
 export async function POST(req: Request) {
   try {
@@ -43,7 +44,8 @@ export async function POST(req: Request) {
         username,
         displayname,
         password: hasedPassword,
-        verifyToken: uuidv4().replace(/-/g, "")
+        verifyToken: uuidv4().replace(/-/g, ""),
+        hexColor: randomHexColor()
       }
     })
 

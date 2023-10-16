@@ -13,21 +13,13 @@ import {
 } from '@react-email/components';
 import NeptuneLogo from "@/public/logo/logo.png"
 
-interface VerifyEmailProps {
-  username: string;
-  token: string | null
-}
-
 const baseUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : '';
 
 const linkUrl = process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_SITE_URL : "http://localhost:3000"
 
-const VerifyEmail = ({
-  username,
-  token
-}: VerifyEmailProps) => {
+export const ResetPasswordEmail = ({ token }: { token: string | null }) => {
 
   return (
     <Html>
@@ -47,14 +39,14 @@ const VerifyEmail = ({
             </Section>
             <Section className="px-12 pt-1 pb-2">
               <Text className="text-lg font-semibold">
-                Verify your account
+                Reset your password
               </Text>
               <Text className="text-sm">
-                Hi <b>{username}</b>, thanks you for signing up for Neptune. To verify your account, please follow the button below
+                Follow the button to reset the password for your user.
               </Text>
               <Section className="my-8">
-                <Link className="text-center bg-blue-500 rounded-lg text-sm no-underline font-semibold w-[200px] inline-block max-w-full py-4 px-5 text-white" href={`${linkUrl}/verification/${token}`} target="__blank">
-                  Verify Account
+                <Link className="text-center bg-blue-500 rounded-lg text-sm no-underline font-semibold w-[200px] inline-block max-w-full py-4 px-5 text-white" href={`${linkUrl}/reset-password/${token}`} target="__blank">
+                  Reset Password
                 </Link>
               </Section>
               <Text className="text-sm">
@@ -75,7 +67,7 @@ const VerifyEmail = ({
   );
 };
 
-export default VerifyEmail;
+export default ResetPasswordEmail;
 
 const fontFamily = 'HelveticaNeue,Helvetica,Arial,sans-serif';
 

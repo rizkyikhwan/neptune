@@ -11,6 +11,10 @@ export async function PATCH(req: Request) {
     return new NextResponse("Unauthorized", { status: 401 })
   }
 
+  if (user.emailVerified) {
+    return NextResponse.json({ message: "User already verified" }, { status: 405 })
+  }
+
   try {
     const emailVerify = await db.user.update({
       where: {

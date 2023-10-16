@@ -1,11 +1,11 @@
 "use client"
 
-import NextProgress from "next-progress";
+import { Next13ProgressBar } from 'next13-progressbar';
 
 const ProgressBarProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
-      <NextProgress delay={300} options={{ showSpinner: false }} />
+      <Next13ProgressBar options={{ showSpinner: false }} showOnShallow />
       {children}
     </>
   )

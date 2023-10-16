@@ -16,11 +16,14 @@ import { useToast } from "@/components/ui/use-toast"
 import { useState } from "react"
 
 const formSchema = z.object({
-  email: z.string().min(1, "Enter a email.").email("This is not a valid email."),
+  email: z.string().min(1, "Enter a email").email("This is not a valid email."),
   displayname: z.string(),
-  username: z.string().min(3, "Enter at least 3 characters."),
-  password: z.string().min(5, "Enter at least 5 characters."),
-  confirmPassword: z.string().min(1, "Must confirm your password."),
+  username: z.string()
+    .min(3, "This must be 3-32")
+    .max(32, "This must be 3-32")
+    .refine(value => /^(?=.*[a-zA-Z])(?!.*[^a-zA-Z_]).*[a-zA-Z_]+(?:[a-zA-Z_]*[ ]*)*[a-zA-Z_]*$/.test(value), "Please only use numbers, letters, undersocres, and must have a text"),
+  password: z.string().min(5, "Enter at least 5 characters"),
+  confirmPassword: z.string().min(1, "Must confirm your password"),
 }).refine(({ confirmPassword, password }) => confirmPassword === password, {
   path: ["confirmPassword"],
   message: "Password doesn't match."
@@ -73,7 +76,7 @@ const FormSignup = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateA
   }
 
   return (
-    <CardForm title="Dischat" description="Created an account.">
+    <CardForm title="Neptune" description="Created an account.">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-5">
@@ -114,7 +117,7 @@ const FormSignup = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateA
             />
             <div className="space-y-2">
               <Button variant="primary" className="w-full font-medium" disabled={isLoading || isDisabled}>
-                {isLoading ? <Loader2 className="animate-spin" /> : "Sign Up"}
+                {isLoading || isDisabled ? <Loader2 className="animate-spin" /> : "Sign Up"}
               </Button>
               <div className="flex items-center space-x-1">
                 <p className="text-xs text-zinc-400">Already have an account?</p>

@@ -94,7 +94,7 @@ const FormLogin = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAc
             />
             <div className="space-y-2">
               <Button variant="primary" className="w-full font-medium" disabled={isLoading || isDisabled}>
-                {isLoading ? <Loader2 className="animate-spin" /> : "Login"}
+                {isLoading || isDisabled ? <Loader2 className="animate-spin" /> : "Login"}
               </Button>
               <div className="flex items-center space-x-1">
                 <p className="text-xs text-zinc-400">Didn't have an account?</p>

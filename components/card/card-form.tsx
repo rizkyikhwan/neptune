@@ -8,7 +8,7 @@ interface CardFormProps {
 
 const CardForm = ({ title, description, children }: CardFormProps) => {
   return (
-    <Card className="w-full border-0 rounded-none sm:rounded-md sm:max-w-lg bg-[#313338] text-secondary z-10 min-h-screen sm:min-h-min shadow-none sm:shadow-md">
+    <Card className="z-10 w-full min-h-screen border-0 rounded-none shadow-none sm:rounded-md sm:max-w-lg bg-dark-primary text-secondary sm:min-h-min sm:shadow-md">
       {title && (
         <CardHeader>
           <CardTitle className="text-xl font-semibold tracking-wide text-zinc-200">{title}</CardTitle>
