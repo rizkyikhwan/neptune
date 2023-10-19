@@ -1,6 +1,6 @@
 import { create } from "zustand"
 
-export type ModalType = "resetPassowrd"
+export type ModalType = "resetPassowrd" | "infoApp"
 
 interface ModalStore {
   type: ModalType | null

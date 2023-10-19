@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
 
 interface CardFormProps {
-  title?: string,
+  title?: string | React.ReactNode,
   description?: string,
   children: React.ReactNode
 }

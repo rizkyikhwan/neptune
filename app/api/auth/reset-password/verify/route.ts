@@ -34,7 +34,7 @@ export async function PATCH(req: Request) {
 
     await sendEmail({ username: user.username, email: createToken.email, token: createToken.resetPasswordToken, type: "Reset Password" })
 
-    return NextResponse.json(createToken, { status: 201 })
+    return NextResponse.json({ message: "Email successfully sended" }, { status: 201 })
   } catch (error) {
     console.log(error, "[RESET_PASSWORD_VERIFY_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })

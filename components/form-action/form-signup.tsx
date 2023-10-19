@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Form, FormField } from "@/components/ui/form"
-import { Variant } from "@/lib/type"
+import { VariantAuth } from "@/lib/type"
 import { zodResolver } from "@hookform/resolvers/zod"
 import axios from "axios"
 import { Loader2 } from "lucide-react"
@@ -14,6 +14,7 @@ import CardForm from "@/components/card/card-form"
 import FormInput from "@/components/form/form-input"
 import { useToast } from "@/components/ui/use-toast"
 import { useState } from "react"
+import NeptuneLogoDark from "@/public/logo/logo-dark.svg"
 
 const formSchema = z.object({
   email: z.string().min(1, "Enter a email").email("This is not a valid email."),
@@ -29,7 +30,7 @@ const formSchema = z.object({
   message: "Password doesn't match."
 })
 
-const FormSignup = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAction<Variant>> }) => {
+const FormSignup = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAction<VariantAuth>> }) => {
   const router = useRouter()
   const { toast } = useToast()
 
@@ -65,6 +66,7 @@ const FormSignup = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateA
       setIsDisabled(true)
 
       router.push("/verification")
+      router.refresh()
     } catch (error: any) {
       console.log(error)
       toast({
@@ -76,7 +78,10 @@ const FormSignup = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateA
   }
 
   return (
-    <CardForm title="Neptune" description="Created an account.">
+    <CardForm 
+      title={<NeptuneLogoDark width={40} height={40} />} 
+      description="Created an account."
+    >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-5">

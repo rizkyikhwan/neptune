@@ -16,6 +16,10 @@ export function randomHexColor() {
   return color
 }
 
-export function initialText(val: string) {
-  return val.match(/(\b\S)?/g)?.join("")?.slice(0, 2).toUpperCase()
+export function initialText(str: string) {
+  return str.match(/(\b\S)?/g)?.join("")?.slice(0, 2).toUpperCase()
+}
+
+export function capitalizeLetter(str: string) {
+  return str[0].toUpperCase() + str.slice(1).toLocaleLowerCase()
 }

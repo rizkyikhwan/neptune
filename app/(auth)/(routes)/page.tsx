@@ -2,12 +2,12 @@
 
 import FormLogin from "@/components/form-action/form-login"
 import FormSignup from "@/components/form-action/form-signup"
-import { Variant } from "@/lib/type"
+import { VariantAuth } from "@/lib/type"
 import { AnimatePresence, Spring, motion } from "framer-motion"
 import { useState } from "react"
 
 const AuthPage = () => {
-  const [variant, setVariant] = useState<Variant>("LOGIN")
+  const [variant, setVariant] = useState<VariantAuth>("LOGIN")
 
   const onEnter = { opacity: 0, scale: 1.1 }
 	const animate = { opacity: 1, scale: 1 }

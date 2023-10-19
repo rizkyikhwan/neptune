@@ -10,6 +10,8 @@ export type NextApiResponseServerIo = NextApiResponse & {
   }
 }
 
-export type Variant = "LOGIN" | "SIGNUP"
+export type VariantAuth = "LOGIN" | "SIGNUP"
 
 export type EmailType = "Verify Email" | "Reset Password"
+
+export type VariantFriend = "ONLINE" | "ALL" | "PENDING" | "ADD_FRIEND"

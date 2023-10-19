@@ -10,7 +10,7 @@ const Verification = async () => {
   }
 
   if (user.emailVerified) {
-    return redirect("/explore")
+    return redirect("/me/channels")
   }
 
   return (

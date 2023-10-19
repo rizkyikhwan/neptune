@@ -10,6 +10,7 @@ declare module 'next-auth' {
   interface Session extends DefaultSession {
     user: {
       id: string
+      isNewUser: boolean
     } & DefaultSession['user']
   }
 }
@@ -17,6 +18,7 @@ declare module 'next-auth' {
 declare module "next-auth/jwt" {
   interface JWT {
     id: string
+    isNewUser: boolean
   }
 }
 
@@ -71,6 +73,7 @@ export const authOptions: NextAuthOptions = {
         
         if (db_user) {
           token.id = db_user.id
+          token.isNewUser = db_user.createdAt > new Date(Date.now() - 5 * 60 * 1000) ? true : false
         }
       }
 
@@ -82,6 +85,7 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name
         session.user.email = token.email
         session.user.image = token.picture
+        session.user.isNewUser = token.isNewUser
       }
       
       return session

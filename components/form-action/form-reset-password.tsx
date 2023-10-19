@@ -61,6 +61,7 @@ const FormResetPassword = ({ token, userId }: FormResetPasswordProps) => {
 
       setTimeout(() => {
         router.push("/")
+        router.refresh()
       }, 3000)
     } catch (error: any) {
       console.log(error)

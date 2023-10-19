@@ -25,7 +25,7 @@ export async function PATCH(req: Request, { params }: ResetPasswordParams) {
     const salt = await bcrypt.genSalt(10)
     const hasedPassword = await bcrypt.hash(password, salt)
 
-    const updatePassword = await db.user.update({
+    await db.user.update({
       where: {
         id: userId,
         resetPasswordToken: token
@@ -37,7 +37,7 @@ export async function PATCH(req: Request, { params }: ResetPasswordParams) {
       }
     })
 
-    return NextResponse.json(updatePassword, { status: 201 })
+    return NextResponse.json({ message: "Password Updated" }, { status: 201 })
   } catch (error) {
     console.log(error, "[RESET_PASSWORD_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })

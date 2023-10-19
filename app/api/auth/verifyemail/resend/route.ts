@@ -30,7 +30,7 @@ export async function PATCH(req: Request) {
 
     await sendEmail({ username: user.username, email: user.email, token: emailVerify.verifyToken, type: "Verify Email" })
 
-    return NextResponse.json(emailVerify)
+    return NextResponse.json({ message: "Email successfully resended" }, { status: 200 })
   } catch (error) {
     console.log(error, "[RESEND_VERIFYEMAIL_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })

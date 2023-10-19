@@ -18,7 +18,7 @@ const EmailVerification = async ({ params }: EmailVerificationParams) => {
   }
 
   if (user.emailVerified) {
-    redirect("/explore")
+    redirect("/me/channels")
   }
 
   if (!token) {
@@ -56,6 +56,6 @@ const EmailVerification = async ({ params }: EmailVerificationParams) => {
     }
   })
 
-  redirect("/explore")
+  redirect("/me/channels")
 }
 export default EmailVerification

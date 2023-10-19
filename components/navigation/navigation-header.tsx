@@ -11,7 +11,7 @@ import { Fragment, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Button } from "../ui/button";
 
-const NavigationHeader = () => {
+const NavigationHeader = ({ pathname }: { pathname: string | null }) => {
   const { theme } = useTheme()
 
   const [isCollaps, setIsCollaps] = useState(false);
@@ -38,8 +38,16 @@ const NavigationHeader = () => {
       <AnimatePresence initial={false} mode="popLayout">
         <div className="mb-3">
           <ActionTooltip side="right" align="center" label="Direct Messages">
-            <button className="flex items-center group">
-              <div className="flex items-center justify-center w-12 h-12 mx-3 overflow-hidden transition-all rounded-3xl group-hover:rounded-2xl bg-background dark:bg-neutral-700 group-hover:bg-sky-500">
+            <Link href="/me/channels" className="flex items-center group">
+              <div className={cn(
+                "absolute left-0 bg-primary rounded-r-full transition-all w-1",
+                !pathname?.includes("me") && "group-hover:h-5 group-hover:scale-100",
+                pathname?.includes("me") ? "h-9" : "h-0 scale-0"
+              )} />
+              <div className={cn(
+                "flex items-center justify-center w-12 h-12 mx-3 overflow-hidden transition-all rounded-3xl group-hover:rounded-2xl bg-background dark:bg-neutral-700 group-hover:bg-sky-500",
+                pathname?.includes("me") && "bg-sky-500 dark:bg-sky-500 text-primary rounded-2xl"
+              )}>
                 {isMounted && (
                   <>
                     {theme === "dark" && <NeptuneLogoDark height={25} />}
@@ -47,7 +55,7 @@ const NavigationHeader = () => {
                   </>
                 )}
               </div>
-            </button>
+            </Link>
           </ActionTooltip>
         </div>
         <Fragment key="isCollapse">
@@ -110,13 +118,21 @@ const NavigationHeader = () => {
                     align="center"
                     label="Explore a Servers"
                   >
-                    <Link href={"/explore"} className="flex items-center group">
-                      <div className="flex items-center justify-center w-12 h-12 mx-3 overflow-hidden transition-all rounded-3xl group-hover:rounded-2xl bg-background dark:bg-neutral-700 group-hover:bg-emerald-500">
-                        <Compass
-                          className="transition group-hover:text-white text-emerald-500"
-                          size={25}
-                        />
-                      </div>
+                    <Link href={"/explore"} className="relative flex items-center group">
+                      <div className={cn(
+                        "absolute left-0 bg-primary rounded-r-full transition-all w-1",
+                        !pathname?.includes("explore") && "group-hover:h-5 group-hover:scale-100",
+                        pathname?.includes("explore") ? "h-9" : "h-0 scale-0"
+                      )} />
+                      <div className={cn(
+                        "relative group flex items-center justify-center mx-3 h-12 w-12 rounded-3xl group-hover:rounded-2xl transition-all overflow-hidden bg-background dark:bg-neutral-700 group-hover:bg-emerald-500",
+                        pathname?.includes("explore") && "bg-emerald-500 dark:bg-emerald-500 text-primary rounded-2xl"
+                      )}>
+                      <Compass
+                        className={cn("transition group-hover:text-white text-emerald-500", pathname?.includes("explore") && "text-white")}
+                        size={25}
+                      />
+                    </div>
                     </Link>
                   </ActionTooltip>
                 </motion.div>

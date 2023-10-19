@@ -51,7 +51,7 @@ export async function POST(req: Request) {
 
     await sendEmail({ username, email, token: user.verifyToken, type: "Verify Email" })
 
-    return NextResponse.json(user, { status: 200 })
+    return NextResponse.json({ message: "Successfully Sign Up" }, { status: 200 })
   } catch (error) {
     console.log(error, "[SIGNUP_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })

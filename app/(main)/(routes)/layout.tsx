@@ -9,20 +9,14 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     return redirect("/verification")
   }
 
-  // const test = (date: Date) => {
-  //   console.log(date > new Date(Date.now() - 10 * 60 * 1000));
-  // }
-
-  // test(user.createdAt)
-
   return (
     <main className="h-full">
-      <div className="hidden md:flex h-full w-[72px] z-30 flex-col fixed inset-y-0">
+      <div className="hidden md:flex h-full w-[72px] flex-col fixed inset-y-0">
         <NavigationSidebar user={user} />
       </div>
-      <section className="md:pl-[72px] h-full">
+      <div className="md:pl-[72px] h-full">
         {children}
-      </section>
+      </div>
     </main>
   )
 }

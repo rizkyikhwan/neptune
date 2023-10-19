@@ -3,7 +3,7 @@
 import { useModal } from "@/app/hooks/useModalStore"
 import { Button } from "@/components/ui/button"
 import { Form, FormField, FormItem } from "@/components/ui/form"
-import { Variant } from "@/lib/type"
+import { VariantAuth } from "@/lib/type"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
 import { signIn } from "next-auth/react"
@@ -20,7 +20,7 @@ const formSchema = z.object({
   password: z.string().min(1, "This field has to be filled.")
 })
 
-const FormLogin = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAction<Variant>> }) => {
+const FormLogin = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAction<VariantAuth>> }) => {
   const router = useRouter()
   const { toast } = useToast()
   const { onOpen } = useModal()
@@ -45,7 +45,7 @@ const FormLogin = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAc
         redirect: false,
         email,
         password,
-        callbackUrl: `${window.location.origin}/explore`
+        callbackUrl: `${window.location.origin}/me/channels`
       })
       
       if (res?.error) {
@@ -59,6 +59,7 @@ const FormLogin = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAc
       if (res?.url) {
         setIsDisabled(true)
         router.push(res.url)
+        router.refresh()
       }
 
     } catch (error) {

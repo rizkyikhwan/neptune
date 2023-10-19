@@ -10,7 +10,7 @@ const AuthLayout = async ({ children }: { children: React.ReactNode }) => {
       return redirect("/verification")
     }
 
-    return redirect("/explore")
+    return redirect("/me/channels")
   }
 
   return (

@@ -6,6 +6,7 @@ import UserButton from "@/components/user/user-button"
 import { User } from "@prisma/client"
 import { AlertCircle } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import NavigationHeader from "./navigation-header"
 
 interface NavigationSidebarProps {
@@ -13,10 +14,11 @@ interface NavigationSidebarProps {
 }
 
 const NavigationSidebar = ({ user }: NavigationSidebarProps) => {
+  const pathname = usePathname()
 
   return (
     <div className="space-y-3 flex flex-col items-center h-full text-primary w-full dark:bg-dark-secondary bg-[#E3E5E8] py-3">
-      <NavigationHeader />
+      <NavigationHeader pathname={pathname} />
       <Separator className="h-0.5 bg-zinc-300 dark:bg-zinc-700 rounded-md w-10 mx-auto" />
       <ScrollArea className="flex-1 w-full">
         {[...Array(20)].map((_, i) => (
