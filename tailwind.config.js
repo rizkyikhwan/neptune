@@ -62,6 +62,32 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
+        "logo-splash": {
+          "0%": {
+            transform: "scale(1)"
+          },
+          "5%": {
+            transform: "scale(1.2)"
+          },
+          "25": {
+            transform: "scale(1.1)"
+          },
+          "50%": {
+            transform: "scale(1.2)"
+          },
+          "75%": {
+            transform: "scale(1.15)"
+          },
+          "90%": {
+            transform: "scale(1.3)"
+          },
+          "95%": {
+            transform: "scale(1.15)"
+          },
+          "100%": {
+            transform: "scale(1)"
+          }
+        },
         "accordion-down": {
           from: { height: 0 },
           to: { height: "var(--radix-accordion-content-height)" },
@@ -74,8 +100,12 @@ module.exports = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "logo-splash-screen": "logo-splash 2s ease-out infinite"
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require('tailwind-scrollbar')({ nocompatible: true })
+  ],
 }

@@ -17,7 +17,7 @@ const MeSidebar = () => {
         </>
       }
     >
-      <div className="mt-2 space-y-2">
+      <div className="my-2 space-y-2">
         <div>
           <Link href={"/me/channels"} className="group">
             <div className={cn(pathname?.includes("me") && "bg-zinc-300/50 dark:bg-zinc-600/50", "flex items-center p-2 rounded space-x-3")}>

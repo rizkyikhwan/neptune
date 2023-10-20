@@ -7,9 +7,10 @@ interface FormInputProps {
   field: any
   title?: string
   required?: boolean
+  className?: string
 }
 
-const FormInput = ({ field, title, required, ...props }: FormInputProps & InputProps) => {
+const FormInput = ({ field, title, required, className, ...props }: FormInputProps & InputProps) => {
   const { error } = useFormField()
 
   return (
@@ -21,7 +22,14 @@ const FormInput = ({ field, title, required, ...props }: FormInputProps & InputP
         </FormLabel>
       )}
       <FormControl>
-        <InputFormCom className="border-0 rounded-sm focus-visible:ring-0 focus-visible:ring-offset-0 bg-zinc-800 text-zinc-300" {...props} {...field} />
+        <InputFormCom 
+          className={cn(
+            "border-0 rounded-sm focus-visible:ring-0 focus-visible:ring-offset-0 bg-zinc-800 text-zinc-300", 
+            className
+          )} 
+          {...props} 
+          {...field} 
+        />
       </FormControl>
       <FormMessage className="ml-auto text-xs" />
     </FormItem>
