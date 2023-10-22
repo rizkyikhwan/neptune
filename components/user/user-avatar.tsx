@@ -14,7 +14,7 @@ const UserAvatar = ({ src, className, bgColor, initialName }: UserAvatarProps) =
       <Avatar className={cn("h-7 w-7 md:h-10 md:w-10", className)}>
         <AvatarImage src={src} />
         <AvatarFallback
-          className={cn(bgColor ? "text-zinc-100" : "bg-muted", "font-semibold")}
+          className={cn("font-semibold text-xs md:text-base", bgColor ? "text-zinc-100" : "bg-muted")}
           style={{ backgroundColor: bgColor }}
         >
           {initialText(initialName)}

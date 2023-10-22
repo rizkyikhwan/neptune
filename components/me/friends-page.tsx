@@ -18,7 +18,12 @@ interface OnlinePageProps {
   online?: boolean
 }
 
-const FriendsPage = ({ users, type }: { users: OnlinePageProps[], type: VariantFriend }) => {
+interface FriendsPageProps {
+  type: VariantFriend,
+  users: OnlinePageProps[]
+}
+
+const FriendsPage = ({ users, type }: FriendsPageProps) => {
   const { register, resetField } = useForm()
   const [filteredUsers, setFilteredUsers] = useState<OnlinePageProps[]>([])
 
@@ -36,10 +41,10 @@ const FriendsPage = ({ users, type }: { users: OnlinePageProps[], type: VariantF
   }
 
   return (
-    <div className={cn("mx-5 mt-4 space-y-3 flex flex-col h-full", filteredUsers.filter(user => type === "ONLINE" ? user.online : user).length >= 15 ? "h-[calc(100%-64px)]" : "pb-16")}>
-      <div className="relative">
+    <div className={cn("mx-0 md:mx-5 mt-4 space-y-3 flex flex-col h-full", filteredUsers.filter(user => type === "ONLINE" ? user.online : user).length >= 15 ? "h-[calc(100%-64px)]" : "pb-16")}>
+      <div className="relative mx-5 md:mx-0">
         <InputFormComp
-          className="pr-8 border-0 rounded-sm h-9 focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-zinc-900/80 bg-zinc-200 placeholder:dark:text-zinc-400"
+          className="pr-8 border-0 rounded-sm h-9 focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-zinc-900/80 bg-zinc-200 placeholder:dark:text-zinc-500"
           placeholder="Search"
           autoComplete="off"
           {...register("search", {
@@ -50,12 +55,12 @@ const FriendsPage = ({ users, type }: { users: OnlinePageProps[], type: VariantF
         />
         <Search className="absolute right-2 top-2 text-zinc-500 dark:text-zinc-300" size={20} />
       </div>
-      <div className="flex items-center space-x-1 text-xs text-zinc-500 dark:text-zinc-400 px-2">
+      <div className="flex items-center space-x-1 text-xs text-zinc-500 dark:text-zinc-400 px-2 mx-3 md:mx-0">
         <p className="uppercase">{capitalizeLetter(type)}</p>
         <Separator orientation="horizontal" className="w-3 h-[0.5px] bg-zinc-400" />
         <p>{filteredUsers.filter(user => type === "ONLINE" ? user.online : user).length}</p>
       </div>
-      <ScrollArea className="flex-1 pr-3">
+      <ScrollArea className="flex-1 pr-3 ml-3 md:ml-0">
         {filteredUsers.filter(user => type === "ONLINE" ? user.online : user).map(user => (
           <motion.div
             layout

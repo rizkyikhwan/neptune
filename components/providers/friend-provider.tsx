@@ -1,3 +1,4 @@
+import AddFriendPage from "@/components/me/add-friend-page"
 import FriendsPage from "@/components/me/friends-page"
 import { VariantFriend } from "@/lib/type"
 import { redirect } from "next/navigation"
@@ -72,7 +73,7 @@ const FriendProvider = ({ type }: { type: VariantFriend }) => {
     case "PENDING":
       return <FriendsPage type="PENDING" users={friendRequest} />
     case "ADD_FRIEND":
-      return <p>halaman add friend</p>
+      return <AddFriendPage type="ADD_FRIEND" />
     default:
       return redirect("/404")
   }
