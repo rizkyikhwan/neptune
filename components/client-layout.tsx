@@ -20,7 +20,7 @@ export default function ClientLayout({ children, className }: ClientLayoutProps)
 
 
   useEffect(() => {
-    if (status === "loading") {
+    if (status === "loading" || status === "authenticated") {
       const timer = setTimeout(() => {
         setIsShown(false)
       }, 1500)

@@ -13,8 +13,8 @@ const UserAvatar = ({ src, className, bgColor, initialName }: UserAvatarProps) =
     <div className="relative pointer-events-none">
       <Avatar className={cn("h-7 w-7 md:h-10 md:w-10", className)}>
         <AvatarImage src={src} />
-        <AvatarFallback 
-          className={cn(!bgColor && "bg-muted", "text-zinc-100 font-semibold")} 
+        <AvatarFallback
+          className={cn(bgColor ? "text-zinc-100" : "bg-muted", "font-semibold")}
           style={{ backgroundColor: bgColor }}
         >
           {initialText(initialName)}

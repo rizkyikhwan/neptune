@@ -61,8 +61,8 @@ const NavigationHeader = ({ pathname }: { pathname: string | null }) => {
         <Fragment key="isCollapse">
           <AnimatePresence mode="wait">
             {isCollaps && (
-              <motion.div 
-                key={isCollaps ? "open" : "close"} 
+              <motion.div
+                key={isCollaps ? "open" : "close"}
                 initial={{
                   height: 0,
                   opacity: 0,
@@ -93,7 +93,7 @@ const NavigationHeader = ({ pathname }: { pathname: string | null }) => {
                 <motion.div
                   initial={onEnter}
                   animate={animate}
-                  exit={{...onLeave, transition: { delay: 0.2 }}}
+                  exit={{ ...onLeave, transition: { delay: 0.2 } }}
                   transition={transitionSpringPhysics}
                 >
                   <ActionTooltip side="right" align="center" label="Add a Server">
@@ -109,7 +109,7 @@ const NavigationHeader = ({ pathname }: { pathname: string | null }) => {
                 </motion.div>
                 <motion.div
                   initial={onEnter}
-                  animate={{...animate, transition: { delay: 0.2 }}}
+                  animate={{ ...animate, transition: { delay: 0.2 } }}
                   exit={onLeave}
                   transition={transitionSpringPhysics}
                 >
@@ -128,11 +128,11 @@ const NavigationHeader = ({ pathname }: { pathname: string | null }) => {
                         "relative group flex items-center justify-center mx-3 h-12 w-12 rounded-3xl group-hover:rounded-2xl transition-all overflow-hidden bg-background dark:bg-neutral-700 group-hover:bg-emerald-500",
                         pathname?.includes("explore") && "bg-emerald-500 dark:bg-emerald-500 text-primary rounded-2xl"
                       )}>
-                      <Compass
-                        className={cn("transition group-hover:text-white text-emerald-500", pathname?.includes("explore") && "text-white")}
-                        size={25}
-                      />
-                    </div>
+                        <Compass
+                          className={cn("transition group-hover:text-white text-emerald-500", pathname?.includes("explore") && "text-white")}
+                          size={25}
+                        />
+                      </div>
                     </Link>
                   </ActionTooltip>
                 </motion.div>

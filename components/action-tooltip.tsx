@@ -15,7 +15,7 @@ const ActionTooltip = ({ label, children, side, align }: ActionTooltipProps) => 
           {children}
         </TooltipTrigger>
         <TooltipContent side={side} align={align}>
-          <p className="text-sm font-semibold"> 
+          <p className="text-sm font-semibold">
             {label}
           </p>
         </TooltipContent>

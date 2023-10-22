@@ -29,7 +29,7 @@ const MeChannelsPage = () => {
   const variantFriend: VariantFriend[] = ["ONLINE", "ALL", "PENDING", "ADD_FRIEND"]
 
   return (
-    <main className="flex flex-col">
+    <main className="flex flex-col fixed inset-y-0 h-full w-[calc(100%-313px)]">
       <section className="min-h-[48px] shadow py-2 px-4 border-b flex items-center relative">
         <div className="flex items-center flex-auto space-x-3 overflow-auto scrollbar-none">
           <Users className="w-5 h-5" />
@@ -42,7 +42,7 @@ const MeChannelsPage = () => {
               className={cn(
                 typePage === item ? "bg-zinc-200/50 dark:bg-zinc-600/50 cursor-default dark:text-zinc-50" : "dark:text-zinc-400 hover:dark:text-zinc-300 text-zinc-500",
                 "text-base w-auto h-auto px-2 py-0.5 whitespace-nowrap"
-              )} 
+              )}
               onClick={() => {
                 setTypePage(item)
               }}
@@ -54,7 +54,7 @@ const MeChannelsPage = () => {
         <div className="flex items-center ml-3 after:absolute after:top-0 after:right-[51px] after:w-2 after:h-full after:bg-gradient-to-l after:dark:from-dark-primary after:dark:via-dark-primary/90 after:from-white">
           <ActionTooltip label="What's is this?" align="end">
             <Button size="icon" variant="ghost" className="w-auto h-auto hover:bg-transparent" onClick={() => onOpen("infoApp")}>
-              <HelpCircle  />
+              <HelpCircle />
             </Button>
           </ActionTooltip>
         </div>
@@ -64,7 +64,7 @@ const MeChannelsPage = () => {
           <FriendProvider type={typePage} />
         </div>
         <div>
-          aaaa
+          aaaaaaaaaaaaaaaaaaaaaaa
         </div>
       </div>
     </main>
