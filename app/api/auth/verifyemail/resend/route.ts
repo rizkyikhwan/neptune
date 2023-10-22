@@ -8,11 +8,11 @@ export async function PATCH(req: Request) {
   const user = await currentUser()
 
   if (!user) {
-    return new NextResponse("Unauthorized", { status: 401 })
+    return NextResponse.json({ message: "Unauthorized", status: 401 }, { status: 401 })
   }
 
   if (user.emailVerified) {
-    return NextResponse.json({ message: "User already verified" }, { status: 405 })
+    return NextResponse.json({ message: "User already verified", status: 405 }, { status: 405 })
   }
 
   try {
@@ -30,7 +30,7 @@ export async function PATCH(req: Request) {
 
     await sendEmail({ username: user.username, email: user.email, token: emailVerify.verifyToken, type: "Verify Email" })
 
-    return NextResponse.json({ message: "Email successfully resended" }, { status: 200 })
+    return NextResponse.json({ message: "Email successfully resended", status: 200 }, { status: 200 })
   } catch (error) {
     console.log(error, "[RESEND_VERIFYEMAIL_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })

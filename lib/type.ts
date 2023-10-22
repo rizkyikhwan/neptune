@@ -10,6 +10,15 @@ export type NextApiResponseServerIo = NextApiResponse & {
   }
 }
 
+export type SearchUser = {
+  displayname?: string
+  email: string
+  hexColor: string
+  id: string
+  picture?: string
+  username: string
+}
+
 export type VariantAuth = "LOGIN" | "SIGNUP"
 
 export type EmailType = "Verify Email" | "Reset Password"
