@@ -4,7 +4,7 @@ import ActionTooltip from "@/components/action-tooltip";
 import { cn } from "@/lib/utils";
 import NeptuneLogoLight from "@/public/logo/logo-light.svg"
 import NeptuneLogoDark from "@/public/logo/logo-dark.svg";
-import { AnimatePresence, Spring, motion } from "framer-motion";
+import { AnimatePresence, Spring, motion, useCycle } from "framer-motion";
 import { ChevronDown, Compass, Plus } from "lucide-react";
 import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
@@ -13,8 +13,8 @@ import { Button } from "../ui/button";
 
 const NavigationHeader = ({ pathname }: { pathname: string | null }) => {
   const { theme } = useTheme()
-
-  const [isCollaps, setIsCollaps] = useState(false);
+  const [open, cycleOpen] = useCycle(false, true)
+  
   const [isMounted, setIsMounted] = useState(false)
 
   const onEnter = { opacity: 0, scale: 0 };
@@ -60,9 +60,9 @@ const NavigationHeader = ({ pathname }: { pathname: string | null }) => {
         </div>
         <Fragment key="isCollapse">
           <AnimatePresence mode="wait">
-            {isCollaps && (
+            {open && (
               <motion.div
-                key={isCollaps ? "open" : "close"}
+                key={open ? "open" : "close"}
                 initial={{
                   height: 0,
                   opacity: 0,
@@ -141,9 +141,9 @@ const NavigationHeader = ({ pathname }: { pathname: string | null }) => {
           </AnimatePresence>
         </Fragment>
       </AnimatePresence>
-      <Button variant="outline" type="button" size="icon" onClick={() => setIsCollaps(!isCollaps)} className={cn(isCollaps && "mt-3", "bg-transparent border-0")}>
+      <Button variant="outline" type="button" size="icon" onClick={() => cycleOpen()} className={cn(open && "mt-3", "bg-transparent border-0")}>
         <ChevronDown
-          className={cn(isCollaps && "rotate-180", "transition duration-500")}
+          className={cn(open && "rotate-180", "transition duration-500")}
         />
       </Button>
     </div>

@@ -2,6 +2,34 @@ import { currentUser } from "@/lib/currentUser"
 import { db } from "@/lib/db"
 import { NextResponse } from "next/server"
 
+export async function GET(req: Request) {
+  const user = await currentUser()
+
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+  }
+
+  try {
+    const pendingRequest = await db.user.findUnique({
+      where: {
+        id: user.id
+      },
+      include: {
+        friendsRequest: {
+          include: {
+            userRequest: true
+          }
+        }
+      }
+    })
+
+    return NextResponse.json({ data: pendingRequest, status: 200 }, { status: 200 })
+  } catch (error) {
+    console.log(error, "[FRIEND_REQUEST_ERROR]")
+    return new NextResponse("Internal Error", { status: 500 })
+  }
+}
+
 export async function POST(req: Request) {
   const user = await currentUser()
 
@@ -17,14 +45,147 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "User ID is Missing" }, { status: 404 })
     }
 
-    await db.friendRequest.create({
-      data: {
-        userId,
-        userIdRequest: user.id
+    const checkUserAlreadyRequest = await db.friendRequest.findFirst({
+      where: {
+        AND: [
+          {
+            userRequestId: user.id
+          },
+          {
+            userRequestToIDs: {
+              has: userId
+            }
+          }
+        ]
       }
     })
 
+    if (checkUserAlreadyRequest) {     
+      return NextResponse.json({ message: "Already send friend request to this user", status: 409 }, { status: 409 })
+    }
+
+    const checkUserHasRequest = await db.friendRequest.findFirst({
+      where: {
+        userRequestId: user.id
+      }
+    })
+
+    if (checkUserHasRequest) {
+      const friendRequest = await db.friendRequest.update({
+        where: {
+          userRequestId: checkUserHasRequest.userRequestId
+        },
+        data: {
+          userRequestToIDs: {
+            push: userId
+          }
+        }
+      })
+
+      await db.user.update({
+        where: {
+          id: userId
+        },
+        data: {
+          friendsRequestIDs: {
+            push: friendRequest.userRequestId
+          }
+        }
+      })
+    } else {
+      const friendRequest = await db.friendRequest.create({
+        data: {
+          userRequestId: user.id,
+          userRequestToIDs: {
+            set: [userId]
+          }
+        }
+      })
+
+      await db.user.update({
+        where: {
+          id: userId
+        },
+        data: {
+          friendsRequestIDs: {
+            push: friendRequest.userRequestId
+          }
+        }
+      })
+    }
+
     return NextResponse.json({ message: "Success send friend request", status: 200 }, { status: 200 })
+  } catch (error) {
+    console.log(error, "[FRIEND_REQUEST_ERROR]")
+    return new NextResponse("Internal Error", { status: 500 })
+  }
+}
+
+export async function PATCH(req: Request) {
+  const user = await currentUser()
+
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+  }
+
+  try {
+   const body = await req.json() 
+   const { userId } = body
+
+   if (!userId) {
+    return NextResponse.json({ message: "User ID is Missing" }, { status: 404 })
+    }
+
+    const userFriendRequest = await db.friendRequest.findFirst({
+      where: {
+        AND: [
+          {
+            userRequestId: userId
+          },
+          {
+            userRequestToIDs: {
+              has: user.id
+            }
+          }
+        ]
+      }
+    })
+    
+    if (!userFriendRequest) {
+      return NextResponse.json({ message: "Friend request not found", status: 404 }, { status: 404 })
+    }
+
+    if (userFriendRequest.userRequestToIDs.length === 1) {
+      await db.friendRequest.delete({
+        where: {
+          userRequestId: userId
+        }
+      })
+    } else {
+      await db.friendRequest.update({
+        where: {
+          userRequestId: user.id
+        },
+        data: {
+          userRequestToIDs: {
+            set: userFriendRequest.userRequestToIDs.filter(id => id !== user.id)
+          }
+        }
+      })
+    }
+
+    await db.user.update({
+      where: {
+        id: user.id
+      },
+      data: {
+        friendsRequestIDs: {
+          set: user.friendsRequestIDs.filter(id => id !== userId)
+        }
+      }
+    })
+
+    return NextResponse.json({ message: "Success reject friend request", status: 200 }, { status: 200 })
   } catch (error) {
     console.log(error, "[FRIEND_REQUEST_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })

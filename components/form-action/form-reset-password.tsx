@@ -5,15 +5,14 @@ import CardForm from "@/components/card/card-form"
 import FormInput from "@/components/form/form-input"
 import { Button } from "@/components/ui/button"
 import { Form, FormField } from "@/components/ui/form"
-import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
 import { zodResolver } from "@hookform/resolvers/zod"
 import axios from "axios"
-import { Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import Loading from "@/components/loading"
 
 const formSchema = z.object({
   password: z.string().min(5, "Enter at least 5 characters."),
@@ -94,7 +93,7 @@ const FormResetPassword = ({ token, userId }: FormResetPasswordProps) => {
             />
             <div className="space-y-2">
               <Button variant="primary" className="w-full font-medium" disabled={isLoading || isDisabled}>
-                {secondsLeft > 0 ? `Go to login page in ${secondsLeft}` : isLoading ? <Loader2 className="animate-spin" /> : "Update Password"}
+                {secondsLeft > 0 ? `Go to login page in ${secondsLeft}` : isLoading ? <Loading /> : "Update Password"}
               </Button>
             </div>
           </div>

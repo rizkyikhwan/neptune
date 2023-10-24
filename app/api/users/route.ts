@@ -1,5 +1,6 @@
 import { currentUser } from "@/lib/currentUser"
 import { db } from "@/lib/db"
+import { prismaExclude } from "@/lib/utils"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(req: NextRequest) {
@@ -19,14 +20,7 @@ export async function GET(req: NextRequest) {
           contains: search ? search : undefined
         }
       },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        displayname: true,
-        hexColor: true,
-        picture: true
-      }
+      select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
     })
 
     const filterUser = allUsers.filter(item => item.id !== user.id)

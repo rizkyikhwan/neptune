@@ -1,31 +1,38 @@
 import ActionTooltip from "@/components/action-tooltip"
 import InputFormComp from "@/components/form/input-form-comp"
 import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import UserAvatar from "@/components/user/user-avatar"
 import { VariantFriend } from "@/lib/type"
 import { capitalizeLetter, cn, initialText } from "@/lib/utils"
+import axios from "axios"
 import { motion } from "framer-motion"
 import { Check, MessageSquare, MoreVertical, Search, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
-import { ScrollArea } from "../ui/scroll-area"
+import LoadingItem from "./loading-item"
 
-interface OnlinePageProps {
-  id: number
+interface UsersProps {
+  id: string
   displayname?: string
   username: string
   online?: boolean
+  hexColor?: string
+  friendsRequestIDs?: string[]
 }
 
 interface FriendsPageProps {
   type: VariantFriend,
-  users: OnlinePageProps[]
+  isLoading: boolean
+  users: UsersProps[]
 }
 
-const FriendsPage = ({ users, type }: FriendsPageProps) => {
+const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
   const { register, resetField } = useForm()
-  const [filteredUsers, setFilteredUsers] = useState<OnlinePageProps[]>([])
+  const [filteredUsers, setFilteredUsers] = useState<UsersProps[]>([])
+
+  const [isLoadingReject, setIsLoadingReject] = useState(false)
 
   useEffect(() => {
     users && setFilteredUsers(users)
@@ -38,6 +45,20 @@ const FriendsPage = ({ users, type }: FriendsPageProps) => {
     )
 
     setFilteredUsers(filteredItems)
+  }
+
+  const handleRejectRequest = async (id: string) => {
+    try {
+      setIsLoadingReject(true)
+      await axios.patch("/api/users/friend-request", { userId: id })
+      
+      const rejectUser = users.filter(user => user.id !== id)
+      setFilteredUsers(rejectUser)
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setIsLoadingReject(false)
+    }
   }
 
   return (
@@ -55,60 +76,70 @@ const FriendsPage = ({ users, type }: FriendsPageProps) => {
         />
         <Search className="absolute right-2 top-2 text-zinc-500 dark:text-zinc-300" size={20} />
       </div>
-      <div className="flex items-center space-x-1 text-xs text-zinc-500 dark:text-zinc-400 px-2 mx-3 md:mx-0">
+      <div className="flex items-center px-2 mx-3 space-x-1 text-xs text-zinc-500 dark:text-zinc-400 md:mx-0">
         <p className="uppercase">{capitalizeLetter(type)}</p>
         <Separator orientation="horizontal" className="w-3 h-[0.5px] bg-zinc-400" />
         <p>{filteredUsers.filter(user => type === "ONLINE" ? user.online : user).length}</p>
       </div>
       <ScrollArea className="flex-1 pr-3 ml-3 md:ml-0">
-        {filteredUsers.filter(user => type === "ONLINE" ? user.online : user).map(user => (
-          <motion.div
-            layout
-            key={user.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex items-center justify-between py-2 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-300/10 hover:dark:bg-zinc-400/10 px-2 rounded-md cursor-pointer select-none mb-1"
-            tabIndex={0}
-          >
-            <div className="flex items-start space-x-2 flex-grow">
-              <UserAvatar initialName={`${initialText(user.displayname || user.username)}`} />
-              <div className="flex flex-col">
-                <p>{user.displayname || user.username}</p>
-                <p className="text-xs text-zinc-400">{user.username}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              {type === "PENDING" ? (
-                <>
-                  <ActionTooltip label="Accept" side="top" align="center">
-                    <Button variant={"ghost"} className="rounded-full w-9 h-9 flex items-center justify-center bg-accent group">
-                      <Check className="flex-none text-zinc-400 group-hover:text-emerald-500 transition" size={20} />
-                    </Button>
-                  </ActionTooltip>
-                  <ActionTooltip label="Ignore" side="top" align="center">
-                    <Button variant={"ghost"} className="rounded-full w-9 h-9 flex items-center justify-center bg-accent group">
-                      <X className="flex-none text-zinc-400 group-hover:text-rose-500 transition" size={20} />
-                    </Button>
-                  </ActionTooltip>
-                </>
-              ) : (
-                <>
-                  <ActionTooltip label="Message" side="top" align="center">
-                    <Button variant={"ghost"} className="rounded-full w-9 h-9 flex items-center justify-center bg-accent group">
-                      <MessageSquare className="flex-none group-hover:dark:text-zinc-200 text-zinc-400 group-hover:text-zinc-700 transition" size={20} />
-                    </Button>
-                  </ActionTooltip>
-                  <ActionTooltip label="More" side="top" align="center">
-                    <Button variant={"ghost"} className="rounded-full w-9 h-9 flex items-center justify-center bg-accent group">
-                      <MoreVertical className="flex-none group-hover:dark:text-zinc-200 text-zinc-400 group-hover:text-zinc-700 transition" size={20} />
-                    </Button>
-                  </ActionTooltip>
-                </>
-              )}
-            </div>
-          </motion.div>
-        ))}
+        {isLoading ? (
+          <>
+            {[...Array(10)].map((_, i) => (
+              <LoadingItem key={i} />
+            ))}
+          </>
+        ) : (
+          <>
+            {filteredUsers.filter(user => type === "ONLINE" ? user.online : user).map(user => (
+              <motion.div
+                layout
+                key={user.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex items-center justify-between px-2 py-2 mb-1 rounded-md cursor-pointer select-none border-zinc-200 dark:border-zinc-700 hover:bg-zinc-300/10 hover:dark:bg-zinc-400/10"
+                tabIndex={0}
+              >
+                <div className="flex items-start flex-grow space-x-2">
+                  <UserAvatar bgColor={user.hexColor} initialName={`${initialText(user.displayname || user.username)}`} />
+                  <div className="flex flex-col">
+                    <p>{user.displayname || user.username}</p>
+                    <p className="text-xs text-zinc-400">{user.username}</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  {type === "PENDING" ? (
+                    <>
+                      <ActionTooltip label="Accept" side="top" align="center">
+                        <Button variant={"ghost"} disabled={isLoadingReject} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
+                          <Check className="flex-none transition text-zinc-400 group-hover:text-emerald-500" size={20} />
+                        </Button>
+                      </ActionTooltip>
+                      <ActionTooltip label="Reject" side="top" align="center">
+                        <Button variant={"ghost"} disabled={isLoadingReject} onClick={() => handleRejectRequest(user.id)} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
+                          <X className="flex-none transition text-zinc-400 group-hover:text-rose-500" size={20} />
+                        </Button>
+                      </ActionTooltip>
+                    </>
+                  ) : (
+                    <>
+                      <ActionTooltip label="Message" side="top" align="center">
+                        <Button variant={"ghost"} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
+                          <MessageSquare className="flex-none transition group-hover:dark:text-zinc-200 text-zinc-400 group-hover:text-zinc-700" size={20} />
+                        </Button>
+                      </ActionTooltip>
+                      <ActionTooltip label="More" side="top" align="center">
+                        <Button variant={"ghost"} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
+                          <MoreVertical className="flex-none transition group-hover:dark:text-zinc-200 text-zinc-400 group-hover:text-zinc-700" size={20} />
+                        </Button>
+                      </ActionTooltip>
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </>
+        )}
       </ScrollArea>
     </div>
   )

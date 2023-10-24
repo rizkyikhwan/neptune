@@ -1,19 +1,19 @@
 "use client"
 
 import { useModal } from "@/app/hooks/useModalStore"
-import { Button } from "@/components/ui/button"
-import { Form, FormField, FormItem } from "@/components/ui/form"
-import { VariantAuth } from "@/lib/type"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2 } from "lucide-react"
-import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
 import CardForm from "@/components/card/card-form"
 import FormInput from "@/components/form/form-input"
+import { Button } from "@/components/ui/button"
+import { Form, FormField, FormItem } from "@/components/ui/form"
 import { useToast } from "@/components/ui/use-toast"
+import { VariantAuth } from "@/lib/type"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { signIn } from "next-auth/react"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import Loading from "@/components/loading"
 
 const formSchema = z.object({
   email: z.string().min(1, "This field has to be filled.").email("This is not a valid email."),
@@ -95,7 +95,7 @@ const FormLogin = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAc
             />
             <div className="space-y-2">
               <Button variant="primary" className="w-full font-medium" disabled={isLoading || isDisabled}>
-                {isLoading || isDisabled ? <Loader2 className="animate-spin" /> : "Login"}
+                {isLoading || isDisabled ? <Loading /> : "Login"}
               </Button>
               <div className="flex items-center space-x-1">
                 <p className="text-xs text-zinc-400">Didn't have an account?</p>
