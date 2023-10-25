@@ -36,7 +36,6 @@ const MeChannelsPage = () => {
       setIsLoading(true)
       const resFriends = await axios.get("/api/users/friends")
       const dataFriends = resFriends.data
-      console.log(dataFriends)
 
       const resFriendRequest = await axios.get("/api/users/friend-request")
       const dataFriendRequest = resFriendRequest.data

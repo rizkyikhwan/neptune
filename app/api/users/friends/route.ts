@@ -1,5 +1,6 @@
 import { currentUser } from "@/lib/currentUser"
 import { db } from "@/lib/db"
+import { prismaExclude } from "@/lib/utils"
 import { NextResponse } from "next/server"
 
 export async function GET(req: Request) {
@@ -17,8 +18,10 @@ export async function GET(req: Request) {
       include: {
         userFriends: {
           include: {
-            userProfile: true
-          }
+            userProfile: {
+              select: prismaExclude("User", ["password", "emailVerified", "resetPasswordToken", "resetPasswordTokenExpiry", "verifyToken", "verifyTokenExpiry"])
+            }
+          },
         }
       }
     })

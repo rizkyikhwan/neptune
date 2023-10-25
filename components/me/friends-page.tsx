@@ -13,6 +13,7 @@ import { Check, MessageSquare, MoreVertical, Search, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import LoadingItem from "./loading-item"
+import { Friends, User } from "@prisma/client"
 
 type ActionRequest = "ACCEPT" | "REJECT"
 
@@ -56,7 +57,9 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
       const res = await axios.get("/api/users/friends")
       const data = res.data
 
-      console.log(data)
+      const friendsData = data.data.map((item: Friends & { userProfile: User }) => item.userProfile)
+
+      setFriends(friendsData)
 
       const filterUser = users.filter(user => user.id !== id)
 
