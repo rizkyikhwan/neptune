@@ -26,7 +26,11 @@ model User {
   verifyToken       String   @unique
   verifyTokenExpiry DateTime @default(now())
 
-  friendRequestId   FriendRequest[]
+  userFriendId   Friends[]
+  userFriendsIDs String[]  @db.ObjectId
+  userFriends    Friends[] @relation("userFriends", fields: [userFriendsIDs], references: [id])
+
+  userRequestId     FriendRequest[]
   friendsRequestIDs String[]        @db.ObjectId
   friendsRequest    FriendRequest[] @relation("friendRequestTo", fields: [friendsRequestIDs], references: [userRequestId])
 
@@ -45,4 +49,17 @@ model FriendRequest {
   updatedAt DateTime @updatedAt
 
   @@id([userRequestId])
+}
+
+model Friends {
+  id          String @map("_id") @db.ObjectId
+  userProfile User   @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  userFriendsIDs String[] @db.ObjectId
+  userFriends    User[]   @relation("userFriends", fields: [userFriendsIDs], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([id])
 }

@@ -32,8 +32,6 @@ export function capitalizeLetter(str: string) {
   return str[0].toUpperCase() + str.slice(1).toLocaleLowerCase()
 }
 
-
-
 export function prismaExclude<T extends Entity, K extends Keys<T>>(
   type: T,
   omit: K[],

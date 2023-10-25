@@ -1,6 +1,7 @@
 import { NextApiResponse } from "next";
 import { Server as NetServer, Socket } from "net"
 import { Server as SocketIOServer } from "socket.io"
+import { User } from "@prisma/client";
 
 export type NextApiResponseServerIo = NextApiResponse & {
   socket: Socket & {
@@ -17,6 +18,10 @@ export type SearchUser = {
   id: string
   picture?: string
   username: string
+}
+
+export type UsersProps = User & {
+  online?: boolean
 }
 
 export type VariantAuth = "LOGIN" | "SIGNUP"

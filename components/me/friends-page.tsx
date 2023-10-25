@@ -1,10 +1,11 @@
+import { useFriendPageStore } from "@/app/hooks/useFriendPageStore"
 import ActionTooltip from "@/components/action-tooltip"
 import InputFormComp from "@/components/form/input-form-comp"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import UserAvatar from "@/components/user/user-avatar"
-import { VariantFriend } from "@/lib/type"
+import { UsersProps, VariantFriend } from "@/lib/type"
 import { capitalizeLetter, cn, initialText } from "@/lib/utils"
 import axios from "axios"
 import { motion } from "framer-motion"
@@ -13,14 +14,7 @@ import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import LoadingItem from "./loading-item"
 
-interface UsersProps {
-  id: string
-  displayname?: string
-  username: string
-  online?: boolean
-  hexColor?: string
-  friendsRequestIDs?: string[]
-}
+type ActionRequest = "ACCEPT" | "REJECT"
 
 interface FriendsPageProps {
   type: VariantFriend,
@@ -30,9 +24,11 @@ interface FriendsPageProps {
 
 const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
   const { register, resetField } = useForm()
+  const { setFriends, setFriendRequest } = useFriendPageStore()
+
   const [filteredUsers, setFilteredUsers] = useState<UsersProps[]>([])
 
-  const [isLoadingReject, setIsLoadingReject] = useState(false)
+  const [isLoadingAction, setIsLoadingAction] = useState(false)
 
   useEffect(() => {
     users && setFilteredUsers(users)
@@ -47,17 +43,29 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
     setFilteredUsers(filteredItems)
   }
 
-  const handleRejectRequest = async (id: string) => {
+  const handleRequest = async (id: string, action: ActionRequest) => {
     try {
-      setIsLoadingReject(true)
-      await axios.patch("/api/users/friend-request", { userId: id })
+      setIsLoadingAction(true)
       
-      const rejectUser = users.filter(user => user.id !== id)
-      setFilteredUsers(rejectUser)
+      if (action === "ACCEPT") {
+        await axios.post("/api/users/friends", { userId: id })
+      } else if (action === "REJECT") {
+        await axios.patch("/api/users/friend-request", { userId: id })
+      }
+      
+      const res = await axios.get("/api/users/friends")
+      const data = res.data
+
+      console.log(data)
+
+      const filterUser = users.filter(user => user.id !== id)
+
+      setFriendRequest(filterUser)
+      setFilteredUsers(filterUser)
     } catch (error) {
       console.log(error)
     } finally {
-      setIsLoadingReject(false)
+      setIsLoadingAction(false)
     }
   }
 
@@ -111,12 +119,12 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
                   {type === "PENDING" ? (
                     <>
                       <ActionTooltip label="Accept" side="top" align="center">
-                        <Button variant={"ghost"} disabled={isLoadingReject} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
+                        <Button variant={"ghost"} disabled={isLoadingAction} onClick={() => handleRequest(user.id, "ACCEPT")} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
                           <Check className="flex-none transition text-zinc-400 group-hover:text-emerald-500" size={20} />
                         </Button>
                       </ActionTooltip>
                       <ActionTooltip label="Reject" side="top" align="center">
-                        <Button variant={"ghost"} disabled={isLoadingReject} onClick={() => handleRejectRequest(user.id)} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
+                        <Button variant={"ghost"} disabled={isLoadingAction} onClick={() => handleRequest(user.id, "REJECT")} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
                           <X className="flex-none transition text-zinc-400 group-hover:text-rose-500" size={20} />
                         </Button>
                       </ActionTooltip>

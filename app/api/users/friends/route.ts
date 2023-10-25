@@ -1,6 +1,5 @@
 import { currentUser } from "@/lib/currentUser"
 import { db } from "@/lib/db"
-import { prismaExclude } from "@/lib/utils"
 import { NextResponse } from "next/server"
 
 export async function GET(req: Request) {
@@ -11,33 +10,26 @@ export async function GET(req: Request) {
   }
 
   try {
-    const pendingRequest = await db.user.findUnique({
+    const friendList = await db.user.findUnique({
       where: {
         id: user.id
       },
       include: {
-        friendsRequest: {
+        userFriends: {
           include: {
-            userRequest: {
-              select: prismaExclude("User", ["password", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry", "userFriendsIDs", "verifyToken", "verifyTokenExpiry"]),
-            }
-          },
-          orderBy: {
-            userRequest: {
-              createdAt: "desc"
-            }
+            userProfile: true
           }
         }
       }
     })
 
-    if (!pendingRequest) {
+    if (!friendList) {
       return NextResponse.json({ message: "User not found", status: 404 }, { status: 404 })
     }
 
-    return NextResponse.json({ data: pendingRequest.friendsRequest, status: 200 }, { status: 200 })
+    return NextResponse.json({ data: friendList.userFriends, status: 200 }, { status: 200 })
   } catch (error) {
-    console.log(error, "[FRIEND_REQUEST_ERROR]")
+    console.log(error, "[FRIENDS_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })
   }
 }
@@ -76,95 +68,66 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Already become friends", status: 409 }, { status: 409 })
     }
 
-    const checkUserAlreadyRequest = await db.friendRequest.findFirst({
+    const userHasFriend = await db.friends.findFirst({
       where: {
-        AND: [
-          {
-            userRequestId: user.id
-          },
-          {
-            userRequestToIDs: {
-              has: userId
-            }
-          }
-        ]
+        id: user.id
       }
     })
 
-    if (checkUserAlreadyRequest) {     
-      return NextResponse.json({ message: "Already send friend request to this user", status: 409 }, { status: 409 })
-    }
-
-    const checkUserHasRequest = await db.friendRequest.findFirst({
-      where: {
-        userRequestId: user.id
-      }
-    })
-
-    if (checkUserHasRequest) {
-      const friendRequest = await db.friendRequest.update({
+    if (userHasFriend) {
+      await db.friends.update({
         where: {
-          userRequestId: checkUserHasRequest.userRequestId
+          id: user.id
         },
         data: {
-          userRequestToIDs: {
-            push: userId
+          userFriends: {
+            connect: { 
+              id: userId 
+            }
           }
         }
       })
 
-      await db.user.update({
+      await db.friends.upsert({
         where: {
           id: userId
         },
-        data: {
-          friendsRequestIDs: {
-            push: friendRequest.userRequestId
+        create: {
+          id: userId,
+          userFriends: {
+            connect: {
+              id: user.id
+            }
+          }
+        },
+        update: {
+          userFriendsIDs: {
+            push: user.id
           }
         }
       })
     } else {
-      const friendRequest = await db.friendRequest.create({
+      await db.friends.create({
         data: {
-          userRequestId: user.id,
-          userRequestToIDs: {
-            set: [userId]
+          id: user.id,
+          userFriends: {
+            connect: {
+              id: userId
+            }
           }
         }
       })
-
-      await db.user.update({
-        where: {
-          id: userId
-        },
+  
+      await db.friends.create({
         data: {
-          friendsRequestIDs: {
-            push: friendRequest.userRequestId
+          id: userId,
+          userFriends: {
+            connect: {
+              id: user.id
+            }
           }
         }
       })
-    }
-
-    return NextResponse.json({ message: "OK", status: 200 }, { status: 200 })
-  } catch (error) {
-    console.log(error, "[FRIEND_REQUEST_ERROR]")
-    return new NextResponse("Internal Error", { status: 500 })
-  }
-}
-
-export async function PATCH(req: Request) {
-  const user = await currentUser()
-
-  if (!user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
-  }
-
-  try {
-   const body = await req.json() 
-   const { userId } = body
-
-   if (!userId) {
-    return NextResponse.json({ message: "User ID is Missing" }, { status: 404 })
     }
 
     const userFriendRequest = await db.friendRequest.findFirst({
@@ -218,7 +181,7 @@ export async function PATCH(req: Request) {
 
     return NextResponse.json({ message: "OK", status: 200 }, { status: 200 })
   } catch (error) {
-    console.log(error, "[FRIEND_REQUEST_ERROR]")
+    console.log(error, "[FRIENDS_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })
   }
 }
