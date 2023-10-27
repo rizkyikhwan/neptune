@@ -15,6 +15,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useToast } from "../ui/use-toast"
+import LoadingItem from "./loading-item"
 
 interface AddFriendPageProps {
   type: VariantFriend
@@ -99,31 +100,41 @@ const AddFriendPage = ({ type }: AddFriendPageProps) => {
       <Separator className="bg-zinc-300 dark:bg-zinc-700" />
       <div className="flex flex-col ml-3 md:mx-5 h-[calc(100%-205px)]">
         <ScrollArea className="flex-1 pr-3">
-          {dataSearch.map((item) => (
-            <motion.div
-              layout
-              key={item.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex items-center justify-between px-2 py-2 mb-1 rounded-md cursor-pointer select-none border-zinc-200 dark:border-zinc-700 hover:bg-zinc-300/10 hover:dark:bg-zinc-400/10"
-              tabIndex={0}
-            >
-              <div className="flex items-start flex-grow space-x-2">
-                <UserAvatar bgColor={item.hexColor} initialName={`${initialText(item.username)}`} />
-                <div className="flex flex-col">
-                  <p>{item.displayname || item.username}</p>
-                  <p className="text-xs text-zinc-400">{item.username}</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Button variant={"ghost"} onClick={() => handleFriendRequest(item.id)} disabled={requestLoading} className="flex items-center justify-center bg-accent hover:bg-emerald-500 hover:text-white disabled:cursor-pointer">
-                  <UserPlus className="block md:hidden" size={20} />
-                  <span className="hidden md:block">Send Friend Request</span>
-                </Button>
-              </div>
-            </motion.div>
-          ))}
+          {isLoading ? (
+            <>
+              {[...Array(10)].map((_, i) => (
+                <LoadingItem key={i} />
+              ))}
+            </>
+          ) : (
+            <>
+              {dataSearch.map((item) => (
+                <motion.div
+                  layout
+                  key={item.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex items-center justify-between px-2 py-2 mb-1 rounded-md cursor-pointer select-none border-zinc-200 dark:border-zinc-700 hover:bg-zinc-300/10 hover:dark:bg-zinc-400/10"
+                  tabIndex={0}
+                >
+                  <div className="flex items-start flex-grow space-x-2">
+                    <UserAvatar bgColor={item.hexColor} initialName={`${initialText(item.username)}`} />
+                    <div className="flex flex-col">
+                      <p>{item.displayname || item.username}</p>
+                      <p className="text-xs text-zinc-400">{item.username}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Button variant={"ghost"} onClick={() => handleFriendRequest(item.id)} disabled={requestLoading} className="flex items-center justify-center bg-accent hover:bg-emerald-500 hover:text-white disabled:cursor-pointer">
+                      <UserPlus className="block md:hidden" size={20} />
+                      <span className="hidden md:block">Send Friend Request</span>
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
+            </>
+          )}
         </ScrollArea>
       </div>
     </div>

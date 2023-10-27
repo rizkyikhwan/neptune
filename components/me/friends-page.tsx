@@ -9,11 +9,13 @@ import { UsersProps, VariantFriend } from "@/lib/type"
 import { capitalizeLetter, cn, initialText } from "@/lib/utils"
 import axios from "axios"
 import { motion } from "framer-motion"
-import { Check, MessageSquare, MoreVertical, Search, X } from "lucide-react"
+import { Check, MessageSquare, MoreVertical, Search, UserX, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import LoadingItem from "./loading-item"
 import { Friends, User } from "@prisma/client"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import { useModal } from "@/app/hooks/useModalStore"
 
 type ActionRequest = "ACCEPT" | "REJECT"
 
@@ -26,6 +28,8 @@ interface FriendsPageProps {
 const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
   const { register, resetField } = useForm()
   const { setFriends, setFriendRequest } = useFriendPageStore()
+  const { onOpen } = useModal()
+
 
   const [filteredUsers, setFilteredUsers] = useState<UsersProps[]>([])
 
@@ -139,11 +143,21 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
                           <MessageSquare className="flex-none transition group-hover:dark:text-zinc-200 text-zinc-400 group-hover:text-zinc-700" size={20} />
                         </Button>
                       </ActionTooltip>
-                      <ActionTooltip label="More" side="top" align="center">
-                        <Button variant={"ghost"} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
-                          <MoreVertical className="flex-none transition group-hover:dark:text-zinc-200 text-zinc-400 group-hover:text-zinc-700" size={20} />
-                        </Button>
-                      </ActionTooltip>
+                      <DropdownMenu>
+                        <ActionTooltip label="More" side="top" align="end">
+                          <DropdownMenuTrigger asChild>
+                            <Button variant={"ghost"} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
+                              <MoreVertical className="flex-none transition group-hover:dark:text-zinc-200 text-zinc-400 group-hover:text-zinc-700" size={20} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                        </ActionTooltip>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => onOpen("removeFriend", { data: user })} className="h-10 cursor-pointer text-rose-500 focus:text-rose-500">
+                            <UserX className="w-4 h-4 mr-2" />
+                            <span>Remove Friend</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </>
                   )}
                 </div>

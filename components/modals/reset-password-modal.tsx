@@ -70,7 +70,7 @@ const ResetPasswordModal = () => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormInput title="email" type="email" field={field} />
+                  <FormInput title="email" type="email" className="dark:bg-zinc-900/80 bg-zinc-200 text-zinc-900 dark:text-white" field={field} />
                 </FormItem>
               )}
             />

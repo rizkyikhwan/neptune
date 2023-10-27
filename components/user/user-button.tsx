@@ -26,8 +26,8 @@ const UserButton = ({ user, side, align }: UserButtonProps) => {
         <DropdownMenuItem className="space-x-2 cursor-pointer">
           <UserAvatar bgColor={user.hexColor} initialName={user.username} />
           <div className="relative line-clamp-2">
-            <p className="font-semibold tracking-wide">{user.username}</p>
-            <p className="text-xs text-zinc-400">{user.email}</p>
+            <p className="font-semibold tracking-wide">{user.displayname || user.username}</p>
+            <p className="text-xs text-zinc-400">{user.username}</p>
           </div>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
