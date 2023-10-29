@@ -80,7 +80,7 @@ const AddFriendPage = ({ type }: AddFriendPageProps) => {
               name="searchUser"
               render={({ field }) => (
                 <InputFormComp
-                  className="h-12 pr-32 border-0 rounded-sm md:pr-40 focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-zinc-900/80 bg-zinc-200 placeholder:dark:text-zinc-500"
+                  className="h-12 pr-32 border-0 rounded-sm md:pr-40 focus-visible:ring-offset-0 dark:bg-zinc-900/80 bg-zinc-200 placeholder:dark:text-zinc-500 focus-visible:ring-2 focus-visible:ring-indigo-500"
                   placeholder="Find friends with their Neptune username."
                   autoComplete="off"
                   onChange={e => {

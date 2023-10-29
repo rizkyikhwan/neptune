@@ -8,7 +8,7 @@ interface LayoutChannelsSidebarProps {
 const LayoutChannelsSidebar = ({ children, channelHeader }: LayoutChannelsSidebarProps) => {
   return (
     <nav className="flex flex-col h-full text-primary w-full dark:bg-dark-tertiary bg-[#F2F3F5]">
-      <div className="min-h-[48px] shadow p-2 border-b">
+      <div className="max-h-[48px] h-full shadow border-b flex items-center">
         {channelHeader}
       </div>
       <ScrollArea className="flex-1 px-2">

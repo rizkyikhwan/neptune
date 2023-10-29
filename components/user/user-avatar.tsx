@@ -4,18 +4,19 @@ import { cn, initialText } from "@/lib/utils"
 interface UserAvatarProps {
   src?: string
   className?: string
+  classNameFallback?: string
   bgColor?: string
   initialName: string
   onlineIndicator?: boolean
 }
 
-const UserAvatar = ({ src, className, bgColor, initialName, onlineIndicator }: UserAvatarProps) => {
+const UserAvatar = ({ src, className, classNameFallback, bgColor, initialName, onlineIndicator }: UserAvatarProps) => {
   return (
     <div className="relative pointer-events-none">
       <Avatar className={cn("h-7 w-7 md:h-10 md:w-10", className)}>
         <AvatarImage src={src} />
         <AvatarFallback
-          className={cn("font-semibold text-xs md:text-base", bgColor ? "text-zinc-100" : "bg-muted")}
+          className={cn("font-semibold text-xs md:text-base", bgColor ? "text-zinc-100" : "bg-muted", classNameFallback)}
           style={{ backgroundColor: bgColor }}
         >
           {initialText(initialName)}

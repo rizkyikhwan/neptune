@@ -5,6 +5,7 @@ import { LogOut, Moon, UserCog } from "lucide-react"
 import { signOut } from "next-auth/react"
 import { useTheme } from "next-themes"
 import { Switch } from "../ui/switch"
+import { useModal } from "@/app/hooks/useModalStore"
 
 interface UserButtonProps {
   user: User
@@ -14,6 +15,7 @@ interface UserButtonProps {
 
 const UserButton = ({ user, side, align }: UserButtonProps) => {
   const { theme, setTheme } = useTheme()
+  const { onOpen } = useModal()
 
   return (
     <DropdownMenu>
@@ -23,7 +25,7 @@ const UserButton = ({ user, side, align }: UserButtonProps) => {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64" side={side} align={align}>
-        <DropdownMenuItem className="space-x-2 cursor-pointer">
+        <DropdownMenuItem onClick={() => onOpen("profileUser", { data: user })} className="space-x-2 cursor-pointer">
           <UserAvatar bgColor={user.hexColor} initialName={user.displayname || user.username} />
           <div className="relative line-clamp-2">
             <p className="font-semibold tracking-wide">{user.displayname || user.username}</p>

@@ -1,5 +1,5 @@
 import { useModal } from "@/app/hooks/useModalStore"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import ImageInfoApp from "@/public/image/image-info.png"
 import LogoLottieAnimation from "@/public/lottie/logo-lottie-animation.json"
