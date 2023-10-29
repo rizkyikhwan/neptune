@@ -24,6 +24,11 @@ export type UsersProps = User & {
   online?: boolean
 }
 
+export type ActiveUsersProps = {
+  userId: string
+  socketId: string
+}
+
 export type VariantAuth = "LOGIN" | "SIGNUP"
 
 export type EmailType = "Verify Email" | "Reset Password"

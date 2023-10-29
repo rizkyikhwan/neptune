@@ -53,7 +53,7 @@ const AddFriendPage = ({ type }: AddFriendPageProps) => {
       })
     } finally {
       setRequestLoading(false)
-    } 
+    }
   }
 
   const onSubmit = async (value: z.infer<typeof formSchema>) => {
@@ -119,7 +119,7 @@ const AddFriendPage = ({ type }: AddFriendPageProps) => {
                   tabIndex={0}
                 >
                   <div className="flex items-start flex-grow space-x-2">
-                    <UserAvatar bgColor={item.hexColor} initialName={`${initialText(item.username)}`} />
+                    <UserAvatar bgColor={item.hexColor} initialName={item.displayname || item.username} />
                     <div className="flex flex-col">
                       <p>{item.displayname || item.username}</p>
                       <p className="text-xs text-zinc-400">{item.username}</p>

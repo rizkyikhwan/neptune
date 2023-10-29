@@ -1,4 +1,4 @@
-import { NextApiResponseServerIo } from "@/lib/type"
+import { ActiveUsersProps, NextApiResponseServerIo } from "@/lib/type"
 import { Server as NetServer } from "http"
 import { Server as ServerIO } from "socket.io"
 import { NextApiRequest } from "next"
@@ -8,6 +8,8 @@ export const config = {
     bodyParser: false
   }
 }
+
+let activeUsers: ActiveUsersProps[] = []
 
 const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
   if (!res.socket.server.io) {
@@ -20,12 +22,27 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
     })
     res.socket.server.io = io
 
-    io.on("connection", () => {
-      console.log("Connected!");
-    })
+    io.on("connection", (socket) => {
+      socket.on("new-user-add", (newUserId) => {
+        if (newUserId) {
+          if (!activeUsers.some(user => user.userId === newUserId)) {
+            activeUsers.push({ userId: newUserId, socketId: socket.id })
+          }
 
-    io.on("disconnect", () => {
-      console.log("Disconnet!");
+          io.emit("get-users", activeUsers)
+        }
+      })
+      socket.on("disconect", () => {
+        activeUsers = activeUsers.filter(user => user.socketId !== socket.id)
+
+        io.emit("get-users", activeUsers)
+      })
+
+      socket.on("offline", (userId) => {
+        activeUsers = activeUsers.filter(user => user.userId !== userId)
+
+        io.emit("get-users", activeUsers)
+      })
     })
   }
 

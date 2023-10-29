@@ -19,12 +19,12 @@ const UserButton = ({ user, side, align }: UserButtonProps) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button type="button">
-          <UserAvatar bgColor={user.hexColor} initialName={user.username} />
+          <UserAvatar bgColor={user.hexColor} initialName={user.displayname || user.username} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64" side={side} align={align}>
         <DropdownMenuItem className="space-x-2 cursor-pointer">
-          <UserAvatar bgColor={user.hexColor} initialName={user.username} />
+          <UserAvatar bgColor={user.hexColor} initialName={user.displayname || user.username} />
           <div className="relative line-clamp-2">
             <p className="font-semibold tracking-wide">{user.displayname || user.username}</p>
             <p className="text-xs text-zinc-400">{user.username}</p>
@@ -40,10 +40,10 @@ const UserButton = ({ user, side, align }: UserButtonProps) => {
             <Moon className="w-4 h-4 mr-2" />
             <span>Dark mode</span>
           </div>
-          <Switch 
-            checked={theme === "dark" ? true : false} 
-            onCheckedChange={() => theme === "dark" ? setTheme("light") : setTheme("dark")} 
-            className="data-[state=checked]:bg-sky-500 data-[state=unchecked]:bg-zinc-300" 
+          <Switch
+            checked={theme === "dark" ? true : false}
+            onCheckedChange={() => theme === "dark" ? setTheme("light") : setTheme("dark")}
+            className="data-[state=checked]:bg-sky-500 data-[state=unchecked]:bg-zinc-300"
           />
         </DropdownMenuItem>
         <DropdownMenuSeparator />

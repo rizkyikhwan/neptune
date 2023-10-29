@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { Prisma } from '@prisma/client'
+import { ActiveUsersProps } from "./type";
 
 type A<T extends string> = T extends `${infer U}ScalarFieldEnum` ? U : never;
 type Entity = A<keyof typeof Prisma>;
@@ -8,7 +9,7 @@ type Keys<T extends Entity> = Extract<
   keyof (typeof Prisma)[keyof Pick<typeof Prisma, `${T}ScalarFieldEnum`>],
   string
 >;
- 
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -45,4 +46,10 @@ export function prismaExclude<T extends Entity, K extends Keys<T>>(
     }
   }
   return result;
+}
+
+export function userIsOnline(onlineUser: ActiveUsersProps[], id: string) {
+  const online = onlineUser.find(user => user.userId === id)
+
+  return online ? true : false
 }

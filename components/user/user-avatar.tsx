@@ -6,9 +6,10 @@ interface UserAvatarProps {
   className?: string
   bgColor?: string
   initialName: string
+  onlineIndicator?: boolean
 }
 
-const UserAvatar = ({ src, className, bgColor, initialName }: UserAvatarProps) => {
+const UserAvatar = ({ src, className, bgColor, initialName, onlineIndicator }: UserAvatarProps) => {
   return (
     <div className="relative pointer-events-none">
       <Avatar className={cn("h-7 w-7 md:h-10 md:w-10", className)}>
@@ -20,6 +21,9 @@ const UserAvatar = ({ src, className, bgColor, initialName }: UserAvatarProps) =
           {initialText(initialName)}
         </AvatarFallback>
       </Avatar>
+      {onlineIndicator && (
+        <div className="absolute border bottom-px right-1 w-2 h-2 rounded-full bg-emerald-500 bg-background" />
+      )}
     </div>
   )
 }

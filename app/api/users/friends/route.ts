@@ -67,7 +67,7 @@ export async function POST(req: Request) {
       }
     })
 
-    if (checkUserAlreadyFriend) {     
+    if (checkUserAlreadyFriend) {
       return NextResponse.json({ message: "Already become friends", status: 409 }, { status: 409 })
     }
 
@@ -77,61 +77,53 @@ export async function POST(req: Request) {
       }
     })
 
-    if (userHasFriend) {
-      await db.friends.update({
-        where: {
-          id: user.id
-        },
-        data: {
-          userFriends: {
-            connect: { 
-              id: userId 
-            }
-          }
-        }
-      })
+    const userRequestHasFriend = await db.friends.findFirst({
+      where: {
+        id: userId
+      }
+    })
 
-      await db.friends.upsert({
-        where: {
-          id: userId
-        },
-        create: {
-          id: userId,
-          userFriends: {
-            connect: {
-              id: user.id
-            }
-          }
-        },
-        update: {
-          userFriendsIDs: {
-            push: user.id
-          }
-        }
-      })
-    } else {
+    if (!userHasFriend) {
       await db.friends.create({
         data: {
-          id: user.id,
-          userFriends: {
-            connect: {
-              id: userId
-            }
-          }
-        }
-      })
-  
-      await db.friends.create({
-        data: {
-          id: userId,
-          userFriends: {
-            connect: {
-              id: user.id
-            }
-          }
+          id: user.id
         }
       })
     }
+
+    if (!userRequestHasFriend) {
+      await db.friends.create({
+        data: {
+          id: userId
+        }
+      })
+    }
+
+    await db.user.update({
+      where: {
+        id: user.id
+      },
+      data: {
+        userFriends: {
+          connect: {
+            id: userId
+          }
+        }
+      }
+    })
+
+    await db.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        userFriends: {
+          connect: {
+            id: user.id
+          }
+        }
+      }
+    })
 
     const userFriendRequest = await db.friendRequest.findFirst({
       where: {
@@ -147,7 +139,7 @@ export async function POST(req: Request) {
         ]
       }
     })
-    
+
     if (!userFriendRequest) {
       return NextResponse.json({ message: "Friend request not found", status: 404 }, { status: 404 })
     }
@@ -209,11 +201,11 @@ export async function PATCH(req: Request) {
         id: userId
       }
     })
-    
-    if (!userFriendAccount) {     
+
+    if (!userFriendAccount) {
       return NextResponse.json({ message: "User not found", status: 404 }, { status: 404 })
     }
-    
+
     const userFriends = await db.friends.findFirst({
       where: {
         AND: [
@@ -229,68 +221,8 @@ export async function PATCH(req: Request) {
       }
     })
 
-    if (!userFriends) {     
+    if (!userFriends) {
       return NextResponse.json({ message: "User friend not found", status: 404 }, { status: 404 })
-    }
-    
-
-    if (userFriends.userFriendsIDs.length === 1) {
-      await db.friends.delete({
-        where: {
-          id: userId
-        }
-      })
-
-      if (user.userFriendsIDs.length === 1) {
-        await db.friends.delete({
-          where: {
-            id: user.id
-          }
-        })
-      } else {
-        await db.friends.update({
-          where: {
-            id: user.id
-          },
-          data: {
-            userFriends: {
-              disconnect: {
-                id: userId
-              }
-            },
-            userFriendsIDs: {
-              push: user.friendsRequestIDs.filter(id => id !== userId)
-            }
-          }
-        })
-      }
-      
-    } else {
-      await db.friends.update({
-        where: {
-          id: user.id
-        },
-        data: {
-          userFriends: {
-            disconnect: {
-              id: userId
-            }
-          }
-        }
-      })
-
-      await db.friends.update({
-        where: {
-          id: userId
-        },
-        data: {
-          userFriends: {
-            disconnect: {
-              id: user.id
-            }
-          }
-        }
-      })
     }
 
     await db.user.update({
@@ -298,8 +230,10 @@ export async function PATCH(req: Request) {
         id: user.id
       },
       data: {
-        userFriendsIDs: {
-          set: user.userFriendsIDs.filter(id => id !== userId)
+        userFriends: {
+          disconnect: {
+            id: userId
+          }
         }
       }
     })
@@ -309,11 +243,30 @@ export async function PATCH(req: Request) {
         id: userId
       },
       data: {
-        userFriendsIDs: {
-          set: userFriendAccount.userFriendsIDs.filter(id => id !== user.id)
+        userFriends: {
+          disconnect: {
+            id: user.id
+          }
         }
       }
     })
+
+    if (userFriends.userFriendsIDs.length === 1) {
+      await db.friends.delete({
+        where: {
+          id: userId
+        }
+      })
+
+    }
+
+    if (user.userFriendsIDs.length === 1) {
+      await db.friends.delete({
+        where: {
+          id: user.id
+        }
+      })
+    }
 
     return NextResponse.json({ message: "OK", status: 200 }, { status: 200 })
   } catch (error) {

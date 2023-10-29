@@ -39,7 +39,7 @@ const MeChannelsPage = () => {
 
       const resFriendRequest = await axios.get("/api/users/friend-request")
       const dataFriendRequest = resFriendRequest.data
-      
+
       const friendsData = dataFriends.data.map((item: Friends & { userProfile: User }) => item.userProfile)
       const friendRequestData = dataFriendRequest.data.map((item: FriendRequest & { userRequest: User }) => item.userRequest)
 
@@ -51,8 +51,8 @@ const MeChannelsPage = () => {
       setIsLoading(false)
     }
   }
-  
-  
+
+
   useEffect(() => {
     getFriends()
   }, [])
@@ -72,7 +72,7 @@ const MeChannelsPage = () => {
               variant="ghost"
               className={cn(
                 "text-base w-auto h-auto px-2 py-0.5 whitespace-nowrap dark:text-zinc-400 hover:dark:text-zinc-300 text-zinc-500",
-                typePage === item && "bg-zinc-200/50 dark:bg-zinc-600/50 cursor-default dark:text-zinc-50" 
+                typePage === item && "bg-zinc-200/50 dark:bg-zinc-600/50 cursor-default dark:text-zinc-50"
               )}
               onClick={() => {
                 setTypePage(item)
@@ -93,11 +93,11 @@ const MeChannelsPage = () => {
       </section>
       <div className="relative flex h-full">
         <div className="flex-1 w-full">
-          <FriendProvider 
-            type={typePage} 
-            friends={friends} 
-            friendRequest={friendRequest} 
-            isLoading={isLoading} 
+          <FriendProvider
+            type={typePage}
+            friends={friends}
+            friendRequest={friendRequest}
+            isLoading={isLoading}
           />
         </div>
       </div>

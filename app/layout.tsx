@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/providers/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 import ModalProvider from '@/components/providers/modal-provider'
 import { cn } from '@/lib/utils'
+import { SocketProvider } from '@/components/providers/socket-provider'
 
 const inter = Noto_Sans({ subsets: ['latin'], weight: "400" })
 
@@ -25,11 +26,13 @@ export default function RootLayout({
       <body className={cn(inter.className, "bg-white dark:bg-dark-primary")}>
         <AuthContext>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="neptune-theme">
-            <ProgressBarProvider>
-              <ModalProvider />
+            <SocketProvider>
+              <ProgressBarProvider>
+                <ModalProvider />
                 {children}
-              <Toaster />
-            </ProgressBarProvider>
+                <Toaster />
+              </ProgressBarProvider>
+            </SocketProvider>
           </ThemeProvider>
         </AuthContext>
       </body>

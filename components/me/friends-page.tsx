@@ -51,13 +51,13 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
   const handleRequest = async (id: string, action: ActionRequest) => {
     try {
       setIsLoadingAction(true)
-      
+
       if (action === "ACCEPT") {
         await axios.post("/api/users/friends", { userId: id })
       } else if (action === "REJECT") {
         await axios.patch("/api/users/friend-request", { userId: id })
       }
-      
+
       const res = await axios.get("/api/users/friends")
       const data = res.data
 
@@ -116,7 +116,7 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
                 tabIndex={0}
               >
                 <div className="flex items-start flex-grow space-x-2">
-                  <UserAvatar bgColor={user.hexColor} initialName={`${initialText(user.displayname || user.username)}`} />
+                  <UserAvatar bgColor={user.hexColor} initialName={user.displayname || user.username} onlineIndicator={user.online} />
                   <div className="flex flex-col">
                     <p>{user.displayname || user.username}</p>
                     <p className="text-xs text-zinc-400">{user.username}</p>
