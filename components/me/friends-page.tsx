@@ -13,9 +13,10 @@ import { Check, MessageSquare, MoreVertical, Search, UserX, X } from "lucide-rea
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import LoadingItem from "./loading-item"
-import { Friends, User } from "@prisma/client"
+import { User } from "@prisma/client"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { useModal } from "@/app/hooks/useModalStore"
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "../ui/context-menu"
 
 type ActionRequest = "ACCEPT" | "REJECT"
 
@@ -61,9 +62,7 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
       const res = await axios.get("/api/users/friends")
       const data = res.data
 
-      const friendsData = data.data.map((item: Friends & { userProfile: User }) => item.userProfile)
-
-      setFriends(friendsData)
+      setFriends(data.data)
 
       const filterUser = users.filter(user => user.id !== id)
 
@@ -112,55 +111,72 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex items-center justify-between px-2 py-2 mb-1 rounded-md cursor-pointer select-none border-zinc-200 dark:border-zinc-700 hover:bg-zinc-300/10 hover:dark:bg-zinc-400/10"
                 tabIndex={0}
               >
-                <div className="flex items-start flex-grow space-x-2">
-                  <UserAvatar bgColor={user.hexColor} initialName={user.displayname || user.username} onlineIndicator={user.online} />
-                  <div className="flex flex-col">
-                    <p>{user.displayname || user.username}</p>
-                    <p className="text-xs text-zinc-400">{user.username}</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  {type === "PENDING" ? (
-                    <>
-                      <ActionTooltip label="Accept" side="top" align="center">
-                        <Button variant={"ghost"} disabled={isLoadingAction} onClick={() => handleRequest(user.id, "ACCEPT")} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
-                          <Check className="flex-none transition text-zinc-400 group-hover:text-emerald-500" size={20} />
-                        </Button>
-                      </ActionTooltip>
-                      <ActionTooltip label="Reject" side="top" align="center">
-                        <Button variant={"ghost"} disabled={isLoadingAction} onClick={() => handleRequest(user.id, "REJECT")} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
-                          <X className="flex-none transition text-zinc-400 group-hover:text-rose-500" size={20} />
-                        </Button>
-                      </ActionTooltip>
-                    </>
-                  ) : (
-                    <>
-                      <ActionTooltip label="Message" side="top" align="center">
-                        <Button variant={"ghost"} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
-                          <MessageSquare className="flex-none transition group-hover:dark:text-zinc-200 text-zinc-400 group-hover:text-zinc-700" size={20} />
-                        </Button>
-                      </ActionTooltip>
-                      <DropdownMenu>
-                        <ActionTooltip label="More" side="top" align="end">
-                          <DropdownMenuTrigger asChild>
-                            <Button variant={"ghost"} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
-                              <MoreVertical className="flex-none transition group-hover:dark:text-zinc-200 text-zinc-400 group-hover:text-zinc-700" size={20} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                        </ActionTooltip>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onOpen("removeFriend", { data: user })} className="h-10 cursor-pointer text-rose-500 focus:text-rose-500">
-                            <UserX className="w-4 h-4 mr-2" />
-                            <span>Remove Friend</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </>
-                  )}
-                </div>
+                <ContextMenu>
+                  <ContextMenuTrigger asChild>
+                    <div className="flex items-center justify-between px-2 py-2 mb-1 rounded-md cursor-pointer select-none border-zinc-200 dark:border-zinc-700 hover:bg-zinc-300/20 hover:dark:bg-zinc-400/10 data-[state=open]:dark:bg-zinc-400/10 data-[state=open]:bg-zinc-300/20">
+                      <div className="flex items-start flex-grow space-x-2">
+                        <UserAvatar bgColor={user.hexColor} initialName={user.displayname || user.username} onlineIndicator={user.online} />
+                        <div className="flex flex-col">
+                          <p>{user.displayname || user.username}</p>
+                          <p className="text-xs text-zinc-400">{user.username}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        {type === "PENDING" ? (
+                          <>
+                            <ActionTooltip label="Accept" side="top" align="center">
+                              <Button variant={"ghost"} disabled={isLoadingAction} onClick={() => handleRequest(user.id, "ACCEPT")} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
+                                <Check className="flex-none transition text-zinc-400 group-hover:text-emerald-500" size={20} />
+                              </Button>
+                            </ActionTooltip>
+                            <ActionTooltip label="Reject" side="top" align="center">
+                              <Button variant={"ghost"} disabled={isLoadingAction} onClick={() => handleRequest(user.id, "REJECT")} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
+                                <X className="flex-none transition text-zinc-400 group-hover:text-rose-500" size={20} />
+                              </Button>
+                            </ActionTooltip>
+                          </>
+                        ) : (
+                          <>
+                            <ActionTooltip label="Message" side="top" align="center">
+                              <Button variant={"ghost"} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
+                                <MessageSquare className="flex-none transition group-hover:dark:text-zinc-200 text-zinc-400 group-hover:text-zinc-700" size={20} />
+                              </Button>
+                            </ActionTooltip>
+                            <DropdownMenu>
+                              <ActionTooltip label="More" side="top" align="end">
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant={"ghost"} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
+                                    <MoreVertical className="flex-none transition group-hover:dark:text-zinc-200 text-zinc-400 group-hover:text-zinc-700" size={20} />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                              </ActionTooltip>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => onOpen("removeFriend", { data: user })} className="h-10 cursor-pointer text-rose-500 focus:text-rose-500">
+                                  <UserX className="w-4 h-4 mr-2" />
+                                  <span>Remove Friend</span>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </ContextMenuTrigger>
+                  <ContextMenuContent className="w-48">
+                    <ContextMenuItem onClick={() => onOpen("profileUser", { data: user })}>
+                      Profile
+                    </ContextMenuItem>
+                    <ContextMenuItem>
+                      Message
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem className="text-rose-500 focus:text-rose-500" onClick={() => onOpen("removeFriend", { data: user })}>
+                      Remove Friend
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
               </motion.div>
             ))}
           </>

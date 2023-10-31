@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { VariantFriend } from "@/lib/type"
 import { capitalizeLetter, cn } from "@/lib/utils"
-import { FriendRequest, Friends, User } from "@prisma/client"
+import { FriendRequest, User } from "@prisma/client"
 import axios from "axios"
 import { HelpCircle, Users } from "lucide-react"
 import { useSession } from "next-auth/react"
@@ -40,10 +40,9 @@ const MeChannelsPage = () => {
       const resFriendRequest = await axios.get("/api/users/friend-request")
       const dataFriendRequest = resFriendRequest.data
 
-      const friendsData = dataFriends.data.map((item: Friends & { userProfile: User }) => item.userProfile)
       const friendRequestData = dataFriendRequest.data.map((item: FriendRequest & { userRequest: User }) => item.userRequest)
 
-      setFriends(friendsData)
+      setFriends(dataFriends.data)
       setFriendRequest(friendRequestData)
     } catch (error) {
       console.log(error)

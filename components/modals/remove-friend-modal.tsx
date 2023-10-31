@@ -1,10 +1,9 @@
 import { useFriendPageStore } from "@/app/hooks/useFriendPageStore"
 import { useModal } from "@/app/hooks/useModalStore"
-import { Friends, User } from "@prisma/client"
 import axios from "axios"
+import { useState } from "react"
 import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
-import { useState } from "react"
 
 const RemoveFriendModal = () => {
   const { isOpen, onClose, type, data } = useModal()
@@ -26,9 +25,7 @@ const RemoveFriendModal = () => {
       const res = await axios.get("/api/users/friends")
       const data = res.data
 
-      const friendsData = data.data.map((item: Friends & { userProfile: User }) => item.userProfile)
-
-      setFriends(friendsData)
+      setFriends(data.data)
 
       onClose()
     } catch (error) {

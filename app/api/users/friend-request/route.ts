@@ -19,7 +19,7 @@ export async function GET(req: Request) {
         friendsRequest: {
           include: {
             userRequest: {
-              select: prismaExclude("User", ["password", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry", "userFriendsIDs", "verifyToken", "verifyTokenExpiry"]),
+              select: prismaExclude("User", ["password", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry", "verifyToken", "verifyTokenExpiry"]),
             }
           },
           orderBy: {
@@ -57,24 +57,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "User ID is Missing" }, { status: 404 })
     }
 
-    const checkUserAlreadyFriend = await db.friends.findFirst({
-      where: {
-        AND: [
-          {
-            id: user.id
-          },
-          {
-            userFriendsIDs: {
-              has: userId
-            }
-          }
-        ]
-      }
-    })
+    // const checkUserAlreadyFriend = await db.friends.findFirst({
+    //   where: {
+    //     AND: [
+    //       {
+    //         id: user.id
+    //       },
+    //       {
+    //         userFriendsIDs: {
+    //           has: userId
+    //         }
+    //       }
+    //     ]
+    //   }
+    // })
 
-    if (checkUserAlreadyFriend) {     
-      return NextResponse.json({ message: "Already become friends", status: 409 }, { status: 409 })
-    }
+    // if (checkUserAlreadyFriend) {     
+    //   return NextResponse.json({ message: "Already become friends", status: 409 }, { status: 409 })
+    // }
 
     const checkUserAlreadyRequest = await db.friendRequest.findFirst({
       where: {

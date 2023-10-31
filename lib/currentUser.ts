@@ -1,6 +1,5 @@
 import { db } from "./db"
 import { getAuthSession } from "./nextAuth"
-import { prismaExclude } from "./utils"
 
 export const currentUser = async () => {
   try {

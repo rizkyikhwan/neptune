@@ -16,12 +16,24 @@ export async function GET(req: Request) {
         id: user.id
       },
       include: {
-        userFriends: {
-          include: {
-            userProfile: {
-              select: prismaExclude("User", ["password", "emailVerified", "resetPasswordToken", "resetPasswordTokenExpiry", "verifyToken", "verifyTokenExpiry"])
-            }
+        friends: {
+          select: {
+            id: true,
+            email: true,
+            displayname: true,
+            username: true,
+            friends: {
+              select: prismaExclude("User", ["password", "emailVerified", "resetPasswordToken", "resetPasswordTokenExpiry", "verifyToken", "verifyTokenExpiry", "userFriendIDs"])
+            },
+            friendIDs: true,
+            hexColor: true,
+            picture: true,
+            createdAt: true,
+            updatedAt: true
           },
+          orderBy: {
+            username: "asc"
+          }
         }
       }
     })
@@ -30,7 +42,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: "User not found", status: 404 }, { status: 404 })
     }
 
-    return NextResponse.json({ data: friendList.userFriends, status: 200 }, { status: 200 })
+    return NextResponse.json({ data: friendList.friends, status: 200 }, { status: 200 })
   } catch (error) {
     console.log(error, "[FRIENDS_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })
@@ -52,59 +64,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "User ID is Missing" }, { status: 404 })
     }
 
-    const checkUserAlreadyFriend = await db.friends.findFirst({
-      where: {
-        AND: [
-          {
-            id: user.id
-          },
-          {
-            userFriendsIDs: {
-              has: userId
-            }
-          }
-        ]
-      }
-    })
-
-    if (checkUserAlreadyFriend) {
-      return NextResponse.json({ message: "Already become friends", status: 409 }, { status: 409 })
-    }
-
-    const userHasFriend = await db.friends.findFirst({
-      where: {
-        id: user.id
-      }
-    })
-
-    const userRequestHasFriend = await db.friends.findFirst({
-      where: {
-        id: userId
-      }
-    })
-
-    if (!userHasFriend) {
-      await db.friends.create({
-        data: {
-          id: user.id
-        }
-      })
-    }
-
-    if (!userRequestHasFriend) {
-      await db.friends.create({
-        data: {
-          id: userId
-        }
-      })
-    }
-
     await db.user.update({
       where: {
         id: user.id
       },
       data: {
-        userFriends: {
+        friends: {
           connect: {
             id: userId
           }
@@ -117,7 +82,7 @@ export async function POST(req: Request) {
         id: userId
       },
       data: {
-        userFriends: {
+        friends: {
           connect: {
             id: user.id
           }
@@ -206,31 +171,12 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ message: "User not found", status: 404 }, { status: 404 })
     }
 
-    const userFriends = await db.friends.findFirst({
-      where: {
-        AND: [
-          {
-            id: userId
-          },
-          {
-            userFriendsIDs: {
-              has: user.id
-            }
-          }
-        ]
-      }
-    })
-
-    if (!userFriends) {
-      return NextResponse.json({ message: "User friend not found", status: 404 }, { status: 404 })
-    }
-
     await db.user.update({
       where: {
         id: user.id
       },
       data: {
-        userFriends: {
+        friends: {
           disconnect: {
             id: userId
           }
@@ -243,30 +189,13 @@ export async function PATCH(req: Request) {
         id: userId
       },
       data: {
-        userFriends: {
+        friends: {
           disconnect: {
             id: user.id
           }
         }
       }
     })
-
-    if (userFriends.userFriendsIDs.length === 1) {
-      await db.friends.delete({
-        where: {
-          id: userId
-        }
-      })
-
-    }
-
-    if (user.userFriendsIDs.length === 1) {
-      await db.friends.delete({
-        where: {
-          id: user.id
-        }
-      })
-    }
 
     return NextResponse.json({ message: "OK", status: 200 }, { status: 200 })
   } catch (error) {
