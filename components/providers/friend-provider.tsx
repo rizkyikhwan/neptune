@@ -4,7 +4,6 @@ import { useSocket } from "@/components/providers/socket-provider"
 import { UsersProps, VariantFriend } from "@/lib/type"
 import { userIsOnline } from "@/lib/utils"
 import { User } from "@prisma/client"
-import { redirect } from "next/navigation"
 
 interface FriendProviderProps {
   type: VariantFriend
@@ -13,22 +12,19 @@ interface FriendProviderProps {
   isLoading: boolean
 }
 
+const FriendsPageView = {
+  "ONLINE": FriendsPage,
+  "ALL": FriendsPage,
+  "PENDING": FriendsPage,
+  "ADD_FRIEND": AddFriendPage
+}
+
 const FriendProvider = ({ type, friends, friendRequest, isLoading }: FriendProviderProps) => {
   const { onlineUsers } = useSocket()
+  const CurrentView = FriendsPageView[type]
 
   const userFriends = friends.map(user => ({ ...user, online: userIsOnline(onlineUsers, user.id) }))
 
-  switch (type) {
-    case "ONLINE":
-      return <FriendsPage type="ONLINE" users={userFriends} isLoading={isLoading} />
-    case "ALL":
-      return <FriendsPage type="ALL" users={userFriends} isLoading={isLoading} />
-    case "PENDING":
-      return <FriendsPage type="PENDING" users={friendRequest} isLoading={isLoading} />
-    case "ADD_FRIEND":
-      return <AddFriendPage type="ADD_FRIEND" />
-    default:
-      return redirect("/404")
-  }
+  return <CurrentView type={type} isLoading={isLoading} users={type === "PENDING" ? friendRequest : userFriends} />
 }
 export default FriendProvider

@@ -29,6 +29,12 @@ export type ActiveUsersProps = {
   socketId: string
 }
 
+export type ProvidersType = [React.ElementType, Record<string, unknown>]
+
+export type ChildrenType = {
+  children: Array<React.ElementType>
+}
+
 export type VariantAuth = "LOGIN" | "SIGNUP"
 
 export type EmailType = "Verify Email" | "Reset Password"

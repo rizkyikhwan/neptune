@@ -1,7 +1,8 @@
-import ClientLayout from "@/components/client-layout"
-import NavigationSidebar from "@/components/navigation/navigation-sidebar"
-import { currentUser } from "@/lib/currentUser"
-import { redirect } from "next/navigation"
+import ClientLayout from "@/components/client-layout";
+import NavigationSidebar from "@/components/navigation/navigation-sidebar";
+import { currentUser } from "@/lib/currentUser";
+import { redirect } from "next/navigation";
+import React from "react";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const user = await currentUser()
@@ -9,6 +10,14 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   if (!user?.emailVerified) {
     return redirect("/verification")
   }
+
+  const renderChildren = () => {
+    return React.Children.map(children, (child) => {
+      return React.cloneElement(child as JSX.Element, {
+        user: user,
+      });
+    });
+  };
 
   return (
     <ClientLayout className="h-full">

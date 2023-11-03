@@ -3,6 +3,7 @@
 import { useFriendPageStore } from "@/app/hooks/useFriendPageStore"
 import { useModal } from "@/app/hooks/useModalStore"
 import ActionTooltip from "@/components/action-tooltip"
+import MobileMenu from "@/components/mobile-menu"
 import FriendProvider from "@/components/providers/friend-provider"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -61,8 +62,11 @@ const MeChannelsPage = () => {
   return (
     <main className="flex flex-col fixed inset-y-0 h-full w-full md:w-[calc(100%-313px)]">
       <section className="min-h-[48px] shadow py-2 px-4 border-b flex items-center relative">
+        <div className="md:hidden after:absolute after:top-0 after:left-[55px] after:w-2 after:h-full after:bg-gradient-to-r after:dark:from-dark-primary after:dark:via-dark-primary/90 after:from-white">
+          <MobileMenu />
+        </div>
         <div className="flex items-center flex-auto space-x-3 overflow-auto scrollbar-none">
-          <Users className="flex-none w-5 h-5" />
+          <Users className="flex-none hidden w-5 h-5 md:block" />
           <p>Friends</p>
           <Separator orientation="vertical" className="h-6 bg-zinc-300 dark:bg-zinc-700" />
           {variantFriend.map((item) => (

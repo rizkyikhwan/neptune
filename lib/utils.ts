@@ -26,7 +26,7 @@ export function randomHexColor(maxBrightness = 16) {
 }
 
 export function initialText(str: string) {
-  return str.match(/(\b\S)?/g)?.join("")?.slice(0, 2).toUpperCase()
+  return str?.match(/(\b\S)?/g)?.join("")?.slice(0, 2).toUpperCase()
 }
 
 export function capitalizeLetter(str: string) {

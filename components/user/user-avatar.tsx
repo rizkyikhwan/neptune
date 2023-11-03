@@ -13,7 +13,7 @@ interface UserAvatarProps {
 const UserAvatar = ({ src, className, classNameFallback, bgColor, initialName, onlineIndicator }: UserAvatarProps) => {
   return (
     <div className="relative pointer-events-none">
-      <Avatar className={cn("h-7 w-7 md:h-10 md:w-10", className)}>
+      <Avatar className={cn("h-10 w-10", className)}>
         <AvatarImage src={src} />
         <AvatarFallback
           className={cn("font-semibold text-xs md:text-base", bgColor ? "text-zinc-100" : "bg-muted", classNameFallback)}
@@ -23,7 +23,7 @@ const UserAvatar = ({ src, className, classNameFallback, bgColor, initialName, o
         </AvatarFallback>
       </Avatar>
       {onlineIndicator && (
-        <div className="absolute border bottom-px right-1 w-2 h-2 rounded-full bg-emerald-500 bg-background" />
+        <div className="absolute w-2 h-2 border rounded-full bottom-px right-1 bg-emerald-500 bg-background" />
       )}
     </div>
   )

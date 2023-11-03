@@ -7,17 +7,18 @@ import UserAvatar from "@/components/user/user-avatar"
 import { cn, userIsOnline } from "@/lib/utils"
 import { User } from "@prisma/client"
 import axios from "axios"
-import { MoreVertical } from "lucide-react"
+import { MoreVertical, UserX } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import ActionTooltip from "../action-tooltip"
 import LoadingScreen from "../loading-screen"
 import { useSocket } from "../providers/socket-provider"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 
 const ProfileModalUser = () => {
   const { data: currentUser } = useSession()
   const { onlineUsers } = useSocket()
-  const { isOpen, onClose, type, data } = useModal()
+  const { isOpen, onOpen, onClose, type, data } = useModal()
 
   const { data: user } = data
 
@@ -51,11 +52,11 @@ const ProfileModalUser = () => {
       <DialogContent className="p-0 overflow-hidden max-w-xl bg-[#F2F3F5] dark:bg-dark-primary">
         <div className="relative flex flex-col">
           <div className="absolute inset-0 w-full h-32 bg-indigo-500" />
-          <div className="z-10 flex items-end justify-between px-4 mt-16">
+          <div className="z-10 flex items-end justify-between px-4 mt-20 md:mt-16">
             <div className="flex items-center space-x-3">
               <UserAvatar
                 initialName={user?.displayname || user?.username || ""}
-                className="md:w-32 md:h-32 border-[12px] border-[#F2F3F5] dark:border-dark-primary"
+                className="w-28 h-28 md:w-32  md:h-32 border-[12px] border-[#F2F3F5] dark:border-dark-primary"
                 bgColor={user?.hexColor}
                 classNameFallback="md:text-4xl"
               />
@@ -71,9 +72,21 @@ const ProfileModalUser = () => {
             {currentUser?.user.id !== user?.id && (
               <div className="flex items-center space-x-2">
                 <Button variant={"ghost"} className="text-white rounded bg-emerald-700 hover:bg-emerald-800 hover:text-white">Send Message</Button>
-                <button type="button">
-                  <MoreVertical size={20} />
-                </button>
+                <DropdownMenu>
+                  <ActionTooltip label="More" side="top" align="end">
+                    <DropdownMenuTrigger asChild>
+                      <Button variant={"ghost"} size="icon" className="flex items-center justify-center rounded-full">
+                        <MoreVertical className="flex-none transition text-zinc-400" size={20} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                  </ActionTooltip>
+                  <DropdownMenuContent align="center">
+                    <DropdownMenuItem onClick={() => onOpen("removeFriend", { data: user })} className="h-10 cursor-pointer text-rose-500 focus:text-rose-500">
+                      <UserX className="w-4 h-4 mr-2" />
+                      <span>Remove Friend</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             )}
           </div>

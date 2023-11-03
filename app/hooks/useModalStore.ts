@@ -3,10 +3,6 @@ import { create } from "zustand"
 
 export type ModalType = "resetPassowrd" | "infoApp" | "removeFriend" | "profileUser"
 
-interface UserFriends {
-  friends?: User
-}
-
 interface ModalData {
   data?: User & { friends?: User[] }
 }
