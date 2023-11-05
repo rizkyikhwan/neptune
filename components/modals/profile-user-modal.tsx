@@ -94,7 +94,7 @@ const ProfileModalUser = () => {
               <Button
                 variant={"primary"}
                 onClick={() => {
-                  router.push(`/profile/${user?.id}`)
+                  router.push("/accounts-edit")
                   setRouterTab("profile")
                 }}
               >

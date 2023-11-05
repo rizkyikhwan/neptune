@@ -45,7 +45,8 @@ export async function POST(req: Request) {
         displayname,
         password: hasedPassword,
         verifyToken: uuidv4().replace(/-/g, ""),
-        hexColor: randomHexColor(10)
+        hexColor: randomHexColor(10),
+        bannerColor: randomHexColor(10)
       }
     })
 

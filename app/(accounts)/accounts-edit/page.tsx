@@ -1,16 +1,23 @@
 import ProfileUser from "@/components/profile/profile-user"
 import { db } from "@/lib/db"
+import { getAuthSession } from "@/lib/nextAuth"
 import { redirect } from "next/navigation"
 
-const MeProfilePage = async ({ params }: { params: { userId: string } }) => {
+const MeProfilePage = async () => {
+  const session = await getAuthSession()
+
+  if (!session?.user?.email) {
+    return redirect("/")
+  }
+
   const data = await db.user.findUnique({
     where: {
-      id: params.userId
+      id: session.user.id
     }
   })
 
   if (!data) {
-    redirect("/")
+    return redirect("/")
   }
 
   return (

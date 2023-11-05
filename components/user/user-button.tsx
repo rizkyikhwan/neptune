@@ -39,7 +39,7 @@ const UserButton = ({ user, side, align }: UserButtonProps) => {
           className="h-10 cursor-pointer"
           onSelect={e => e.preventDefault()}
           onClick={() => {
-            router.push(`/profile/${user.id}`)
+            router.push("/accounts-edit")
             setRouterTab("account-settings")
           }}
         >

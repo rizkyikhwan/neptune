@@ -16,6 +16,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Separator } from "../ui/separator"
 
+interface ProfileSectionProps {
+  user: User,
+  isMobile: boolean
+}
+
 const formSchema = z.object({
   displayname: z.string(),
   username: z.string().min(3).max(15),
@@ -26,13 +31,13 @@ const formSchema = z.object({
   bio: z.string().max(32)
 })
 
-const ProfileSection = ({ user }: { user: User }) => {
+const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
   const [color, setColor] = useColor(user.hexColor)
   const [colorBanner, setColorBanner] = useColor(user.bannerColor)
 
-  const onEnter = { y: 100 }
+  const onEnter = { y: 150 }
   const animate = { y: 0 }
-  const onLeave = { y: 100 }
+  const onLeave = { y: 150 }
 
   const transitionSpringPhysics: Spring = {
     type: "spring",
@@ -61,23 +66,23 @@ const ProfileSection = ({ user }: { user: User }) => {
   }
 
   return (
-    <div className="relative space-y-4 min-h-screen">
+    <div className="relative space-y-4 mb-20">
       <p className="text-xl font-semibold tracking-wider">Profile</p>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-3 flex flex-col">
-            <div className="flex space-x-4">
+            <div className="flex flex-col md:flex-row md:space-x-4 space-y-3 md:space-y-0">
               <div className="bg-[#F2F3F5] dark:bg-dark-tertiary max-w-sm rounded-md relative overflow-hidden flex-1">
                 <div className="absolute inset-0 w-full h-20" style={{ backgroundColor: getValues("bannerColor") }} />
                 <DropdownMenu>
-                  <ActionTooltip label="Edit Banner" side="bottom">
+                  <ActionTooltip label="Edit Banner" side="left">
                     <DropdownMenuTrigger asChild>
                       <Button size={"icon"} variant={"ghost"} className="z-10 absolute right-2 top-2 rounded-full w-8 h-8">
                         <Edit size={16} />
                       </Button>
                     </DropdownMenuTrigger>
                   </ActionTooltip>
-                  <DropdownMenuContent side="left" align="start">
+                  <DropdownMenuContent align="end">
                     <DropdownMenuItem>
                       <label htmlFor="banner">
                         Change Banner
@@ -105,7 +110,7 @@ const ProfileSection = ({ user }: { user: User }) => {
                     classNameFallback="text-lg md:text-2xl"
                   />
                   <div>
-                    <p className="text-lg font-semibold tracking-wide">Your Avatar</p>
+                    <p className="md:text-lg font-semibold tracking-wide">Your Avatar</p>
                     <p className="text-xs text-zinc-400">This will be displayed on your profile</p>
                   </div>
                 </div>
@@ -115,12 +120,13 @@ const ProfileSection = ({ user }: { user: User }) => {
                   <p className="text-xs font-extrabold uppercase dark:text-zinc-300">Banner Color</p>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <div className="h-10 w-full rounded cursor-pointer" style={{ backgroundColor: getValues("bannerColor") }} />
+                      <div className="h-10 w-20 md:w-full rounded cursor-pointer" style={{ backgroundColor: getValues("bannerColor") }} />
                     </PopoverTrigger>
-                    <PopoverContent className="rounded-lg p-0">
+                    <PopoverContent side={isMobile ? "right" : "bottom"} sideOffset={10} className="rounded-lg p-0 w-full">
                       <ColorPicker
                         color={colorBanner}
                         hideInput={["rgb", "hsv"]}
+                        hideAlpha
                         onChange={(e) => {
                           setColorBanner(e)
                           setValue("bannerColor", e.hex, { shouldDirty: true })
@@ -143,7 +149,7 @@ const ProfileSection = ({ user }: { user: User }) => {
               <p className="text-xs font-bold uppercase dark:text-zinc-300">Avatar</p>
               <div className="space-x-2">
                 <label htmlFor="avatar"
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 dark:bg-dark-secondary cursor-pointer"
+                  className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 bg-zinc-200 dark:bg-dark-secondary cursor-pointer"
                 >
                   Change Avatar
                 </label>
@@ -169,10 +175,11 @@ const ProfileSection = ({ user }: { user: User }) => {
                     <PopoverTrigger asChild>
                       <div className="h-10 w-20 rounded cursor-pointer" style={{ backgroundColor: getValues("hexColor") }} />
                     </PopoverTrigger>
-                    <PopoverContent className="rounded-lg p-0">
+                    <PopoverContent side={isMobile ? "right" : "bottom"} sideOffset={10} className="rounded-lg p-0 w-full">
                       <ColorPicker
                         color={color}
                         hideInput={["rgb", "hsv"]}
+                        hideAlpha
                         onChange={(e) => {
                           setColor(e)
                           setValue("hexColor", e.hex, { shouldDirty: true })
@@ -196,14 +203,14 @@ const ProfileSection = ({ user }: { user: User }) => {
               control={control}
               name="displayname"
               render={({ field }) => (
-                <FormInput title="displayname" field={field} className="bg-muted dark:bg-zinc-800 dark:text-zinc-300 text-current" />
+                <FormInput title="displayname" field={field} autoComplete="off" className="bg-muted dark:bg-zinc-800 dark:text-zinc-300 text-current" />
               )}
             />
             <FormField
               control={control}
               name="username"
               render={({ field }) => (
-                <FormInput title="username" field={field} className="bg-muted dark:bg-zinc-800 dark:text-zinc-300 text-current" />
+                <FormInput title="username" field={field} autoComplete="off" className="bg-muted dark:bg-zinc-800 dark:text-zinc-300 text-current" />
               )}
             />
             <FormField
@@ -226,23 +233,25 @@ const ProfileSection = ({ user }: { user: User }) => {
                 </FormItem>
               )}
             />
-            <AnimatePresence mode="wait">
-              {formState.isDirty && (
-                <motion.div
-                  initial={onEnter}
-                  animate={animate}
-                  exit={onLeave}
-                  transition={transitionSpringPhysics}
-                  className="fixed bottom-5 mx-auto max-w-2xl w-full flex items-center justify-between p-1.5 pl-3 bg-zinc-50 dark:bg-dark-secondary rounded-md shadow-sm z-10"
-                >
-                  <p className="text-sm">Careful — you have unsaved changes!</p>
-                  <div className="space-x-2">
-                    <Button type="reset" variant={"ghost"} onClick={() => reset()}>Reset</Button>
-                    <Button type="submit" variant={"ghost"} className="bg-emerald-500 hover:bg-emerald-600 text-white">Save Changes</Button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div className="flex justify-center px-5">
+              <AnimatePresence mode="wait">
+                {formState.isDirty && (
+                  <motion.div
+                    initial={onEnter}
+                    animate={animate}
+                    exit={onLeave}
+                    transition={transitionSpringPhysics}
+                    className="fixed bottom-5 max-w-sm md:max-w-2xl w-full flex items-center justify-between p-1.5 pl-3 bg-zinc-50 dark:bg-dark-secondary rounded-md shadow-sm z-10"
+                  >
+                    <p className="text-xs md:text-sm">Careful — you have unsaved changes!</p>
+                    <div className="flex space-x-2">
+                      <Button type="reset" variant={"ghost"} onClick={() => reset()}>Reset</Button>
+                      <Button type="submit" variant={"ghost"} className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs md:text-sm">Save Changes</Button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </form>
       </Form>

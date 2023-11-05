@@ -18,7 +18,7 @@ const AuthLayout = async ({ children }: { children: React.ReactNode }) => {
       <div className="flex flex-col min-h-0">
         <div className="flex-1 min-w-0">
           <div className="relative">
-            <div className="relative w-[100vw] min-h-screen overflow-auto">
+            <div className="relative w-[100vw] min-h-screen overflow-x-hidden overflow-y-auto">
               <div className="absolute top-0 left-0 min-h-[580px] flex items-center justify-center w-full h-full">
                 {children}
               </div>
