@@ -53,7 +53,7 @@ const VerifyEmail = ({
                 Hi <b>{username}</b>, thanks you for signing up for Neptune. To verify your account, please follow the button below
               </Text>
               <Section className="my-8">
-                <Link className="text-center bg-blue-500 rounded-lg text-sm no-underline font-semibold w-[200px] inline-block max-w-full py-4 px-5 text-white" href={`${linkUrl}/verification/${token}`} target="__blank">
+                <Link className="text-center bg-blue-500 rounded-lg text-sm no-underline font-semibold w-[200px] inline-block max-w-full py-4 px-5 text-white" href={`${linkUrl}/verification/${token}`} target="_blank">
                   Verify Account
                 </Link>
               </Section>

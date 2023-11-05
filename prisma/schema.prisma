@@ -16,9 +16,12 @@ model User {
   emailVerified Boolean @default(false)
   displayname   String?
   username      String  @unique
-  picture       String?
-  password      String
+  avatar        String?
   hexColor      String
+  banner        String?
+  bannerColor   String
+  bio           String?
+  password      String
 
   resetPasswordToken       String?
   resetPasswordTokenExpiry DateTime?
@@ -26,10 +29,10 @@ model User {
   verifyToken       String   @unique
   verifyTokenExpiry DateTime @default(now())
 
-  friendIDs String[] @db.ObjectId
-  friends User[]    @relation("UserFriends", fields: [friendIDs], references: [id])
+  friendIDs     String[] @db.ObjectId
+  friends       User[]   @relation("UserFriends", fields: [friendIDs], references: [id])
   userFriendIDs String[] @db.ObjectId
-  userFriends User[]    @relation("UserFriends", fields: [userFriendIDs], references: [id])
+  userFriends   User[]   @relation("UserFriends", fields: [userFriendIDs], references: [id])
 
   userRequestId     FriendRequest[]
   friendsRequestIDs String[]        @db.ObjectId

@@ -27,7 +27,10 @@ export async function GET(req: Request) {
             },
             friendIDs: true,
             hexColor: true,
-            picture: true,
+            avatar: true,
+            banner: true,
+            bannerColor: true,
+            bio: true,
             createdAt: true,
             updatedAt: true
           },

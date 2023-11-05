@@ -6,6 +6,7 @@ import { signOut } from "next-auth/react"
 import { useTheme } from "next-themes"
 import { Switch } from "../ui/switch"
 import { useModal } from "@/app/hooks/useModalStore"
+import { useRouter } from "next13-progressbar"
 
 interface UserButtonProps {
   user: User
@@ -14,8 +15,9 @@ interface UserButtonProps {
 }
 
 const UserButton = ({ user, side, align }: UserButtonProps) => {
+  const router = useRouter()
   const { theme, setTheme } = useTheme()
-  const { onOpen } = useModal()
+  const { onOpen, setRouterTab } = useModal()
 
   return (
     <DropdownMenu>
@@ -33,7 +35,14 @@ const UserButton = ({ user, side, align }: UserButtonProps) => {
           </div>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="h-10 cursor-pointer">
+        <DropdownMenuItem
+          className="h-10 cursor-pointer"
+          onSelect={e => e.preventDefault()}
+          onClick={() => {
+            router.push(`/profile/${user.id}`)
+            setRouterTab("account-settings")
+          }}
+        >
           <UserCog className="w-4 h-4 mr-2" />
           <span>Account settings</span>
         </DropdownMenuItem>

@@ -10,15 +10,19 @@ interface ModalData {
 interface ModalStore {
   type: ModalType | null
   isOpen: boolean
+  routerTab?: string
   data: ModalData
   onOpen: (type: ModalType, data?: ModalData) => void
   onClose: () => void
+  setRouterTab: (routerTab: string) => void
 }
 
 export const useModal = create<ModalStore>((set) => ({
   type: null,
   data: {},
+  routerTab: "",
   isOpen: false,
   onOpen: (type, data = {}) => set({ isOpen: true, type, data }),
-  onClose: () => set({ isOpen: false })
+  onClose: () => set({ isOpen: false }),
+  setRouterTab: (routerTab) => set({ routerTab }),
 }))

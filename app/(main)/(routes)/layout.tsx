@@ -1,4 +1,4 @@
-import ClientLayout from "@/components/client-layout";
+import ClientLayout from "@/app/context/ClientLayoutContext";
 import NavigationSidebar from "@/components/navigation/navigation-sidebar";
 import { currentUser } from "@/lib/currentUser";
 import { redirect } from "next/navigation";
@@ -11,16 +11,8 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     return redirect("/verification")
   }
 
-  const renderChildren = () => {
-    return React.Children.map(children, (child) => {
-      return React.cloneElement(child as JSX.Element, {
-        user: user,
-      });
-    });
-  };
-
   return (
-    <ClientLayout className="h-full">
+    <ClientLayout user={user} className="h-full">
       <div className="hidden md:flex h-full w-[72px] flex-col fixed inset-y-0">
         <NavigationSidebar user={user} />
       </div>

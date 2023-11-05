@@ -1,6 +1,10 @@
 import { useModal } from "@/app/hooks/useModalStore"
+import ActionTooltip from "@/components/action-tooltip"
+import LoadingScreen from "@/components/loading-screen"
+import { useSocket } from "@/components/providers/socket-provider"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import UserAvatar from "@/components/user/user-avatar"
@@ -9,29 +13,27 @@ import { User } from "@prisma/client"
 import axios from "axios"
 import { MoreVertical, UserX } from "lucide-react"
 import { useSession } from "next-auth/react"
+import { useRouter } from "next13-progressbar"
 import { useEffect, useState } from "react"
-import ActionTooltip from "../action-tooltip"
-import LoadingScreen from "../loading-screen"
-import { useSocket } from "../providers/socket-provider"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 
 const ProfileModalUser = () => {
+  const router = useRouter()
   const { data: currentUser } = useSession()
   const { onlineUsers } = useSocket()
-  const { isOpen, onOpen, onClose, type, data } = useModal()
+  const { isOpen, onOpen, onClose, setRouterTab, type, data } = useModal()
 
   const { data: user } = data
 
-  const [mutualFriends, setMutualFriends] = useState([]) 
+  const [mutualFriends, setMutualFriends] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  
+
   const userJoin = user && new Date(user.createdAt).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })
 
   const isModalOpen = isOpen && type === "profileUser"
 
   useEffect(() => {
     if (isModalOpen) {
-      (async() => {
+      (async () => {
         try {
           setIsLoading(true)
           const res = await axios.get(`/api/users/friends/mutuals/${user?.id}`)
@@ -49,16 +51,16 @@ const ProfileModalUser = () => {
 
   return (
     <Dialog open={isModalOpen} onOpenChange={onClose}>
-      <DialogContent className="p-0 overflow-hidden max-w-xl bg-[#F2F3F5] dark:bg-dark-primary">
+      <DialogContent className="p-0 overflow-hidden max-w-xl bg-[#F2F3F5] dark:bg-dark-primary min-h-screen md:min-h-max">
         <div className="relative flex flex-col">
           <div className="absolute inset-0 w-full h-32 bg-indigo-500" />
           <div className="z-10 flex items-end justify-between px-4 mt-20 md:mt-16">
             <div className="flex items-center space-x-3">
               <UserAvatar
                 initialName={user?.displayname || user?.username || ""}
-                className="w-28 h-28 md:w-32  md:h-32 border-[12px] border-[#F2F3F5] dark:border-dark-primary"
+                className="w-28 h-28 md:w-32 md:h-32 border-[12px] border-[#F2F3F5] dark:border-dark-primary"
                 bgColor={user?.hexColor}
-                classNameFallback="md:text-4xl"
+                classNameFallback="text-2xl md:text-4xl"
               />
               {user && (
                 <ActionTooltip label={userIsOnline(onlineUsers, user.id) ? "Online" : "Offline"} align="start">
@@ -69,7 +71,7 @@ const ProfileModalUser = () => {
                 </ActionTooltip>
               )}
             </div>
-            {currentUser?.user.id !== user?.id && (
+            {currentUser?.user.id !== user?.id ? (
               <div className="flex items-center space-x-2">
                 <Button variant={"ghost"} className="text-white rounded bg-emerald-700 hover:bg-emerald-800 hover:text-white">Send Message</Button>
                 <DropdownMenu>
@@ -88,6 +90,16 @@ const ProfileModalUser = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
+            ) : (
+              <Button
+                variant={"primary"}
+                onClick={() => {
+                  router.push(`/profile/${user?.id}`)
+                  setRouterTab("profile")
+                }}
+              >
+                Edit Profile
+              </Button>
             )}
           </div>
           <div className="flex flex-col p-3 mx-4 mt-5 mb-4 space-y-2 min-h-[320px] h-full bg-white rounded-md dark:bg-dark-secondary">
@@ -133,7 +145,7 @@ const ProfileModalUser = () => {
                     <div className="flex items-center justify-center h-48">
                       <LoadingScreen />
                     </div>
-                  ): (
+                  ) : (
                     <>
                       {mutualFriends.map((user: User, index) => (
                         <div key={user.id} className={cn("mb-1 flex items-center px-2 space-x-2 py-2 rounded-md cursor-pointer select-none border-zinc-200 dark:border-zinc-700 hover:bg-zinc-300/10 hover:dark:bg-zinc-400/10", [...Array(10)].length - 1 === index && "mb-0")}>

@@ -20,8 +20,8 @@ const formSchema = z.object({
   email: z.string().min(1, "Enter a email").email("This is not a valid email."),
   displayname: z.string(),
   username: z.string()
-    .min(3, "This must be 3-32")
-    .max(32, "This must be 3-32")
+    .min(3, "This must be 3-15")
+    .max(15, "This must be 3-15")
     .refine(value => /^(?=.*[a-zA-Z])(?!.*[^a-zA-Z_]).*[a-zA-Z_]+(?:[a-zA-Z_]*[ ]*)*[a-zA-Z_]*$/.test(value), "Please only use numbers, letters, undersocres, and must have a text"),
   password: z.string().min(5, "Enter at least 5 characters"),
   confirmPassword: z.string().min(1, "Must confirm your password"),
@@ -78,8 +78,8 @@ const FormSignup = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateA
   }
 
   return (
-    <CardForm 
-      title={<NeptuneLogoDark width={40} height={40} />} 
+    <CardForm
+      title={<NeptuneLogoDark width={40} height={40} />}
       description="Created an account."
     >
       <Form {...form}>
