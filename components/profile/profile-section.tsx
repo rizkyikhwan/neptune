@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Textarea } from "@/components/ui/textarea"
 import UserAvatar from "@/components/user/user-avatar"
+import { convertBase64 } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { User } from "@prisma/client"
 import { AnimatePresence, Spring, motion } from "framer-motion"
 import { Edit } from "lucide-react"
+import { ChangeEvent, useState } from "react"
 import { ColorPicker, useColor } from "react-color-palette"
 import "react-color-palette/css"
 import { useForm } from "react-hook-form"
@@ -15,18 +17,29 @@ import { z } from "zod"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Separator } from "../ui/separator"
+import { Input } from "../ui/input"
 
 interface ProfileSectionProps {
   user: User,
   isMobile: boolean
 }
 
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/gif"]
+
 const formSchema = z.object({
-  displayname: z.string(),
+  displayname: z.string().optional(),
   username: z.string().min(3).max(15),
-  avatar: z.string(),
+  avatar: typeof window === "undefined" ? z.undefined() : z.instanceof(File)
+    .refine((file) => file.size <= 5000000, `Max image size is 5MB.`)
+    .refine((file) => file.type !== "" ? ACCEPTED_IMAGE_TYPES.includes(file.type) : new File([], ""),"Only .jpg, .jpeg, .png and .gif formats are supported.")
+    .transform(file => convertBase64(file))
+    .optional(),
   hexColor: z.string(),
-  banner: z.string(),
+  banner: typeof window === "undefined" ? z.undefined() : z.instanceof(File)
+    .refine((file) => file.size <= 5000000, `Max image size is 5MB.`)
+    .refine((file) => file.type !== "" ? ACCEPTED_IMAGE_TYPES.includes(file.type) : new File([], ""),"Only .jpg, .jpeg, .png and .gif formats are supported.")
+    .transform(file => convertBase64(file))
+    .optional(),
   bannerColor: z.string(),
   bio: z.string().max(32)
 })
@@ -34,6 +47,8 @@ const formSchema = z.object({
 const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
   const [color, setColor] = useColor(user.hexColor)
   const [colorBanner, setColorBanner] = useColor(user.bannerColor)
+
+  const [isOpen, setIsOpen] = useState(false)
 
   const onEnter = { y: 150 }
   const animate = { y: 0 }
@@ -51,9 +66,9 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
     defaultValues: {
       displayname: user.displayname || "",
       username: user.username,
-      avatar: user.avatar || "",
+      avatar: undefined,
       hexColor: user.hexColor,
-      banner: user.banner || "",
+      banner: undefined,
       bannerColor: user.bannerColor,
       bio: user.bio || ""
     }
@@ -66,32 +81,48 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
   }
 
   return (
-    <div className="relative space-y-4 mb-20">
+    <div className="relative mb-20 space-y-4">
       <p className="text-xl font-semibold tracking-wider">Profile</p>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-3 flex flex-col">
-            <div className="flex flex-col md:flex-row md:space-x-4 space-y-3 md:space-y-0">
+          <div className="flex flex-col space-y-3">
+            <div className="flex flex-col space-y-3 md:flex-row md:space-x-4 md:space-y-0">
               <div className="bg-[#F2F3F5] dark:bg-dark-tertiary max-w-sm rounded-md relative overflow-hidden flex-1">
                 <div className="absolute inset-0 w-full h-20" style={{ backgroundColor: getValues("bannerColor") }} />
-                <DropdownMenu>
+                <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
                   <ActionTooltip label="Edit Banner" side="left">
                     <DropdownMenuTrigger asChild>
-                      <Button size={"icon"} variant={"ghost"} className="z-10 absolute right-2 top-2 rounded-full w-8 h-8">
+                      <Button size={"icon"} variant={"ghost"} className="absolute z-10 w-8 h-8 rounded-full right-2 top-2 focus-visible:ring-0 focus-visible:ring-offset-0">
                         <Edit size={16} />
                       </Button>
                     </DropdownMenuTrigger>
                   </ActionTooltip>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <label htmlFor="banner">
-                        Change Banner
-                      </label>
+                    <DropdownMenuItem onSelect={e => e.preventDefault()}>
                       <FormField
-                        control={control}
+                        control={form.control}
                         name="banner"
                         render={({ field }) => (
-                          <FormInput id="banner" className="invisible absolute" type="file" accept="image/jpg, image/jpeg, image/png, image/gif" field={field} />
+                          <FormItem>
+                            <FormLabel htmlFor="banner">
+                              Change Banner
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                id="banner"
+                                accept="image/jpeg, image/jpg, image/png, image/gif"
+                                type="file"
+                                name={field.name}
+                                onBlur={field.onBlur}
+                                onChange={(e) => {
+                                  field.onChange(e.target.files ? e.target.files[0] : null)
+                                  e.target.files && setIsOpen(false)
+                                }}
+                                className="hidden"
+                                ref={field.ref}
+                              />
+                            </FormControl>
+                          </FormItem>
                         )}
                       />
                     </DropdownMenuItem>
@@ -102,15 +133,16 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                     )}
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <div className="z-10 mt-10 px-5 pb-3 space-y-2">
+                <div className="z-10 px-5 pb-3 mt-10 space-y-2">
                   <UserAvatar
                     initialName={user.displayname || user.username}
+                    src={user.avatar || ""}
                     bgColor={getValues("hexColor")}
                     className="w-20 h-20 border-8 border-[#F2F3F5] dark:border-dark-tertiary"
                     classNameFallback="text-lg md:text-2xl"
                   />
                   <div>
-                    <p className="md:text-lg font-semibold tracking-wide">Your Avatar</p>
+                    <p className="font-semibold tracking-wide md:text-lg">Your Avatar</p>
                     <p className="text-xs text-zinc-400">This will be displayed on your profile</p>
                   </div>
                 </div>
@@ -120,9 +152,9 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                   <p className="text-xs font-extrabold uppercase dark:text-zinc-300">Banner Color</p>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <div className="h-10 w-20 md:w-full rounded cursor-pointer" style={{ backgroundColor: getValues("bannerColor") }} />
+                      <div className="w-20 h-10 rounded cursor-pointer md:w-full" style={{ backgroundColor: getValues("bannerColor") }} />
                     </PopoverTrigger>
-                    <PopoverContent side={isMobile ? "right" : "bottom"} sideOffset={10} className="rounded-lg p-0 w-full">
+                    <PopoverContent side={isMobile ? "right" : "bottom"} sideOffset={10} className="w-full p-0 rounded-lg">
                       <ColorPicker
                         color={colorBanner}
                         hideInput={["rgb", "hsv"]}
@@ -139,7 +171,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                     control={control}
                     name="bannerColor"
                     render={({ field }) => (
-                      <FormInput id="bannerColor" className="invisible absolute" field={field} />
+                      <FormInput id="bannerColor" className="absolute invisible" field={field} />
                     )}
                   />
                 </div>
@@ -147,23 +179,35 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
             </div>
             <div className="space-y-2">
               <p className="text-xs font-bold uppercase dark:text-zinc-300">Avatar</p>
-              <div className="space-x-2">
-                <label htmlFor="avatar"
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 bg-zinc-200 dark:bg-dark-secondary cursor-pointer"
-                >
-                  Change Avatar
-                </label>
-                <div className="invisible absolute">
-                  <FormField
-                    control={form.control}
-                    name="avatar"
-                    render={({ field }) => (
-                      <FormInput id="avatar" type="file" accept="image/jpg, image/jpeg, image/png, image/gif" field={field} />
-                    )}
-                  />
-                </div>
+              <div className="flex items-center space-x-2">
+                <FormField
+                  control={form.control}
+                  name="avatar"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="avatar" className="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium transition-colors rounded-md cursor-pointer disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground bg-zinc-200 dark:bg-dark-secondary">
+                        Change Avatar
+                      </FormLabel>
+                      <FormMessage className="text-xs" />
+                      <FormControl>
+                        <Input
+                          id="avatar"
+                          accept="image/jpeg, image/jpg, image/png, image/gif"
+                          type="file"
+                          name={field.name}
+                          onBlur={field.onBlur}
+                          onChange={(e) => {
+                            field.onChange(e.target.files ? e.target.files[0] : null)
+                          }}
+                          className="hidden"
+                          ref={field.ref}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
                 {user.avatar && (
-                  <Button variant={"ghost"}>Remove Avatar</Button>
+                  <Button variant={"ghost"} type="reset">Remove Avatar</Button>
                 )}
               </div>
             </div>
@@ -173,9 +217,9 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                 <div className="space-x-2">
                   <Popover>
                     <PopoverTrigger asChild>
-                      <div className="h-10 w-20 rounded cursor-pointer" style={{ backgroundColor: getValues("hexColor") }} />
+                      <div className="w-20 h-10 rounded cursor-pointer" style={{ backgroundColor: getValues("hexColor") }} />
                     </PopoverTrigger>
-                    <PopoverContent side={isMobile ? "right" : "bottom"} sideOffset={10} className="rounded-lg p-0 w-full">
+                    <PopoverContent side={isMobile ? "right" : "bottom"} sideOffset={10} className="w-full p-0 rounded-lg">
                       <ColorPicker
                         color={color}
                         hideInput={["rgb", "hsv"]}
@@ -192,7 +236,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                     control={control}
                     name="hexColor"
                     render={({ field }) => (
-                      <FormInput id="hexColor" className="invisible absolute" field={field} />
+                      <FormInput id="hexColor" className="absolute invisible" field={field} />
                     )}
                   />
                 </div>
@@ -203,14 +247,14 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
               control={control}
               name="displayname"
               render={({ field }) => (
-                <FormInput title="displayname" field={field} autoComplete="off" className="bg-muted dark:bg-zinc-800 dark:text-zinc-300 text-current" />
+                <FormInput title="displayname" field={field} autoComplete="off" className="text-current bg-muted dark:bg-zinc-800 dark:text-zinc-300" />
               )}
             />
             <FormField
               control={control}
               name="username"
               render={({ field }) => (
-                <FormInput title="username" field={field} autoComplete="off" className="bg-muted dark:bg-zinc-800 dark:text-zinc-300 text-current" />
+                <FormInput title="username" field={field} autoComplete="off" className="text-current bg-muted dark:bg-zinc-800 dark:text-zinc-300" />
               )}
             />
             <FormField
@@ -246,7 +290,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                     <p className="text-xs md:text-sm">Careful — you have unsaved changes!</p>
                     <div className="flex space-x-2">
                       <Button type="reset" variant={"ghost"} onClick={() => reset()}>Reset</Button>
-                      <Button type="submit" variant={"ghost"} className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs md:text-sm">Save Changes</Button>
+                      <Button type="submit" variant={"ghost"} className="text-xs text-white bg-emerald-500 hover:bg-emerald-600 md:text-sm">Save Changes</Button>
                     </div>
                   </motion.div>
                 )}
