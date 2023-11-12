@@ -53,7 +53,7 @@ const ProfileModalUser = () => {
     <Dialog open={isModalOpen} onOpenChange={onClose}>
       <DialogContent className="p-0 overflow-hidden max-w-xl bg-[#F2F3F5] dark:bg-dark-primary min-h-screen md:min-h-max">
         <div className="relative flex flex-col">
-          <div className="absolute inset-0 w-full h-32 bg-indigo-500" />
+          <div className="absolute inset-0 w-full h-32" style={{ backgroundColor: user?.bannerColor }} />
           <div className="z-10 flex items-end justify-between px-4 mt-20 md:mt-16">
             <div className="flex items-center space-x-3">
               <UserAvatar
@@ -121,7 +121,9 @@ const ProfileModalUser = () => {
                 <ScrollArea className="h-48">
                   <div className="mt-2 space-y-1">
                     <p className="text-xs font-semibold tracking-wide uppercase">About me</p>
-                    <p className="text-xs">None</p>
+                    <p className="text-xs whitespace-pre-line">
+                      {user?.bio || "None"}
+                    </p>
                   </div>
                   <div className="mt-5 space-y-1">
                     <p className="text-xs font-semibold tracking-wide uppercase">Neptune member since</p>

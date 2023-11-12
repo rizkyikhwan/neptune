@@ -7,17 +7,21 @@ import UserAvatar from "@/components/user/user-avatar"
 import { convertBase64 } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { User } from "@prisma/client"
+import axios from "axios"
 import { AnimatePresence, Spring, motion } from "framer-motion"
 import { Edit } from "lucide-react"
-import { ChangeEvent, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { ColorPicker, useColor } from "react-color-palette"
 import "react-color-palette/css"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import { Input } from "../ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Separator } from "../ui/separator"
-import { Input } from "../ui/input"
+import { toast } from "../ui/use-toast"
+import Loading from "../loading"
 
 interface ProfileSectionProps {
   user: User,
@@ -31,13 +35,13 @@ const formSchema = z.object({
   username: z.string().min(3).max(15),
   avatar: typeof window === "undefined" ? z.undefined() : z.instanceof(File)
     .refine((file) => file.size <= 5000000, `Max image size is 5MB.`)
-    .refine((file) => file.type !== "" ? ACCEPTED_IMAGE_TYPES.includes(file.type) : new File([], ""),"Only .jpg, .jpeg, .png and .gif formats are supported.")
+    .refine((file) => file.type !== "" ? ACCEPTED_IMAGE_TYPES.includes(file.type) : new File([], ""),"only .jpg, .jpeg, .png and .gif formats are supported.")
     .transform(file => convertBase64(file))
     .optional(),
   hexColor: z.string(),
   banner: typeof window === "undefined" ? z.undefined() : z.instanceof(File)
     .refine((file) => file.size <= 5000000, `Max image size is 5MB.`)
-    .refine((file) => file.type !== "" ? ACCEPTED_IMAGE_TYPES.includes(file.type) : new File([], ""),"Only .jpg, .jpeg, .png and .gif formats are supported.")
+    .refine((file) => file.type !== "" ? ACCEPTED_IMAGE_TYPES.includes(file.type) : new File([], ""),"only .jpg, .jpeg, .png and .gif formats are supported.")
     .transform(file => convertBase64(file))
     .optional(),
   bannerColor: z.string(),
@@ -45,10 +49,13 @@ const formSchema = z.object({
 })
 
 const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
+  const router = useRouter()
+
   const [color, setColor] = useColor(user.hexColor)
   const [colorBanner, setColorBanner] = useColor(user.bannerColor)
 
   const [isOpen, setIsOpen] = useState(false)
+  const [image , setImage] = useState("")
 
   const onEnter = { y: 150 }
   const animate = { y: 0 }
@@ -76,9 +83,35 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
 
   const { setValue, getValues, reset, handleSubmit, control, formState } = form
 
-  const onSubmit = (value: z.infer<typeof formSchema>) => {
-    console.log(value)
+  const onSubmit = async(value: z.infer<typeof formSchema>) => {
+    try {
+      console.log(value);
+      
+      // const res = await axios.patch("/api/users",  value)
+      // const data = res.data
+
+      // toast({
+      //   variant: "success",
+      //   description: data.message,
+      // })
+
+      router.refresh()
+    } catch (error) {
+      console.log(error)
+    }
   }
+
+  useEffect(() => {
+    reset({ 
+      avatar: user.avatar || undefined, 
+      banner: user.banner || undefined, 
+      bannerColor: user.bannerColor, 
+      bio: user.bio || "", 
+      displayname: user.displayname || "", 
+      hexColor: user.hexColor, 
+      username: user.username 
+    })
+  }, [user])
 
   return (
     <div className="relative mb-20 space-y-4">
@@ -87,66 +120,65 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col space-y-3">
             <div className="flex flex-col space-y-3 md:flex-row md:space-x-4 md:space-y-0">
-              <div className="bg-[#F2F3F5] dark:bg-dark-tertiary max-w-sm rounded-md relative overflow-hidden flex-1">
-                <div className="absolute inset-0 w-full h-20" style={{ backgroundColor: getValues("bannerColor") }} />
-                <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-                  <ActionTooltip label="Edit Banner" side="left">
-                    <DropdownMenuTrigger asChild>
-                      <Button size={"icon"} variant={"ghost"} className="absolute z-10 w-8 h-8 rounded-full right-2 top-2 focus-visible:ring-0 focus-visible:ring-offset-0">
-                        <Edit size={16} />
-                      </Button>
-                    </DropdownMenuTrigger>
-                  </ActionTooltip>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onSelect={e => e.preventDefault()}>
-                      <FormField
-                        control={form.control}
-                        name="banner"
-                        render={({ field }) => (
-                          <FormItem>
+              <FormField 
+                control={form.control}
+                name="banner"
+                render={({ field }) => (
+                  <FormItem className="flex-1 max-w-sm">
+                    <div className="bg-[#F2F3F5] dark:bg-dark-tertiary max-w-sm rounded-md relative overflow-hidden flex-1">
+                      <div className="absolute inset-0 w-full h-20" style={{ backgroundColor: getValues("bannerColor") }} />
+                      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+                        <ActionTooltip label="Edit Banner" side="left">
+                          <DropdownMenuTrigger asChild>
+                            <Button size={"icon"} variant={"ghost"} className="absolute z-10 w-8 h-8 rounded-full right-2 top-2 focus-visible:ring-0 focus-visible:ring-offset-0">
+                              <Edit size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                        </ActionTooltip>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onSelect={e => e.preventDefault()}>
                             <FormLabel htmlFor="banner">
                               Change Banner
                             </FormLabel>
-                            <FormControl>
-                              <Input
-                                id="banner"
-                                accept="image/jpeg, image/jpg, image/png, image/gif"
-                                type="file"
-                                name={field.name}
-                                onBlur={field.onBlur}
-                                onChange={(e) => {
-                                  field.onChange(e.target.files ? e.target.files[0] : null)
-                                  e.target.files && setIsOpen(false)
-                                }}
-                                className="hidden"
-                                ref={field.ref}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </DropdownMenuItem>
-                    {user.banner && (
-                      <DropdownMenuItem>
-                        Remove Banner
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <div className="z-10 px-5 pb-3 mt-10 space-y-2">
-                  <UserAvatar
-                    initialName={user.displayname || user.username}
-                    src={user.avatar || ""}
-                    bgColor={getValues("hexColor")}
-                    className="w-20 h-20 border-8 border-[#F2F3F5] dark:border-dark-tertiary"
-                    classNameFallback="text-lg md:text-2xl"
-                  />
-                  <div>
-                    <p className="font-semibold tracking-wide md:text-lg">Your Avatar</p>
-                    <p className="text-xs text-zinc-400">This will be displayed on your profile</p>
-                  </div>
-                </div>
-              </div>
+                            <Input
+                              id="banner"
+                              accept="image/jpeg, image/jpg, image/png, image/gif"
+                              type="file"
+                              name={field.name}
+                              onBlur={field.onBlur}
+                              onChange={(e) => {
+                                field.onChange(e.target.files ? e.target.files[0] : null)
+                                e.target.files && setIsOpen(false)
+                              }}
+                              className="hidden"
+                              ref={field.ref}
+                            />
+                          </DropdownMenuItem>
+                          {user.banner && (
+                            <DropdownMenuItem>
+                              Remove Banner
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      <div className="z-10 px-5 pb-3 mt-10 space-y-2">
+                        <UserAvatar
+                          initialName={user.displayname || user.username}
+                          src={user.avatar || image}
+                          bgColor={getValues("hexColor")}
+                          className="w-20 h-20 border-8 border-[#F2F3F5] dark:border-dark-tertiary"
+                          classNameFallback="text-lg md:text-2xl"
+                        />
+                        <div>
+                          <p className="font-semibold tracking-wide md:text-lg">Your Avatar</p>
+                          <p className="text-xs text-zinc-400">This will be displayed on your profile</p>
+                        </div>
+                      </div>
+                    </div>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
               <div className="relative">
                 <div className="flex flex-col space-y-2">
                   <p className="text-xs font-extrabold uppercase dark:text-zinc-300">Banner Color</p>
@@ -198,6 +230,8 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                           onBlur={field.onBlur}
                           onChange={(e) => {
                             field.onChange(e.target.files ? e.target.files[0] : null)
+                            console.log(e.target.files)
+                            e.target.files?.[0] ? setImage(URL.createObjectURL(e.target.files[0])) : setImage("")
                           }}
                           className="hidden"
                           ref={field.ref}
@@ -289,8 +323,20 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                   >
                     <p className="text-xs md:text-sm">Careful — you have unsaved changes!</p>
                     <div className="flex space-x-2">
-                      <Button type="reset" variant={"ghost"} onClick={() => reset()}>Reset</Button>
-                      <Button type="submit" variant={"ghost"} className="text-xs text-white bg-emerald-500 hover:bg-emerald-600 md:text-sm">Save Changes</Button>
+                      <Button 
+                        type="reset" 
+                        variant={"ghost"} 
+                        onClick={() => {
+                          reset()
+                          setImage("")
+                        }} 
+                        disabled={formState.isSubmitting}
+                      >
+                        Reset
+                      </Button>
+                      <Button type="submit" variant={"ghost"} className="text-xs text-white bg-emerald-500 hover:bg-emerald-600 md:text-sm" disabled={formState.isSubmitting}>
+                        {formState.isSubmitting ? <Loading className="mx-6" /> : "Save Changes" }
+                      </Button>
                     </div>
                   </motion.div>
                 )}
