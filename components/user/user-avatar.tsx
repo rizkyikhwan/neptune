@@ -14,7 +14,7 @@ const UserAvatar = ({ src, className, classNameFallback, bgColor, initialName, o
   return (
     <div className="relative pointer-events-none">
       <Avatar className={cn("h-10 w-10", className)}>
-        <AvatarImage src={src} />
+        <AvatarImage className="object-cover" src={src} />
         <AvatarFallback
           className={cn("font-semibold text-xs md:text-base", bgColor ? "text-zinc-100" : "bg-muted", classNameFallback)}
           style={{ backgroundColor: bgColor }}

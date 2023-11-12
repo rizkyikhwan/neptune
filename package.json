@@ -50,6 +50,7 @@
     "nodemailer": "^6.9.5",
     "postcss": "8.4.30",
     "react": "18.2.0",
+    "react-advanced-cropper": "^0.19.4",
     "react-color-palette": "^7.1.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.46.2",

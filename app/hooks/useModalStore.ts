@@ -1,10 +1,11 @@
 import { User } from "@prisma/client"
 import { create } from "zustand"
 
-export type ModalType = "resetPassowrd" | "infoApp" | "removeFriend" | "profileUser"
+export type ModalType = "resetPassowrd" | "infoApp" | "removeFriend" | "profileUser" | "imageCrop"
 
 interface ModalData {
   data?: User & { friends?: User[] }
+  image?: string
 }
 
 interface ModalStore {
@@ -23,6 +24,6 @@ export const useModal = create<ModalStore>((set) => ({
   routerTab: "",
   isOpen: false,
   onOpen: (type, data = {}) => set({ isOpen: true, type, data }),
-  onClose: () => set({ isOpen: false }),
+  onClose: () => set({ isOpen: false, data: {} }),
   setRouterTab: (routerTab) => set({ routerTab }),
 }))

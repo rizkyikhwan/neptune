@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import ResetPasswordModal from "@/components/modals/reset-password-modal"
 import InfoAppModal from "@/components/modals/info-app-modal"
-import RemoveFriendModal from "@/components/modals/remove-friend-modal"
 import ProfileModalUser from "@/components/modals/profile-user-modal"
+import RemoveFriendModal from "@/components/modals/remove-friend-modal"
+import ResetPasswordModal from "@/components/modals/reset-password-modal"
+import { useEffect, useState } from "react"
 
 const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false)

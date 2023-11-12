@@ -55,15 +55,15 @@ export function userIsOnline(onlineUser: ActiveUsersProps[], id: string) {
 }
 
 export function convertBase64(file: File) {
-  if (file.size !== 0) {
+  if (file && file.size !== 0) {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
       fileReader.readAsDataURL(file);
-  
+
       fileReader.onload = () => {
         resolve(fileReader.result);
       };
-  
+
       fileReader.onerror = (error) => {
         reject(error);
       };
