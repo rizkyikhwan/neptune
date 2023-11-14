@@ -21,7 +21,7 @@ const ProfileUser = ({ user }: { user: User }) => {
 
   useEffect(() => {
     const handleKeyDown = (event: any) => {
-      if (event.key === "Escapre" || event.keyCode === 27) {
+      if (event.key === "Escape" || event.keyCode === 27) {
         router.back()
       }
     }

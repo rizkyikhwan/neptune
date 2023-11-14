@@ -18,7 +18,7 @@ export type SearchUser = {
   email: string
   hexColor: string
   id: string
-  picture?: string
+  avatar?: string
   username: string
 }
 
@@ -49,16 +49,18 @@ export const formSchemaEditProfile = z.object({
   displayname: z.string().optional(),
   username: z.string().min(3).max(15),
   avatar: typeof window === "undefined" ? z.undefined() : z.instanceof(File)
-    .refine((file) => file.size <= 5000000, `Max image size is 5MB.`)
+    .refine((file) => file.size <= 2000000, `Max image size is 2MB.`)
     .refine((file) => file.type !== "" ? ACCEPTED_IMAGE_TYPES.includes(file.type) : new File([], ""), "only .jpg, .jpeg, .png and .gif formats are supported.")
     .transform(file => convertBase64(file))
-    .optional(),
+    .optional()
+    .nullable(),
   hexColor: z.string(),
   banner: typeof window === "undefined" ? z.undefined() : z.instanceof(File)
-    .refine((file) => file.size <= 5000000, `Max image size is 5MB.`)
+    .refine((file) => file.size <= 2000000, `Max image size is 2MB.`)
     .refine((file) => file.type !== "" ? ACCEPTED_IMAGE_TYPES.includes(file.type) : new File([], ""), "only .jpg, .jpeg, .png and .gif formats are supported.")
     .transform(file => convertBase64(file))
-    .optional(),
+    .optional()
+    .nullable(),
   bannerColor: z.string(),
-  bio: z.string().max(32)
+  bio: z.string().max(150)
 })

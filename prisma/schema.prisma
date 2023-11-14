@@ -23,6 +23,9 @@ model User {
   bio           String?
   password      String
 
+  pathAvatar String?
+  pathBanner String?
+
   resetPasswordToken       String?
   resetPasswordTokenExpiry DateTime?
 

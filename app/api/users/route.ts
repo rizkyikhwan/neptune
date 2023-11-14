@@ -1,3 +1,4 @@
+import cloudinary from "@/lib/cloudinary"
 import { currentUser } from "@/lib/currentUser"
 import { db } from "@/lib/db"
 import { prismaExclude } from "@/lib/utils"
@@ -46,6 +47,41 @@ export async function PATCH(req: Request) {
   try {
     const body = await req.json()
     const { displayname, username, avatar, hexColor, banner, bannerColor, bio } = body
+    
+    let userAvatar
+    let userBanner
+
+    if (avatar?.includes("base64")) {
+      user.pathAvatar && await cloudinary.uploader.destroy(user.pathAvatar)
+
+      userAvatar = await cloudinary.uploader.upload(avatar, {
+        folder: `neptune/users/${username}/avatar`,
+        resource_type: "image",
+        transformation: {
+          quality: "auto"
+        }
+      })
+    } else if (avatar === null) {
+      userAvatar = null
+
+      await cloudinary.uploader.destroy(user.pathAvatar || "")
+    }
+
+    if (banner?.includes("base64")) {
+      user.pathBanner && await cloudinary.uploader.destroy(user.pathBanner)
+
+      userBanner = await cloudinary.uploader.upload(banner, {
+        folder: `neptune/users/${username}/banner`,
+        resource_type: "image",
+        transformation: {
+          quality: "auto"
+        }
+      })
+    } else if (banner === null) {
+      userBanner = null
+
+      await cloudinary.uploader.destroy(user.pathBanner || "")
+    }
 
     await db.user.update({
       where: {
@@ -54,9 +90,11 @@ export async function PATCH(req: Request) {
       data: {
         displayname,
         username,
-        avatar,
+        avatar: avatar ? userAvatar?.secure_url : avatar === null ? null : undefined,
+        pathAvatar: avatar ? userAvatar?.public_id : avatar === null ? null : undefined,
         hexColor,
-        banner,
+        banner: banner ? userBanner?.secure_url : banner === null ? null : undefined,
+        pathBanner: banner ? userBanner?.public_id : banner === null ? null : undefined,
         bannerColor,
         bio
       }

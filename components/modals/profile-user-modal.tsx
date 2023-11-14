@@ -13,6 +13,7 @@ import { User } from "@prisma/client"
 import axios from "axios"
 import { MoreVertical, UserX } from "lucide-react"
 import { useSession } from "next-auth/react"
+import Image from "next/image"
 import { useRouter } from "next13-progressbar"
 import { useEffect, useState } from "react"
 
@@ -53,10 +54,17 @@ const ProfileModalUser = () => {
     <Dialog open={isModalOpen} onOpenChange={onClose}>
       <DialogContent className="p-0 overflow-hidden max-w-xl bg-[#F2F3F5] dark:bg-dark-primary min-h-screen md:min-h-max">
         <div className="relative flex flex-col">
-          <div className="absolute inset-0 w-full h-32" style={{ backgroundColor: user?.bannerColor }} />
-          <div className="z-10 flex items-end justify-between px-4 mt-20 md:mt-16">
+          {user?.banner ? (
+            <div className="absolute inset-0 w-full h-32 md:h-48">
+              <Image fill src={user.banner} className="object-cover" alt="banner" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" blurDataURL={user.banner} />
+            </div>
+          ) : (
+            <div className="absolute inset-0 w-full h-32" style={{ backgroundColor: user?.bannerColor }} />
+          )}
+          <div className={cn("z-10 flex items-end justify-between px-4 mt-20 md:mt-16", user?.banner && "mt-[72px] md:mt-32")}>
             <div className="flex items-center space-x-3">
               <UserAvatar
+                src={user?.avatar || ""}
                 initialName={user?.displayname || user?.username || ""}
                 className="w-28 h-28 md:w-32 md:h-32 border-[12px] border-[#F2F3F5] dark:border-dark-primary"
                 bgColor={user?.hexColor}
@@ -118,7 +126,7 @@ const ProfileModalUser = () => {
                 )}
               </TabsList>
               <TabsContent value="user-info">
-                <ScrollArea className="h-48">
+                <ScrollArea className="md:h-48">
                   <div className="mt-2 space-y-1">
                     <p className="text-xs font-semibold tracking-wide uppercase">About me</p>
                     <p className="text-xs whitespace-pre-line">
@@ -151,7 +159,7 @@ const ProfileModalUser = () => {
                     <>
                       {mutualFriends.map((user: User, index) => (
                         <div key={user.id} className={cn("mb-1 flex items-center px-2 space-x-2 py-2 rounded-md cursor-pointer select-none border-zinc-200 dark:border-zinc-700 hover:bg-zinc-300/10 hover:dark:bg-zinc-400/10", [...Array(10)].length - 1 === index && "mb-0")}>
-                          <UserAvatar initialName={user.displayname || user.username} bgColor={user.hexColor} onlineIndicator={userIsOnline(onlineUsers, user.id)} />
+                          <UserAvatar src={user.avatar || ""} initialName={user.displayname || user.username} bgColor={user.hexColor} onlineIndicator={userIsOnline(onlineUsers, user.id)} />
                           <div className="flex flex-col">
                             <p>{user.displayname || user.username}</p>
                             <p className="text-xs dark:text-zinc-400">{user.username}</p>

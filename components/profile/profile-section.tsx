@@ -16,15 +16,17 @@ import { ColorPicker, useColor } from "react-color-palette"
 import "react-color-palette/css"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
-import { Input } from "../ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
-import { Separator } from "../ui/separator"
-import { toast } from "../ui/use-toast"
-import Loading from "../loading"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Separator } from "@/components/ui/separator"
+import { toast } from "@/components/ui/use-toast"
+import Loading from "@/components/loading"
 import { useModal } from "@/app/hooks/useModalStore"
-import ImageCropModal from "../modals/image-crop-modal"
+import AvatarCropModal from "@/components/modals/avatar-crop-modal"
 import { formSchemaEditProfile } from "@/lib/type"
+import BannerCropModal from "@/components/modals/banner-crop-modal"
+import Image from "next/image"
 
 interface ProfileSectionProps {
   user: User,
@@ -39,7 +41,8 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
   const [colorBanner, setColorBanner] = useColor(user.bannerColor)
 
   const [isOpen, setIsOpen] = useState(false)
-  const [preview, setPreview] = useState("")
+  const [previewAvatar, setPreviewAvatar] = useState("")
+  const [previewBanner, setPreviewBanner] = useState("")
 
   const onEnter = { y: 150 }
   const animate = { y: 0 }
@@ -69,15 +72,19 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
 
   const onSubmit = async (value: z.infer<typeof formSchemaEditProfile>) => {
     try {
-      console.log(value);
+      const dataSubmit = {
+        ...value,
+        avatar: value.avatar === null ? null : previewAvatar.includes("cloudinary") ? undefined : previewAvatar,
+        banner: value.banner === null ? null : previewBanner.includes("cloudinary") ? undefined : previewBanner
+      }
 
-      // const res = await axios.patch("/api/users",  value)
-      // const data = res.data
+      const res = await axios.patch("/api/users",  dataSubmit)
+      const data = res.data
 
-      // toast({
-      //   variant: "success",
-      //   description: data.message,
-      // })
+      toast({
+        variant: "success",
+        description: data.message,
+      })
 
       router.refresh()
     } catch (error) {
@@ -85,17 +92,28 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
     }
   }
 
-  const handleFileChange = async (files: FileList) => {
+  const handleFileChange = async(files: FileList, modal: string) => {
     const file = files && files[0];
     const imageDataUrl = await convertBase64(file);
 
-    file ? onOpen("imageCrop", { image: imageDataUrl as string }) : setPreview("")
+    file ? onOpen(modal === "avatar" ? "avatarCrop" : "bannerCrop", { image: imageDataUrl as string }) : modal === "avatar" ? setPreviewAvatar("") : setPreviewBanner("")
+  }
+
+  const handleResetEdit = () => {
+    reset()
+
+    user.avatar ? setPreviewAvatar(user.avatar) : setPreviewAvatar("")
+    
+    user.banner ? setPreviewBanner(user.banner) : setPreviewBanner("")
   }
 
   useEffect(() => {
+    setPreviewAvatar(user.avatar || "")
+    setPreviewBanner(user.banner || "")
+
     reset({
-      avatar: user.avatar || undefined,
-      banner: user.banner || undefined,
+      avatar: undefined,
+      banner: undefined,
       bannerColor: user.bannerColor,
       bio: user.bio || "",
       displayname: user.displayname || "",
@@ -103,7 +121,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
       username: user.username
     })
   }, [user])
-
+  
   return (
     <>
       <div className="relative mb-20 space-y-4">
@@ -118,16 +136,22 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                   render={({ field }) => (
                     <FormItem className="flex-1 max-w-sm">
                       <div className="bg-[#F2F3F5] dark:bg-dark-tertiary max-w-sm rounded-md relative overflow-hidden flex-1">
-                        <div className="absolute inset-0 w-full h-20" style={{ backgroundColor: getValues("bannerColor") }} />
+                        {previewBanner ? (
+                          <div className="absolute inset-0 w-full h-24">
+                            <Image fill src={previewBanner} className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" priority alt="banner" />
+                          </div>
+                        ) : (
+                          <div className="absolute inset-0 w-full h-24" style={{ backgroundColor: getValues("bannerColor") }} />
+                        )}
                         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
                           <ActionTooltip label="Edit Banner" side="left">
                             <DropdownMenuTrigger asChild>
-                              <Button size={"icon"} variant={"ghost"} className="absolute z-10 w-8 h-8 rounded-full right-2 top-2 focus-visible:ring-0 focus-visible:ring-offset-0">
+                              <Button size={"icon"} variant={"ghost"} className="absolute z-10 w-8 h-8 rounded-full right-2 top-2 focus-visible:ring-0 focus-visible:ring-offset-0 bg-muted/40" disabled={formState.isSubmitting}>
                                 <Edit size={16} />
                               </Button>
                             </DropdownMenuTrigger>
                           </ActionTooltip>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent className="space-y-1" align="end">
                             <DropdownMenuItem onSelect={e => e.preventDefault()}>
                               <FormLabel htmlFor="banner">
                                 Change Banner
@@ -140,23 +164,35 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                                 onBlur={field.onBlur}
                                 onChange={(e) => {
                                   field.onChange(e.target.files ? e.target.files[0] : null)
-                                  e.target.files && setIsOpen(false)
+                                  
+                                  if (e.target.files) {
+                                    setIsOpen(false)
+                                    handleFileChange(e.target.files, "banner")
+                                  }
                                 }}
                                 className="hidden"
                                 ref={field.ref}
+                                disabled={formState.isSubmitting}
                               />
                             </DropdownMenuItem>
                             {user.banner && (
-                              <DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => {
+                                  setValue("banner", null, { shouldDirty: true })
+                                  setPreviewBanner("")
+                                }} 
+                                className="text-rose-500 focus:text-rose-500"
+                                disabled={formState.isSubmitting}
+                              >
                                 Remove Banner
                               </DropdownMenuItem>
                             )}
                           </DropdownMenuContent>
                         </DropdownMenu>
-                        <div className="z-10 px-5 pb-3 mt-10 space-y-2">
+                        <div className="z-10 px-5 pb-3 space-y-2 mt-14">
                           <UserAvatar
                             initialName={user.displayname || user.username}
-                            src={user.avatar || preview}
+                            src={previewAvatar}
                             bgColor={getValues("hexColor")}
                             className="w-20 h-20 border-8 bg-[#F2F3F5] dark:bg-dark-tertiary border-[#F2F3F5] dark:border-dark-tertiary"
                             classNameFallback="text-lg md:text-2xl"
@@ -171,39 +207,41 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                     </FormItem>
                   )}
                 />
-                <div className="relative">
-                  <div className="flex flex-col space-y-2">
-                    <p className="text-xs font-extrabold uppercase dark:text-zinc-300">Banner Color</p>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <div className="w-20 h-10 rounded cursor-pointer md:w-full" style={{ backgroundColor: getValues("bannerColor") }} />
-                      </PopoverTrigger>
-                      <PopoverContent side={isMobile ? "right" : "bottom"} sideOffset={10} className="w-full p-0 rounded-lg">
-                        <ColorPicker
-                          color={colorBanner}
-                          hideInput={["rgb", "hsv"]}
-                          hideAlpha
-                          onChange={(e) => {
-                            setColorBanner(e)
-                            setValue("bannerColor", e.hex, { shouldDirty: true })
-                          }}
-                          height={100}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormField
-                      control={control}
-                      name="bannerColor"
-                      render={({ field }) => (
-                        <FormInput id="bannerColor" className="absolute invisible" field={field} />
-                      )}
-                    />
+                {!user.banner && (
+                  <div className="relative">
+                    <div className="flex flex-col space-y-2">
+                      <p className="text-xs font-extrabold uppercase dark:text-zinc-300">Banner Color</p>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <div className="w-20 h-10 rounded cursor-pointer md:w-full" style={{ backgroundColor: getValues("bannerColor") }} />
+                        </PopoverTrigger>
+                        <PopoverContent side={isMobile ? "right" : "bottom"} sideOffset={10} className="w-full p-0 rounded-lg">
+                          <ColorPicker
+                            color={colorBanner}
+                            hideInput={["rgb", "hsv"]}
+                            hideAlpha
+                            onChange={(e) => {
+                              setColorBanner(e)
+                              setValue("bannerColor", e.hex, { shouldDirty: true })
+                            }}
+                            height={100}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormField
+                        control={control}
+                        name="bannerColor"
+                        render={({ field }) => (
+                          <FormInput id="bannerColor" className="absolute invisible" field={field} />
+                        )}
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
               <div className="space-y-2">
                 <p className="text-xs font-bold uppercase dark:text-zinc-300">Avatar</p>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-start space-x-2">
                   <FormField
                     control={form.control}
                     name="avatar"
@@ -221,12 +259,10 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                             name={field.name}
                             onBlur={field.onBlur}
                             onChange={(e) => {
-                              field.onChange(e.target.files ? e.target.files[0] : null)
-                              e.target.files && handleFileChange(e.target.files)
-                              // e.target.files?.[0] ? setImage(URL.createObjectURL(e.target.files[0])) : setImage("")
-                              // e.target.files && onOpen("imageCrop", { image: URL.createObjectURL(e.target.files[0]) })
-
-                              // onOpen("imageCrop")
+                              if (e.target.files?.length) {
+                                field.onChange(e.target.files ? e.target.files[0] : null)
+                                handleFileChange(e.target.files, "avatar")
+                              }
                             }}
                             className="hidden"
                             ref={field.ref}
@@ -236,7 +272,17 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                     )}
                   />
                   {user.avatar && (
-                    <Button variant={"ghost"} type="reset">Remove Avatar</Button>
+                    <Button 
+                      variant={"ghost"} 
+                      type="reset" 
+                      onClick={() => {
+                        setValue("avatar", null, { shouldDirty: true })
+                        setPreviewAvatar("")
+                      }}
+                      disabled={formState.isSubmitting}
+                    >
+                      Remove Avatar
+                    </Button>
                   )}
                 </div>
               </div>
@@ -276,14 +322,14 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                 control={control}
                 name="displayname"
                 render={({ field }) => (
-                  <FormInput title="displayname" field={field} autoComplete="off" className="text-current bg-muted dark:bg-zinc-800 dark:text-zinc-300" />
+                  <FormInput title="displayname" field={field} autoComplete="off" className="text-current bg-muted dark:bg-zinc-800 dark:text-zinc-300" disabled={formState.isSubmitting} />
                 )}
               />
               <FormField
                 control={control}
                 name="username"
                 render={({ field }) => (
-                  <FormInput title="username" field={field} autoComplete="off" className="text-current bg-muted dark:bg-zinc-800 dark:text-zinc-300" />
+                  <FormInput title="username" field={field} autoComplete="off" className="text-current bg-muted dark:bg-zinc-800 dark:text-zinc-300" disabled={formState.isSubmitting} />
                 )}
               />
               <FormField
@@ -296,9 +342,12 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        className="border-0 rounded-sm focus-visible-visible:ring-offset-0 bg-muted dark:bg-zinc-800 dark:text-zinc-300 focus-visible:ring-0 focus-visible:ring-offset-0"
+                        className="border-0 rounded-sm resize-none focus-visible-visible:ring-offset-0 bg-muted dark:bg-zinc-800 dark:text-zinc-300 focus-visible:ring-0 focus-visible:ring-offset-0"
                         autoComplete="off"
+                        wrap="hard"
                         rows={5}
+                        maxLength={150}
+                        disabled={formState.isSubmitting}
                         {...field}
                       />
                     </FormControl>
@@ -321,10 +370,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                         <Button
                           type="reset"
                           variant={"ghost"}
-                          onClick={() => {
-                            reset()
-                            setPreview("")
-                          }}
+                          onClick={handleResetEdit}
                           disabled={formState.isSubmitting}
                         >
                           Reset
@@ -341,7 +387,8 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
           </form>
         </Form>
       </div>
-      <ImageCropModal setValue={setValue} resetField={resetField} setPreview={setPreview} />
+      <AvatarCropModal user={user} setValue={setValue} resetField={resetField} setPreview={setPreviewAvatar} />
+      <BannerCropModal user={user} setValue={setValue} resetField={resetField} setPreview={setPreviewBanner} />
     </>
   )
 }

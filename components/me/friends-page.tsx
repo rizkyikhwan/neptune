@@ -116,7 +116,7 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
                   <ContextMenuTrigger asChild>
                     <div className="flex items-center justify-between px-2 py-2 mb-1 rounded-md cursor-pointer select-none border-zinc-200 dark:border-zinc-700 hover:bg-zinc-300/20 hover:dark:bg-zinc-400/10 data-[state=open]:dark:bg-zinc-400/10 data-[state=open]:bg-zinc-300/20">
                       <div className="flex items-start flex-grow space-x-2">
-                        <UserAvatar bgColor={user.hexColor} initialName={user.displayname || user.username} onlineIndicator={user.online} />
+                        <UserAvatar src={user.avatar || ""} bgColor={user.hexColor} initialName={user.displayname || user.username} onlineIndicator={user.online} />
                         <div className="flex flex-col">
                           <p>{user.displayname || user.username}</p>
                           <p className="text-xs text-zinc-400">{user.username}</p>
