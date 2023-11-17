@@ -1,7 +1,7 @@
 import { User } from "@prisma/client"
 import { create } from "zustand"
 
-export type ModalType = "resetPassowrd" | "infoApp" | "removeFriend" | "profileUser" | "avatarCrop" | "bannerCrop"
+export type ModalType = "resetPassowrd" | "updatePassword" | "changeEmail" | "infoApp" | "removeFriend" | "profileUser" | "avatarCrop" | "bannerCrop"
 
 interface ModalData {
   data?: User & { friends?: User[] }

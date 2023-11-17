@@ -41,6 +41,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
   const [colorBanner, setColorBanner] = useColor(user.bannerColor)
 
   const [isOpen, setIsOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [previewAvatar, setPreviewAvatar] = useState("")
   const [previewBanner, setPreviewBanner] = useState("")
 
@@ -72,6 +73,8 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
 
   const onSubmit = async (value: z.infer<typeof formSchemaEditProfile>) => {
     try {
+      setLoading(true)
+
       const dataSubmit = {
         ...value,
         avatar: value.avatar === null ? null : previewAvatar.includes("cloudinary") ? undefined : previewAvatar,
@@ -89,6 +92,8 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
       router.refresh()
     } catch (error) {
       console.log(error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -146,7 +151,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
                           <ActionTooltip label="Edit Banner" side="left">
                             <DropdownMenuTrigger asChild>
-                              <Button size={"icon"} variant={"ghost"} className="absolute z-10 w-8 h-8 rounded-full right-2 top-2 focus-visible:ring-0 focus-visible:ring-offset-0 bg-muted/40" disabled={formState.isSubmitting}>
+                              <Button size={"icon"} variant={"ghost"} className="absolute z-10 w-8 h-8 rounded-full right-2 top-2 focus-visible:ring-0 focus-visible:ring-offset-0 bg-muted/40" disabled={loading}>
                                 <Edit size={16} />
                               </Button>
                             </DropdownMenuTrigger>
@@ -172,7 +177,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                                 }}
                                 className="hidden"
                                 ref={field.ref}
-                                disabled={formState.isSubmitting}
+                                disabled={loading}
                               />
                             </DropdownMenuItem>
                             {user.banner && (
@@ -182,7 +187,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                                   setPreviewBanner("")
                                 }} 
                                 className="text-rose-500 focus:text-rose-500"
-                                disabled={formState.isSubmitting}
+                                disabled={loading}
                               >
                                 Remove Banner
                               </DropdownMenuItem>
@@ -279,7 +284,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                         setValue("avatar", null, { shouldDirty: true })
                         setPreviewAvatar("")
                       }}
-                      disabled={formState.isSubmitting}
+                      disabled={loading}
                     >
                       Remove Avatar
                     </Button>
@@ -322,14 +327,14 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                 control={control}
                 name="displayname"
                 render={({ field }) => (
-                  <FormInput title="displayname" field={field} autoComplete="off" className="text-current bg-muted dark:bg-zinc-800 dark:text-zinc-300" disabled={formState.isSubmitting} />
+                  <FormInput title="displayname" field={field} autoComplete="off" className="text-current bg-muted dark:bg-zinc-800 dark:text-zinc-300" disabled={loading} />
                 )}
               />
               <FormField
                 control={control}
                 name="username"
                 render={({ field }) => (
-                  <FormInput title="username" field={field} autoComplete="off" className="text-current bg-muted dark:bg-zinc-800 dark:text-zinc-300" disabled={formState.isSubmitting} />
+                  <FormInput title="username" field={field} autoComplete="off" className="text-current bg-muted dark:bg-zinc-800 dark:text-zinc-300" disabled={loading} />
                 )}
               />
               <FormField
@@ -347,7 +352,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                         wrap="hard"
                         rows={5}
                         maxLength={150}
-                        disabled={formState.isSubmitting}
+                        disabled={loading}
                         {...field}
                       />
                     </FormControl>
@@ -371,12 +376,12 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                           type="reset"
                           variant={"ghost"}
                           onClick={handleResetEdit}
-                          disabled={formState.isSubmitting}
+                          disabled={loading}
                         >
                           Reset
                         </Button>
-                        <Button type="submit" variant={"ghost"} className="text-xs text-white bg-emerald-500 hover:bg-emerald-600 md:text-sm" disabled={formState.isSubmitting}>
-                          {formState.isSubmitting ? <Loading className="mx-6" /> : "Save Changes"}
+                        <Button type="submit" variant={"ghost"} className="text-xs text-white bg-emerald-500 hover:bg-emerald-600 md:text-sm" disabled={loading}>
+                          {loading ? <Loading className="mx-6" /> : "Save Changes"}
                         </Button>
                       </div>
                     </motion.div>

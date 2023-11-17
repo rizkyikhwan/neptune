@@ -6,7 +6,7 @@ import { redirect } from "next/navigation"
 const MeProfilePage = async () => {
   const session = await getAuthSession()
 
-  if (!session?.user?.email) {
+  if (!session?.user.id) {
     return redirect("/")
   }
 
@@ -18,6 +18,10 @@ const MeProfilePage = async () => {
 
   if (!data) {
     return redirect("/")
+  }
+
+  if (!data.emailVerified) {
+    return redirect("/verification")
   }
 
   return (

@@ -15,11 +15,11 @@ export async function PATCH(req: Request, { params }: ResetPasswordParams) {
     const { token } = params
 
     if (!token) {
-      return NextResponse.json({ message: "Token is missing", status: 404 }, { status: 404 })
+      return NextResponse.json({ message: "Token is missing" }, { status: 404 })
     }
 
     if (!password) {
-      return NextResponse.json({ message: "Please filled the form", status: 400 }, { status: 400 })
+      return NextResponse.json({ message: "Please filled the form" }, { status: 400 })
     }
 
     const salt = await bcrypt.genSalt(10)
@@ -37,7 +37,7 @@ export async function PATCH(req: Request, { params }: ResetPasswordParams) {
       }
     })
 
-    return NextResponse.json({ message: "Password Updated", status: 201 }, { status: 201 })
+    return NextResponse.json({ message: "Password Updated" }, { status: 201 })
   } catch (error) {
     console.log(error, "[RESET_PASSWORD_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })

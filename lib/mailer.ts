@@ -1,17 +1,19 @@
-import nodemailer from "nodemailer";
-import { EmailType } from "./type";
-import { render } from "@react-email/render";
-import VerifyEmail from "@/components/email/verify-email";
 import ResetPasswordEmail from "@/components/email/reset-password-email";
+import VerifyCode from "@/components/email/verify-code";
+import VerifyEmail from "@/components/email/verify-email";
+import { render } from "@react-email/render";
+import nodemailer from "nodemailer";
+import { EmailEnum } from "./type";
 
 interface SendEmailType {
   username: string
   email: string,
   token: string | null,
-  type: EmailType
+  code: string,
+  type: EmailEnum
 }
 
-export const sendEmail = async ({ username, email, token, type }: SendEmailType) => {
+export const sendEmail = async (props: SendEmailType) => {
   try {
     const transport = nodemailer.createTransport({
       host: "sandbox.smtp.mailtrap.io",
@@ -22,11 +24,30 @@ export const sendEmail = async ({ username, email, token, type }: SendEmailType)
       }
     })
 
+    const EmailTemplate = {
+      "Verify Email": {
+        subject: "Verify Email",
+        comp: VerifyEmail
+      },
+      "Reset Password": {
+        subject: "Reset Password",
+        comp: ResetPasswordEmail
+      },
+      "Verify Code": {
+        subject: `Your Neptune email verification code is ${props.code.toUpperCase()}`,
+        comp: VerifyCode
+      },
+      "New Email": {
+        subject: `Verify New Email`,
+        comp: VerifyEmail
+      },
+    }
+
     const mailOptions = {
       from: "noreply@neptune.com",
-      to: email,
-      subject: type === "Verify Email" ? "Verify your email" : type === "Reset Password" ? "Reset your password" : "No reply",
-      html: type === "Verify Email" ? render(VerifyEmail({ username, token })) : type === "Reset Password" ? render(ResetPasswordEmail({ token })) : "No reply"
+      to: props.email,
+      subject: EmailTemplate[props.type].subject,
+      html: render(EmailTemplate[props.type].comp(props))
     }
 
     const mailResponse = await transport.sendMail(mailOptions)

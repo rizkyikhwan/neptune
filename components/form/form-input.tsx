@@ -18,7 +18,7 @@ const FormInput = ({ field, title, required, className, ...props }: FormInputPro
   return (
     <FormItem className="flex-1 space-y-1">
       {title && (
-        <FormLabel className={cn("text-xs font-bold tracking-wider uppercase text-zinc-300", pathname !== "/" && "text-current dark:text-zinc-300", error && "text-red-500")}>
+        <FormLabel className={cn("text-xs font-bold tracking-wider uppercase text-zinc-300", pathname !== "/" && "text-current dark:text-zinc-300", error && "text-rose-500 dark:text-rose-500")}>
           {title}
           {required && <span className="ml-0.5 text-xs text-rose-500 align-top">*</span>}
         </FormLabel>

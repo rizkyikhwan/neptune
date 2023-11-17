@@ -39,7 +39,14 @@ export type ChildrenType = {
 
 export type VariantAuth = "LOGIN" | "SIGNUP"
 
-export type EmailType = "Verify Email" | "Reset Password"
+export type EmailType = "Verify Email" | "Reset Password" | "Verify Code" | "New Email"
+
+export enum EmailEnum {
+  VerifyEmail = "Verify Email",
+  ResetPassword = "Reset Password",
+  VerifyCode = "Verify Code",
+  NewEmail = "New Email"
+}
 
 export type VariantFriend = "ONLINE" | "ALL" | "PENDING" | "ADD_FRIEND"
 

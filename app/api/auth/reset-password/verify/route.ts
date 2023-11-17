@@ -1,5 +1,6 @@
 import { db } from "@/lib/db"
 import { sendEmail } from "@/lib/mailer"
+import { EmailEnum } from "@/lib/type"
 import { NextResponse } from "next/server"
 import { v4 as uuidv4 } from "uuid"
 
@@ -9,7 +10,7 @@ export async function PATCH(req: Request) {
     const { email } = body
 
     if (!email) {
-      return NextResponse.json({ message: "Email is missing", status: 404 }, { status: 404 })
+      return NextResponse.json({ message: "Email is missing" }, { status: 404 })
     }
 
     const user = await db.user.findUnique({
@@ -19,7 +20,7 @@ export async function PATCH(req: Request) {
     })
 
     if (!user) {
-      return NextResponse.json({ message: "User not found", status: 404 }, { status: 404 })
+      return NextResponse.json({ message: "User not found" }, { status: 404 })
     }
 
     const createToken = await db.user.update({
@@ -32,9 +33,9 @@ export async function PATCH(req: Request) {
       }
     })
 
-    await sendEmail({ username: user.username, email: createToken.email, token: createToken.resetPasswordToken, type: "Reset Password" })
+    await sendEmail({ username: user.username, email: createToken.email, token: createToken.resetPasswordToken, code: "", type: EmailEnum.ResetPassword })
 
-    return NextResponse.json({ message: "Email successfully sended", status: 201 }, { status: 201 })
+    return NextResponse.json({ message: "Email successfully sended" }, { status: 201 })
   } catch (error) {
     console.log(error, "[RESET_PASSWORD_VERIFY_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })

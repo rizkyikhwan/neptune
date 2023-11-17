@@ -12,10 +12,12 @@ import {
   Text
 } from '@react-email/components';
 import NeptuneLogo from "@/public/logo/logo.png"
+import { EmailEnum } from '@/lib/type';
 
 interface VerifyEmailProps {
   username: string;
   token: string | null
+  type: string
 }
 
 const baseUrl = process.env.VERCEL_URL
@@ -26,9 +28,9 @@ const linkUrl = process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_
 
 const VerifyEmail = ({
   username,
-  token
+  token,
+  type
 }: VerifyEmailProps) => {
-
   return (
     <Html>
       <Head />
@@ -36,7 +38,7 @@ const VerifyEmail = ({
         <Body style={main} className="mx-auto my-auto bg-white">
           <Container className="max-w-xl w-full my-7 mx-auto border border-solid border-[#eaeaea] rounded-md">
             <Section className="p-7">
-              <Img width={80} src={process.env.NODE_ENV === "production" ? NeptuneLogo.src : "https://res.cloudinary.com/delfgoiya/image/upload/v1697474947/logo_lygg2s.png"} className="mx-auto my-0" />
+              <Img width={60} src={process.env.NODE_ENV === "production" ? NeptuneLogo.src : "https://res.cloudinary.com/delfgoiya/image/upload/v1697474947/logo_lygg2s.png"} className="mx-auto my-0" />
             </Section>
             <Section className="flex w-full">
               <Row>
@@ -47,14 +49,16 @@ const VerifyEmail = ({
             </Section>
             <Section className="px-12 pt-1 pb-2">
               <Text className="text-lg font-semibold">
-                Verify your account
+                Verify your {type === EmailEnum.VerifyEmail ? "account" : type === EmailEnum.NewEmail && "email"}
               </Text>
               <Text className="text-sm">
-                Hi <b>{username}</b>, thanks you for signing up for Neptune. To verify your account, please follow the button below
+                {type === EmailEnum.VerifyEmail && `Hi <b>${username}</b>, thanks you for signing up for Neptune. To verify your account, please follow the button below`}
+                {type === EmailEnum.NewEmail && "To verify your new email, please follow the button below"}
               </Text>
               <Section className="my-8">
                 <Link className="text-center bg-blue-500 rounded-lg text-sm no-underline font-semibold w-[200px] inline-block max-w-full py-4 px-5 text-white" href={`${linkUrl}/verification/${token}`} target="_blank">
-                  Verify Account
+                  {type === EmailEnum.VerifyEmail && "Verify Account"}
+                  {type === EmailEnum.NewEmail && "Verify New Email"}
                 </Link>
               </Section>
               <Text className="text-sm">

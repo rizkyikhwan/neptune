@@ -8,9 +8,10 @@ import { ArrowLeft, LogOut, Menu } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import ProfileSection from "./profile-section"
-import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet"
-import { Separator } from "../ui/separator"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Separator } from "@/components/ui/separator"
 import { signOut } from "next-auth/react"
+import AccountSettingsSection from "./account-settings-section"
 
 const ProfileUser = ({ user }: { user: User }) => {
   const router = useRouter()
@@ -87,7 +88,7 @@ const ProfileUser = ({ user }: { user: User }) => {
         <ProfileSection user={user} isMobile={isMobile} />
       </TabsContent>
       <TabsContent value="account-settings" className="flex-1 max-w-xl">
-        <p className="text-xl font-semibold tracking-wider">Account Settings</p>
+        <AccountSettingsSection user={user} />
       </TabsContent>
     </Tabs>
   )

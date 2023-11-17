@@ -72,7 +72,7 @@ const AvatarCropModal = ({ user, resetField, setPreview }: AvatarCropModalProps)
           }}
           wrapperComponent={CustomWrapper}
         />
-        <DialogFooter>
+        <DialogFooter className="space-y-2 space-y-reverse sm:space-y-0">
           <Button 
             variant={"outline"} 
             type="reset" 

@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid"
 import { db } from "@/lib/db"
 import { sendEmail } from "@/lib/mailer"
 import { randomHexColor } from "@/lib/utils"
+import { EmailEnum } from "@/lib/type"
 
 export async function POST(req: Request) {
   try {
@@ -12,7 +13,7 @@ export async function POST(req: Request) {
     const { email, username, displayname, password } = body
 
     if (!email || !username || !password) {
-      return NextResponse.json({ message: "Please filled the form", status: 400 }, { status: 400 })
+      return NextResponse.json({ message: "Please filled the form" }, { status: 400 })
     }
 
     const salt = await bcrypt.genSalt(10)
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
     })
 
     if (checkEmailAlreadyUsed) {
-      return NextResponse.json({ message: "Your account may already exist, try to login or reset your password", status: 409 }, { status: 409 })
+      return NextResponse.json({ message: "Your account may already exist, try to login or reset your password" }, { status: 409 })
     }
 
     const checkUsernameAlreadyUsed = await db.user.findUnique({
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
     })
 
     if (checkUsernameAlreadyUsed) {
-      return NextResponse.json({ message: "Username already exist, try to another username", status: 409 }, { status: 409 })
+      return NextResponse.json({ message: "Username already exist, try to another username" }, { status: 409 })
     }
 
     const user = await db.user.create({
@@ -50,9 +51,12 @@ export async function POST(req: Request) {
       }
     })
 
-    await sendEmail({ username, email, token: user.verifyToken, type: "Verify Email" })
+    await sendEmail({
+      username, email, token: user.verifyToken, type: EmailEnum.VerifyEmail,
+      code: ""
+    })
 
-    return NextResponse.json({ message: "Successfully Sign Up", status: 200 }, { status: 200 })
+    return NextResponse.json({ message: "Successfully Sign Up" }, { status: 200 })
   } catch (error) {
     console.log(error, "[SIGNUP_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })

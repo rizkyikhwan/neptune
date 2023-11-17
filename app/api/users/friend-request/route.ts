@@ -7,7 +7,7 @@ export async function GET(req: Request) {
   const user = await currentUser()
 
   if (!user) {
-    return NextResponse.json({ message: "Unauthorized", status: 401 }, { status: 401 })
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   try {
@@ -32,10 +32,10 @@ export async function GET(req: Request) {
     })
 
     if (!pendingRequest) {
-      return NextResponse.json({ message: "User not found", status: 404 }, { status: 404 })
+      return NextResponse.json({ message: "User not found" }, { status: 404 })
     }
 
-    return NextResponse.json({ data: pendingRequest.friendsRequest, status: 200 }, { status: 200 })
+    return NextResponse.json({ data: pendingRequest.friendsRequest }, { status: 200 })
   } catch (error) {
     console.log(error, "[FRIEND_REQUEST_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
     })
 
     if (checkUserAlreadyFriend) {     
-      return NextResponse.json({ message: "Already become friends", status: 409 }, { status: 409 })
+      return NextResponse.json({ message: "Already become friends" }, { status: 409 })
     }
 
     const checkUserAlreadyRequest = await db.friendRequest.findFirst({
@@ -92,7 +92,7 @@ export async function POST(req: Request) {
     })
 
     if (checkUserAlreadyRequest) {     
-      return NextResponse.json({ message: "Already send friend request to this user", status: 409 }, { status: 409 })
+      return NextResponse.json({ message: "Already send friend request to this user" }, { status: 409 })
     }
 
     const checkUserHasRequest = await db.friendRequest.findFirst({
@@ -145,7 +145,7 @@ export async function POST(req: Request) {
       })
     }
 
-    return NextResponse.json({ message: "OK", status: 200 }, { status: 200 })
+    return NextResponse.json({ message: "OK" }, { status: 200 })
   } catch (error) {
     console.log(error, "[FRIEND_REQUEST_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })
@@ -183,7 +183,7 @@ export async function PATCH(req: Request) {
     })
     
     if (!userFriendRequest) {
-      return NextResponse.json({ message: "Friend request not found", status: 404 }, { status: 404 })
+      return NextResponse.json({ message: "Friend request not found" }, { status: 404 })
     }
 
     if (userFriendRequest.userRequestToIDs.length === 1) {
@@ -216,7 +216,7 @@ export async function PATCH(req: Request) {
       }
     })
 
-    return NextResponse.json({ message: "OK", status: 200 }, { status: 200 })
+    return NextResponse.json({ message: "OK" }, { status: 200 })
   } catch (error) {
     console.log(error, "[FRIEND_REQUEST_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })

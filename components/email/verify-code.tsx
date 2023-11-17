@@ -12,6 +12,7 @@ import {
   Text
 } from '@react-email/components';
 import NeptuneLogo from "@/public/logo/logo.png"
+import React from 'react';
 
 const baseUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -19,7 +20,7 @@ const baseUrl = process.env.VERCEL_URL
 
 const linkUrl = process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_SITE_URL : "http://localhost:3000"
 
-export const ResetPasswordEmail = ({ token }: { token: string | null }) => {
+const VerifyCode = ({ code }: { code: string }) => {
   return (
     <Html>
       <Head />
@@ -37,21 +38,17 @@ export const ResetPasswordEmail = ({ token }: { token: string | null }) => {
               </Row>
             </Section>
             <Section className="px-12 pt-1 pb-2">
-              <Text className="text-lg font-semibold">
-                Reset your password
-              </Text>
               <Text className="text-sm">
-                Follow the button to reset the password for your user.
+                Before we change the email on your account, we just need to confirm that this is you. Below is the verification code for your Neptune account.
               </Text>
               <Section className="my-8">
-                <Link className="text-center bg-blue-500 rounded-lg text-sm no-underline font-semibold w-[200px] inline-block max-w-full py-4 px-5 text-white" href={`${linkUrl}/reset-password/${token}`} target="_blank">
-                  Reset Password
-                </Link>
+                <Section className="mx-auto my-2 align-middle rounded w-72 bg-slate-100">
+                  <Text className="inline-block w-full mx-auto font-mono text-3xl font-bold leading-10 tracking-widest text-center text-black">{code.toUpperCase()}</Text>
+                </Section>
               </Section>
               <Text className="text-sm">
-                Thanks,
-                <br />
-                Neptune Support
+                Don't share this code with anyone. <br />
+                If you didn't ask for this code, please ignore this email.
               </Text>
             </Section>
           </Container>
@@ -66,7 +63,7 @@ export const ResetPasswordEmail = ({ token }: { token: string | null }) => {
   );
 };
 
-export default ResetPasswordEmail;
+export default VerifyCode;
 
 const fontFamily = 'HelveticaNeue,Helvetica,Arial,sans-serif';
 

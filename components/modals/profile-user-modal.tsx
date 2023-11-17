@@ -11,7 +11,7 @@ import UserAvatar from "@/components/user/user-avatar"
 import { cn, userIsOnline } from "@/lib/utils"
 import { User } from "@prisma/client"
 import axios from "axios"
-import { MoreVertical, UserX } from "lucide-react"
+import { MessageSquare, MoreVertical, UserX } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
 import { useRouter } from "next13-progressbar"
@@ -81,7 +81,7 @@ const ProfileModalUser = () => {
             </div>
             {currentUser?.user.id !== user?.id ? (
               <div className="flex items-center space-x-2">
-                <Button variant={"ghost"} className="text-white rounded bg-emerald-700 hover:bg-emerald-800 hover:text-white">Send Message</Button>
+                <Button variant={"ghost"} className="hidden text-white rounded md:block bg-emerald-700 hover:bg-emerald-800 hover:text-white">Send Message</Button>
                 <DropdownMenu>
                   <ActionTooltip label="More" side="top" align="end">
                     <DropdownMenuTrigger asChild>
@@ -91,6 +91,10 @@ const ProfileModalUser = () => {
                     </DropdownMenuTrigger>
                   </ActionTooltip>
                   <DropdownMenuContent align="center">
+                    <DropdownMenuItem className="flex md:hidden">
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      <span>Send Message</span>
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onOpen("removeFriend", { data: user })} className="h-10 cursor-pointer text-rose-500 focus:text-rose-500">
                       <UserX className="w-4 h-4 mr-2" />
                       <span>Remove Friend</span>
@@ -101,6 +105,7 @@ const ProfileModalUser = () => {
             ) : (
               <Button
                 variant={"primary"}
+                className="focus-visible:ring-0 focus-visible:ring-offset-0"
                 onClick={() => {
                   router.push("/accounts-edit")
                   setRouterTab("profile")

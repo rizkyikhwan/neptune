@@ -10,7 +10,7 @@ import { UsersProps, VariantFriend } from "@/lib/type"
 import { capitalizeLetter, cn } from "@/lib/utils"
 import axios from "axios"
 import { motion } from "framer-motion"
-import { Check, MessageSquare, MoreVertical, Search, UserX, X } from "lucide-react"
+import { Check, MessageSquare, MoreVertical, Search, User, UserX, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "../ui/context-menu"
@@ -152,6 +152,10 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
                                 </DropdownMenuTrigger>
                               </ActionTooltip>
                               <DropdownMenuContent align="end">
+                                <DropdownMenuItem className="flex md:hidden" onClick={() => onOpen("profileUser", { data: user })}>
+                                  <User className="w-4 h-4 mr-2" />
+                                  <span>Profile</span>
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => onOpen("removeFriend", { data: user })} className="h-10 cursor-pointer text-rose-500 focus:text-rose-500">
                                   <UserX className="w-4 h-4 mr-2" />
                                   <span>Remove Friend</span>

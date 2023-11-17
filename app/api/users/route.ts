@@ -8,7 +8,7 @@ export async function GET(req: Request) {
   const user = await currentUser()
 
   if (!user) {
-    return NextResponse.json({ message: "Unauthorized", status: 401 }, { status: 401 })
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   try {
@@ -27,10 +27,10 @@ export async function GET(req: Request) {
     const filterUser = allUsers.filter(item => item.id !== user.id)
 
     if (filterUser.length === 0) {
-      return NextResponse.json({ message: "User not found.", status: 404 }, { status: 404 })
+      return NextResponse.json({ message: "User not found." }, { status: 404 })
     }
 
-    return NextResponse.json({ data: filterUser, status: 200 }, { status: 200 })
+    return NextResponse.json({ data: filterUser }, { status: 200 })
   } catch (error) {
     console.log(error, "[ALL_USERS_ERROR]")
     return new NextResponse("Internal Error", { status: 500 })
@@ -41,7 +41,7 @@ export async function PATCH(req: Request) {
   const user = await currentUser()
 
   if (!user) {
-    return NextResponse.json({ message: "Unauthorized", status: 401 }, { status: 401 })
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   try {
@@ -82,6 +82,14 @@ export async function PATCH(req: Request) {
 
       await cloudinary.uploader.destroy(user.pathBanner || "")
     }
+    
+
+    if (username !== user.username) {
+      user.pathAvatar && (userAvatar = await cloudinary.uploader.rename(`neptune/users/${user.username}/avatar/${user.pathAvatar?.split("/").pop()}`, `neptune/users/${username}/avatar/${user.pathAvatar?.split("/").pop()}`))
+      user.pathBanner && (userBanner = await cloudinary.uploader.rename(`neptune/users/${user.username}/banner/${user.pathBanner?.split("/").pop()}`, `neptune/users/${username}/banner/${user.pathBanner?.split("/").pop()}`))
+
+      await cloudinary.api.delete_folder(`neptune/users/${user.username}`)
+    }
 
     await db.user.update({
       where: {
@@ -90,17 +98,17 @@ export async function PATCH(req: Request) {
       data: {
         displayname,
         username,
-        avatar: avatar ? userAvatar?.secure_url : avatar === null ? null : undefined,
-        pathAvatar: avatar ? userAvatar?.public_id : avatar === null ? null : undefined,
+        avatar: avatar || userAvatar ? userAvatar?.secure_url : avatar === null ? null : undefined,
+        pathAvatar: avatar || userAvatar ? userAvatar?.public_id : avatar === null ? null : undefined,
         hexColor,
-        banner: banner ? userBanner?.secure_url : banner === null ? null : undefined,
-        pathBanner: banner ? userBanner?.public_id : banner === null ? null : undefined,
+        banner: banner || userBanner ? userBanner?.secure_url : banner === null ? null : undefined,
+        pathBanner: banner || userBanner ? userBanner?.public_id : banner === null ? null : undefined,
         bannerColor,
         bio
       }
     })
 
-    return NextResponse.json({ message: "Update Success", status: 201 }, { status: 201 })
+    return NextResponse.json({ message: "Update Success" }, { status: 201 })
   } catch (error) {
     console.log(error, "[UPDATE_PROFILE_USER_ERROR]")
     return new NextResponse("Internal Error", { status: 500 }) 

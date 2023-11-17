@@ -57,3 +57,12 @@ model FriendRequest {
 
   @@id([userRequestId])
 }
+
+model EmailVerifyCode {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  verifyCode String @unique
+  userId     String @unique
+  userEmail  String @unique
+
+  createdAt DateTime @default(now())
+}
