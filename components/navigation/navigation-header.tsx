@@ -14,7 +14,7 @@ import { Button } from "../ui/button";
 const NavigationHeader = ({ pathname }: { pathname: string | null }) => {
   const { theme } = useTheme()
   const [open, cycleOpen] = useCycle(false, true)
-  
+
   const [isMounted, setIsMounted] = useState(false)
 
   const onEnter = { opacity: 0, scale: 0 };

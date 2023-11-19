@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form"
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "../ui/context-menu"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import LoadingItem from "./loading-item"
+import { useRouter } from "next13-progressbar"
 
 type ActionRequest = "ACCEPT" | "REJECT"
 
@@ -29,7 +30,7 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
   const { register, resetField } = useForm()
   const { setFriends, setFriendRequest } = useFriendPageStore()
   const { onOpen } = useModal()
-
+  const router = useRouter()
 
   const [filteredUsers, setFilteredUsers] = useState<UsersProps[]>([])
 
@@ -114,7 +115,14 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
               >
                 <ContextMenu>
                   <ContextMenuTrigger asChild>
-                    <div className="flex items-center justify-between px-2 py-2 mb-1 rounded-md cursor-pointer select-none border-zinc-200 dark:border-zinc-700 hover:bg-zinc-300/20 hover:dark:bg-zinc-400/10 data-[state=open]:dark:bg-zinc-400/10 data-[state=open]:bg-zinc-300/20">
+                    <div
+                      className="flex items-center justify-between px-2 py-2 mb-1 rounded-md cursor-pointer select-none border-zinc-200 dark:border-zinc-700 hover:bg-zinc-300/20 hover:dark:bg-zinc-400/10 data-[state=open]:dark:bg-zinc-400/10 data-[state=open]:bg-zinc-300/20"
+                      onClick={() => {
+                        if (type === "ALL" || type === "ONLINE") {
+                          router.push(`/me/conversation/${user.id}`)
+                        }
+                      }}
+                    >
                       <div className="flex items-start flex-grow space-x-2">
                         <UserAvatar src={user.avatar || ""} bgColor={user.hexColor} initialName={user.displayname || user.username} onlineIndicator={user.online} />
                         <div className="flex flex-col">
@@ -139,7 +147,11 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
                         ) : (
                           <>
                             <ActionTooltip label="Message" side="top" align="center">
-                              <Button variant={"ghost"} className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group">
+                              <Button
+                                variant={"ghost"}
+                                className="flex items-center justify-center rounded-full w-9 h-9 bg-accent group"
+                                onClick={() => router.push(`/me/conversation/${user.id}`)}
+                              >
                                 <MessageSquare className="flex-none transition group-hover:dark:text-zinc-200 text-zinc-400 group-hover:text-zinc-700" size={20} />
                               </Button>
                             </ActionTooltip>
@@ -152,11 +164,22 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
                                 </DropdownMenuTrigger>
                               </ActionTooltip>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem className="flex md:hidden" onClick={() => onOpen("profileUser", { data: user })}>
+                                <DropdownMenuItem className="flex md:hidden"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onOpen("profileUser", { data: user })
+                                  }}
+                                >
                                   <User className="w-4 h-4 mr-2" />
                                   <span>Profile</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => onOpen("removeFriend", { data: user })} className="h-10 cursor-pointer text-rose-500 focus:text-rose-500">
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onOpen("removeFriend", { data: user })
+                                  }}
+                                  className="h-10 cursor-pointer text-rose-500 focus:text-rose-500"
+                                >
                                   <UserX className="w-4 h-4 mr-2" />
                                   <span>Remove Friend</span>
                                 </DropdownMenuItem>
@@ -171,7 +194,7 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
                     <ContextMenuItem onClick={() => onOpen("profileUser", { data: user })}>
                       Profile
                     </ContextMenuItem>
-                    <ContextMenuItem>
+                    <ContextMenuItem onClick={() => router.push(`/me/conversation/${user.id}`)}>
                       Message
                     </ContextMenuItem>
                     <ContextMenuSeparator />

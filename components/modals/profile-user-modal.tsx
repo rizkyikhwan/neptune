@@ -66,7 +66,7 @@ const ProfileModalUser = () => {
               <UserAvatar
                 src={user?.avatar || ""}
                 initialName={user?.displayname || user?.username || ""}
-                className="w-28 h-28 md:w-32 md:h-32 border-[12px] border-[#F2F3F5] dark:border-dark-primary"
+                className="w-28 h-28 md:w-32 md:h-32 bg-[#F2F3F5] dark:bg-dark-primary border-[12px] border-[#F2F3F5] dark:border-dark-primary"
                 bgColor={user?.hexColor}
                 classNameFallback="text-2xl md:text-4xl"
               />
@@ -145,7 +145,7 @@ const ProfileModalUser = () => {
                 </ScrollArea>
               </TabsContent>
               <TabsContent value="mutual-servers">
-                <ScrollArea className="h-48 pr-3">
+                <ScrollArea className="h-[calc(100vh-21.75rem)] pr-3 md:h-48">
                   {[...Array(10)].map((_, index) => (
                     <div key={index} className={cn("mb-1 flex items-center px-2 space-x-2 py-2 rounded-md cursor-pointer select-none border-zinc-200 dark:border-zinc-700 hover:bg-zinc-300/10 hover:dark:bg-zinc-400/10", [...Array(10)].length - 1 === index && "mb-0")}>
                       <UserAvatar initialName={`Server ${index + 1}`} className="rounded-xl" classNameFallback="rounded-xl" />
@@ -155,9 +155,9 @@ const ProfileModalUser = () => {
                 </ScrollArea>
               </TabsContent>
               <TabsContent value="mutual-friends">
-                <ScrollArea className="h-48 pr-3">
-                  {isLoading ? (
-                    <div className="flex items-center justify-center h-48">
+                <ScrollArea className="h-[calc(100vh-21.75rem)] md:h-48 pr-3">
+                  {true ? (
+                    <div className="flex items-center justify-center h-[calc(100vh-21.75rem)] md:h-48">
                       <LoadingScreen />
                     </div>
                   ) : (

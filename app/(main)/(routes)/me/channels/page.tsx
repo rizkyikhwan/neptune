@@ -3,6 +3,7 @@
 import { useFriendPageStore } from "@/app/hooks/useFriendPageStore"
 import { useModal } from "@/app/hooks/useModalStore"
 import ActionTooltip from "@/components/action-tooltip"
+import HeaderLayout from "@/components/header-layout"
 import MobileMenu from "@/components/mobile-menu"
 import FriendProvider from "@/components/providers/friend-provider"
 import { Button } from "@/components/ui/button"
@@ -60,7 +61,7 @@ const MeChannelsPage = () => {
   const variantFriend: VariantFriend[] = ["ONLINE", "ALL", "PENDING", "ADD_FRIEND"]
 
   return (
-    <main className="flex flex-col fixed inset-y-0 h-full w-full md:w-[calc(100%-313px)]">
+    <HeaderLayout>
       <section className="min-h-[48px] shadow py-2 px-4 border-b flex items-center relative">
         <div className="md:hidden after:absolute after:top-0 after:left-[55px] after:w-2 after:h-full after:bg-gradient-to-r after:dark:from-dark-primary after:dark:via-dark-primary/90 after:from-white">
           <MobileMenu />
@@ -104,7 +105,7 @@ const MeChannelsPage = () => {
           />
         </div>
       </div>
-    </main>
+    </HeaderLayout>
   )
 }
 export default MeChannelsPage

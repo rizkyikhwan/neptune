@@ -81,7 +81,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
         banner: value.banner === null ? null : previewBanner.includes("cloudinary") ? undefined : previewBanner
       }
 
-      const res = await axios.patch("/api/users",  dataSubmit)
+      const res = await axios.patch("/api/users", dataSubmit)
       const data = res.data
 
       toast({
@@ -97,7 +97,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
     }
   }
 
-  const handleFileChange = async(files: FileList, modal: string) => {
+  const handleFileChange = async (files: FileList, modal: string) => {
     const file = files && files[0];
     const imageDataUrl = await convertBase64(file);
 
@@ -108,7 +108,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
     reset()
 
     user.avatar ? setPreviewAvatar(user.avatar) : setPreviewAvatar("")
-    
+
     user.banner ? setPreviewBanner(user.banner) : setPreviewBanner("")
   }
 
@@ -126,7 +126,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
       username: user.username
     })
   }, [user])
-  
+
   return (
     <>
       <div className="relative mb-20 space-y-4">
@@ -149,13 +149,11 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                           <div className="absolute inset-0 w-full h-24" style={{ backgroundColor: getValues("bannerColor") }} />
                         )}
                         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-                          <ActionTooltip label="Edit Banner" side="left">
-                            <DropdownMenuTrigger asChild>
-                              <Button size={"icon"} variant={"ghost"} className="absolute z-10 w-8 h-8 rounded-full right-2 top-2 focus-visible:ring-0 focus-visible:ring-offset-0 bg-muted/40" disabled={loading}>
-                                <Edit size={16} />
-                              </Button>
-                            </DropdownMenuTrigger>
-                          </ActionTooltip>
+                          <DropdownMenuTrigger asChild>
+                            <Button size={"icon"} variant={"ghost"} className="absolute z-10 w-8 h-8 rounded-full right-2 top-2 focus-visible:ring-0 focus-visible:ring-offset-0 bg-muted/40" disabled={loading}>
+                              <Edit size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
                           <DropdownMenuContent className="space-y-1" align="end">
                             <DropdownMenuItem onSelect={e => e.preventDefault()}>
                               <FormLabel htmlFor="banner">
@@ -169,7 +167,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                                 onBlur={field.onBlur}
                                 onChange={(e) => {
                                   field.onChange(e.target.files ? e.target.files[0] : null)
-                                  
+
                                   if (e.target.files) {
                                     setIsOpen(false)
                                     handleFileChange(e.target.files, "banner")
@@ -181,11 +179,11 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                               />
                             </DropdownMenuItem>
                             {user.banner && (
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 onClick={() => {
                                   setValue("banner", null, { shouldDirty: true })
                                   setPreviewBanner("")
-                                }} 
+                                }}
                                 className="text-rose-500 focus:text-rose-500"
                                 disabled={loading}
                               >
@@ -217,7 +215,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                     <div className="flex flex-col space-y-2">
                       <p className="text-xs font-extrabold uppercase dark:text-zinc-300">Banner Color</p>
                       <Popover>
-                        <PopoverTrigger asChild>
+                        <PopoverTrigger asChild disabled={loading}>
                           <div className="w-20 h-10 rounded cursor-pointer md:w-full" style={{ backgroundColor: getValues("bannerColor") }} />
                         </PopoverTrigger>
                         <PopoverContent side={isMobile ? "right" : "bottom"} sideOffset={10} className="w-full p-0 rounded-lg">
@@ -277,9 +275,9 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                     )}
                   />
                   {user.avatar && (
-                    <Button 
-                      variant={"ghost"} 
-                      type="reset" 
+                    <Button
+                      variant={"ghost"}
+                      type="reset"
                       onClick={() => {
                         setValue("avatar", null, { shouldDirty: true })
                         setPreviewAvatar("")
@@ -296,7 +294,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                   <p className="text-xs font-bold uppercase dark:text-zinc-300">Avatar Color</p>
                   <div className="space-x-2">
                     <Popover>
-                      <PopoverTrigger asChild>
+                      <PopoverTrigger asChild disabled={loading}>
                         <div className="w-20 h-10 rounded cursor-pointer" style={{ backgroundColor: getValues("hexColor") }} />
                       </PopoverTrigger>
                       <PopoverContent side={isMobile ? "right" : "bottom"} sideOffset={10} className="w-full p-0 rounded-lg">

@@ -47,9 +47,25 @@ export async function PATCH(req: Request) {
   try {
     const body = await req.json()
     const { displayname, username, avatar, hexColor, banner, bannerColor, bio } = body
-    
+
     let userAvatar
     let userBanner
+
+    if (username !== user.username) {
+      if (user.pathAvatar) {
+        userAvatar = await cloudinary.uploader.rename(`neptune/users/${user.username}/avatar/${user.pathAvatar?.split("/").pop()}`, `neptune/users/${username}/avatar/${user.pathAvatar?.split("/").pop()}`)
+
+        avatar && await cloudinary.uploader.destroy(`neptune/users/${username}/avatar/${user.pathAvatar?.split("/").pop()}`)
+      }
+
+      if (user.pathBanner) {
+        userBanner = await cloudinary.uploader.rename(`neptune/users/${user.username}/banner/${user.pathBanner?.split("/").pop()}`, `neptune/users/${username}/banner/${user.pathBanner?.split("/").pop()}`)
+
+        banner && await cloudinary.uploader.destroy(`neptune/users/${username}/banner/${user.pathBanner?.split("/").pop()}`)
+      }
+
+      await cloudinary.api.delete_folder(`neptune/users/${user.username}`)
+    }
 
     if (avatar?.includes("base64")) {
       user.pathAvatar && await cloudinary.uploader.destroy(user.pathAvatar)
@@ -82,14 +98,6 @@ export async function PATCH(req: Request) {
 
       await cloudinary.uploader.destroy(user.pathBanner || "")
     }
-    
-
-    if (username !== user.username) {
-      user.pathAvatar && (userAvatar = await cloudinary.uploader.rename(`neptune/users/${user.username}/avatar/${user.pathAvatar?.split("/").pop()}`, `neptune/users/${username}/avatar/${user.pathAvatar?.split("/").pop()}`))
-      user.pathBanner && (userBanner = await cloudinary.uploader.rename(`neptune/users/${user.username}/banner/${user.pathBanner?.split("/").pop()}`, `neptune/users/${username}/banner/${user.pathBanner?.split("/").pop()}`))
-
-      await cloudinary.api.delete_folder(`neptune/users/${user.username}`)
-    }
 
     await db.user.update({
       where: {
@@ -111,6 +119,6 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ message: "Update Success" }, { status: 201 })
   } catch (error) {
     console.log(error, "[UPDATE_PROFILE_USER_ERROR]")
-    return new NextResponse("Internal Error", { status: 500 }) 
+    return new NextResponse("Internal Error", { status: 500 })
   }
 }
