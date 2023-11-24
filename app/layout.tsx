@@ -1,6 +1,7 @@
 import AuthContext from '@/app/context/AuthContext'
 import ModalProvider from '@/components/providers/modal-provider'
 import ProgressBarProvider from '@/components/providers/progressbar-provider'
+import QueryProvider from '@/components/providers/query-provider'
 import { SocketProvider } from '@/components/providers/socket-provider'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
@@ -46,6 +47,7 @@ export default function RootLayout({
     [AuthContext, {}],
     [ThemeProvider, { attribute: "class", defaultTheme: "dark", enableSystem: false, storageKey: "neptune-theme" }],
     [SocketProvider, {}],
+    [QueryProvider, {}],
     [ProgressBarProvider, {}]
   ])
 

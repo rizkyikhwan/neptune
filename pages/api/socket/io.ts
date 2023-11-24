@@ -18,7 +18,8 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
     const io = new ServerIO(httpServer, {
       path: path,
       // @ts-ignore
-      addTrailingSlash: false
+      addTrailingSlash: false,
+      cors: { origin: "*" }
     })
     res.socket.server.io = io
 
@@ -32,6 +33,11 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
           io.emit("get-users", activeUsers)
         }
       })
+
+      socket.on("typing", (data) => {
+        io.to(data.socketId).emit("get-typing", data);
+      });
+
       socket.on("disconect", () => {
         activeUsers = activeUsers.filter(user => user.socketId !== socket.id)
 

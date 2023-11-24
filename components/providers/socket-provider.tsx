@@ -40,8 +40,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         id = data.user.id
         socketInstance.emit("new-user-add", data.user.id)
 
-        socketInstance.on("get-users", (user: []) => {
-          setOnlineUsers(user)
+        socketInstance.on("get-users", (users: []) => {
+          setOnlineUsers(users)
         })
 
         setIsConnected(true)

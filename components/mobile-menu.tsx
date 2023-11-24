@@ -2,12 +2,12 @@ import { Menu } from "lucide-react"
 import MeSidebar from "./me/me-sidebar"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { useClientLayout } from "@/app/context/ClientLayoutContext"
 import NavigationSidebar from "@/components/navigation/navigation-sidebar"
+import { useClientContext } from "@/app/context/ClientContext"
 
 const MobileMenu = () => {
-  const { user } = useClientLayout()
-
+  const { user, conversations } = useClientContext()
+  
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -19,7 +19,7 @@ const MobileMenu = () => {
         <div className="w-20">
           <NavigationSidebar user={user} />
         </div>
-        <MeSidebar />
+        <MeSidebar user={user} conversation={conversations} />
       </SheetContent>
     </Sheet>
   )

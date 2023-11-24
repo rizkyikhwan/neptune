@@ -1,4 +1,4 @@
-import { useClientLayout } from "@/app/context/ClientLayoutContext"
+import { useClientLayout } from "@/components/client-layout"
 import { useModal } from "@/app/hooks/useModalStore"
 import { CustomWrapper } from "@/components/image-crop-components/CustomWrapper"
 import { Button } from "@/components/ui/button"

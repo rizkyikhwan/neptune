@@ -1,32 +1,33 @@
-import ActionTooltip from "@/components/action-tooltip"
+import { useModal } from "@/app/hooks/useModalStore"
 import FormInput from "@/components/form/form-input"
+import Loading from "@/components/loading"
+import AvatarCropModal from "@/components/modals/avatar-crop-modal"
+import BannerCropModal from "@/components/modals/banner-crop-modal"
+import AnimateLayoutProvider from "@/components/providers/animate-layout-provider"
 import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Progress } from "@/components/ui/progress"
+import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
+import { toast } from "@/components/ui/use-toast"
 import UserAvatar from "@/components/user/user-avatar"
+import { formSchemaEditProfile } from "@/lib/type"
 import { convertBase64 } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { User } from "@prisma/client"
 import axios from "axios"
 import { AnimatePresence, Spring, motion } from "framer-motion"
 import { Edit } from "lucide-react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { ColorPicker, useColor } from "react-color-palette"
 import "react-color-palette/css"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Separator } from "@/components/ui/separator"
-import { toast } from "@/components/ui/use-toast"
-import Loading from "@/components/loading"
-import { useModal } from "@/app/hooks/useModalStore"
-import AvatarCropModal from "@/components/modals/avatar-crop-modal"
-import { formSchemaEditProfile } from "@/lib/type"
-import BannerCropModal from "@/components/modals/banner-crop-modal"
-import Image from "next/image"
 
 interface ProfileSectionProps {
   user: User,
@@ -44,6 +45,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
   const [loading, setLoading] = useState(false)
   const [previewAvatar, setPreviewAvatar] = useState("")
   const [previewBanner, setPreviewBanner] = useState("")
+  const [progress, setProgress] = useState(0)
 
   const onEnter = { y: 150 }
   const animate = { y: 0 }
@@ -81,7 +83,15 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
         banner: value.banner === null ? null : previewBanner.includes("cloudinary") ? undefined : previewBanner
       }
 
-      const res = await axios.patch("/api/users", dataSubmit)
+      const res = await axios.patch("/api/users", dataSubmit, { onUploadProgress: (progressEvent: any) => {
+        const { loaded, total } = progressEvent;
+
+        let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+        // const percentage = (loaded * 100) / total;
+          // setProgress(+percentage.toFixed(2));
+          setProgress(percentCompleted);
+        } 
+      })
       const data = res.data
 
       toast({
@@ -94,6 +104,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
       console.log(error)
     } finally {
       setLoading(false)
+      setProgress(0)
     }
   }
 
@@ -101,7 +112,12 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
     const file = files && files[0];
     const imageDataUrl = await convertBase64(file);
 
-    file ? onOpen(modal === "avatar" ? "avatarCrop" : "bannerCrop", { image: imageDataUrl as string }) : modal === "avatar" ? setPreviewAvatar("") : setPreviewBanner("")
+    if (file.type === "image/gif") {
+      modal === "avatar" && setPreviewAvatar(imageDataUrl as string)
+      modal === "banner" && setPreviewBanner(imageDataUrl as string)
+    } else {
+      file ? onOpen(modal === "avatar" ? "avatarCrop" : "bannerCrop", { image: imageDataUrl as string }) : modal === "avatar" ? setPreviewAvatar("") : setPreviewBanner("")
+    }
   }
 
   const handleResetEdit = () => {
@@ -269,6 +285,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                             }}
                             className="hidden"
                             ref={field.ref}
+                            disabled={loading}
                           />
                         </FormControl>
                       </FormItem>
@@ -366,22 +383,33 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                       animate={animate}
                       exit={onLeave}
                       transition={transitionSpringPhysics}
-                      className="fixed bottom-5 max-w-sm md:max-w-2xl w-full flex items-center justify-between p-1.5 pl-3 bg-zinc-50 dark:bg-dark-secondary rounded-md shadow-sm z-10"
+                      className="fixed bottom-5 max-w-sm md:max-w-2xl w-full p-1.5 pl-3 bg-zinc-50 dark:bg-dark-secondary rounded-md shadow-sm z-10 overflow-hidden"
                     >
-                      <p className="text-xs md:text-sm">Careful — you have unsaved changes!</p>
-                      <div className="flex space-x-2">
-                        <Button
-                          type="reset"
-                          variant={"ghost"}
-                          onClick={handleResetEdit}
-                          disabled={loading}
-                        >
-                          Reset
-                        </Button>
-                        <Button type="submit" variant={"ghost"} className="text-xs text-white bg-emerald-500 hover:bg-emerald-600 md:text-sm" disabled={loading}>
-                          {loading ? <Loading className="mx-6" /> : "Save Changes"}
-                        </Button>
-                      </div>
+                      <AnimateLayoutProvider>
+                        <div className="flex flex-col space-y-2">
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs md:text-sm">Careful — you have unsaved changes!</p>
+                            <div className="flex space-x-2">
+                              <Button
+                                type="reset"
+                                variant={"ghost"}
+                                onClick={handleResetEdit}
+                                disabled={loading}
+                              >
+                                Reset
+                              </Button>
+                              <Button type="submit" variant={"ghost"} className="text-xs text-white bg-emerald-500 hover:bg-emerald-600 md:text-sm" disabled={loading}>
+                                {loading ? <Loading className="mx-6" /> : "Save Changes"}
+                              </Button>
+                            </div>
+                          </div>
+                          {progress > 0 && (
+                            <div className="py-0.5 pr-1.5">
+                              <Progress value={progress} className="h-2" />
+                            </div>
+                          )}
+                        </div>
+                      </AnimateLayoutProvider>
                     </motion.div>
                   )}
                 </AnimatePresence>

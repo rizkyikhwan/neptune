@@ -81,7 +81,16 @@ const ProfileModalUser = () => {
             </div>
             {currentUser?.user.id !== user?.id ? (
               <div className="flex items-center space-x-2">
-                <Button variant={"ghost"} className="hidden text-white rounded md:block bg-emerald-700 hover:bg-emerald-800 hover:text-white">Send Message</Button>
+                <Button 
+                  variant={"ghost"} 
+                  className="hidden text-white rounded md:block bg-emerald-700 hover:bg-emerald-800 hover:text-white" 
+                  onClick={() => {
+                    router.push(`/me/conversation/${user?.id}`)
+                    onClose()
+                  }}
+                >
+                  Send Message
+                </Button>
                 <DropdownMenu>
                   <ActionTooltip label="More" side="top" align="end">
                     <DropdownMenuTrigger asChild>
@@ -91,7 +100,7 @@ const ProfileModalUser = () => {
                     </DropdownMenuTrigger>
                   </ActionTooltip>
                   <DropdownMenuContent align="center">
-                    <DropdownMenuItem className="flex md:hidden">
+                    <DropdownMenuItem className="flex md:hidden" onClick={() => router.push(`/me/conversation/${user?.id}`)}>
                       <MessageSquare className="w-4 h-4 mr-2" />
                       <span>Send Message</span>
                     </DropdownMenuItem>
@@ -145,7 +154,7 @@ const ProfileModalUser = () => {
                 </ScrollArea>
               </TabsContent>
               <TabsContent value="mutual-servers">
-                <ScrollArea className="h-[calc(100vh-21.75rem)] pr-3 md:h-48">
+                <ScrollArea className="h-[calc(100vh-22.15rem)] pr-3 md:h-48">
                   {[...Array(10)].map((_, index) => (
                     <div key={index} className={cn("mb-1 flex items-center px-2 space-x-2 py-2 rounded-md cursor-pointer select-none border-zinc-200 dark:border-zinc-700 hover:bg-zinc-300/10 hover:dark:bg-zinc-400/10", [...Array(10)].length - 1 === index && "mb-0")}>
                       <UserAvatar initialName={`Server ${index + 1}`} className="rounded-xl" classNameFallback="rounded-xl" />
@@ -155,9 +164,9 @@ const ProfileModalUser = () => {
                 </ScrollArea>
               </TabsContent>
               <TabsContent value="mutual-friends">
-                <ScrollArea className="h-[calc(100vh-21.75rem)] md:h-48 pr-3">
-                  {true ? (
-                    <div className="flex items-center justify-center h-[calc(100vh-21.75rem)] md:h-48">
+                <ScrollArea className="h-[calc(100vh-22.15rem)] md:h-48 pr-3">
+                  {isLoading ? (
+                    <div className="flex items-center justify-center h-[calc(100vh-22.15rem)] md:h-48">
                       <LoadingScreen />
                     </div>
                   ) : (

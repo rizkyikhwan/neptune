@@ -4,15 +4,27 @@ import LayoutChannelsSidebar from "@/components/layout-channels-sidebar"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { cn } from "@/lib/utils"
+import { Conversation, DirectMessage, User } from "@prisma/client"
 import { Users } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useRouter } from "next13-progressbar"
 import { useState } from "react"
 
-const MeSidebar = () => {
+type ConversationUser = Conversation & {
+  userOne: User
+  userTwo: User,
+  directMessages: DirectMessage[]
+}
+
+interface MeSidebarProps {
+  user: User
+  conversation: ConversationUser[]
+}
+
+const MeSidebar = ({ user, conversation }: MeSidebarProps) => {
   const pathname = usePathname()
-  const [open, setOpen] = useState(false)
   const router = useRouter()
+  const [open, setOpen] = useState(false)
 
   return (
     <>
@@ -28,14 +40,33 @@ const MeSidebar = () => {
         <div className="my-2 space-y-3">
           <div>
             <button className="w-full group" onClick={() => router.push("/me/channels")}>
-              <div className={cn(pathname?.includes("me") && "bg-zinc-300/50 dark:bg-zinc-600/50", "flex items-center p-2 rounded space-x-3")}>
+              <div className={cn(pathname?.includes("channels") && "bg-zinc-300/50 dark:bg-zinc-600/50", "flex items-center p-2 rounded space-x-3 hover:bg-zinc-400/50 hover:dark:bg-zinc-700/50")}>
                 <Users className="w-5 h-5" />
                 <p>Friends</p>
               </div>
             </button>
           </div>
-          <div>
+          <div className="flex flex-col space-y-2">
             <p className="text-xs font-semibold tracking-wider uppercase select-none text-zinc-400 hover:text-zinc-500 hover:dark:text-white">Direct Messages</p>
+            {conversation.map((item) => {
+              const { userOne, userTwo } = item
+
+              const otherUser = userOne.id === user.id ? userTwo : userOne
+
+              if (item.directMessages.length > 0) {
+                return (
+                  <button 
+                    key={item.id} 
+                    className={cn(pathname?.includes(otherUser.id) && "bg-zinc-300/50 dark:bg-zinc-600/50", "flex items-center p-2 rounded space-x-3 w-full hover:bg-zinc-400/50 hover:dark:bg-zinc-700/50")} 
+                    onClick={() => router.push(`/me/conversation/${otherUser.id}`)}
+                  >
+                    <div>
+                      <p>{otherUser.username}</p>
+                    </div>
+                  </button>
+                )
+              }
+            })}
           </div>
         </div>
       </LayoutChannelsSidebar>
