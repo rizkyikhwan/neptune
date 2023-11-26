@@ -124,7 +124,7 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
                       }}
                     >
                       <div className="flex items-start flex-grow space-x-2">
-                        <UserAvatar src={user.avatar || ""} bgColor={user.hexColor} initialName={user.displayname || user.username} onlineIndicator={user.online} />
+                        <UserAvatar id={user.id} src={user.avatar || ""} bgColor={user.hexColor} initialName={user.displayname || user.username} onlineIndicator />
                         <div className="flex flex-col">
                           <p>{user.displayname || user.username}</p>
                           <p className="text-xs text-zinc-400">{user.username}</p>

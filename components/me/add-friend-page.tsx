@@ -119,7 +119,7 @@ const AddFriendPage = ({ type }: AddFriendPageProps) => {
                   tabIndex={0}
                 >
                   <div className="flex items-start flex-grow space-x-2">
-                    <UserAvatar src={item.avatar} bgColor={item.hexColor} initialName={item.displayname || item.username} />
+                    <UserAvatar id={item.id} src={item.avatar} bgColor={item.hexColor} initialName={item.displayname || item.username} />
                     <div className="flex flex-col">
                       <p>{item.displayname || item.username}</p>
                       <p className="text-xs text-zinc-400">{item.username}</p>

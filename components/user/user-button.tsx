@@ -23,12 +23,12 @@ const UserButton = ({ user, side, align }: UserButtonProps) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button type="button">
-          <UserAvatar src={user?.avatar || ""} bgColor={user.hexColor} initialName={user.displayname || user.username} />
+          <UserAvatar id={user.id} src={user?.avatar || ""} bgColor={user.hexColor} initialName={user.displayname || user.username} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64" side={side} align={align}>
         <DropdownMenuItem onClick={() => onOpen("profileUser", { data: user })} className="space-x-2 cursor-pointer">
-          <UserAvatar src={user?.avatar || ""} bgColor={user.hexColor} initialName={user.displayname || user.username} />
+          <UserAvatar id={user.id} src={user?.avatar || ""} bgColor={user.hexColor} initialName={user.displayname || user.username} />
           <div className="relative line-clamp-2">
             <p className="font-semibold tracking-wide">{user.displayname || user.username}</p>
             <p className="text-xs text-zinc-400">{user.username}</p>

@@ -1,4 +1,3 @@
-import { useClientLayout } from "@/components/client-layout"
 import { useModal } from "@/app/hooks/useModalStore"
 import { CustomWrapper } from "@/components/image-crop-components/CustomWrapper"
 import { Button } from "@/components/ui/button"
@@ -43,7 +42,7 @@ const AvatarCropModal = ({ user, resetField, setPreview }: AvatarCropModalProps)
         !user.avatar && setPreview("")
         resetField("avatar")
       }}>
-      <DialogContent 
+      <DialogContent
         onInteractOutside={() => {
           onClose()
           !user.avatar && setPreview("")
@@ -73,16 +72,16 @@ const AvatarCropModal = ({ user, resetField, setPreview }: AvatarCropModalProps)
           wrapperComponent={CustomWrapper}
         />
         <DialogFooter className="space-y-2 space-y-reverse sm:space-y-0">
-          <Button 
-            variant={"outline"} 
-            type="reset" 
+          <Button
+            variant={"outline"}
+            type="reset"
             onClick={() => {
               onClose()
               !user.avatar && setPreview("")
               resetField("avatar")
             }}>
-              Cancel
-            </Button>
+            Cancel
+          </Button>
           <Button type="button" variant={"primary"} onClick={() => handleSetImage()} className="px-6">Save</Button>
         </DialogFooter>
       </DialogContent>

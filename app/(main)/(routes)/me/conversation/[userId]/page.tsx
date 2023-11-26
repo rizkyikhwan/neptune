@@ -45,13 +45,15 @@ const UserIdConversation = async ({ params }: UserIdConversationProps) => {
           conversationId: conversation.id
         }}
       />
-      <ChatInput 
+      <ChatInput
         apiUrl="/api/socket/direct-messages"
         query={{
           conversationId: conversation.id
         }}
-        name={otherUser.displayname || otherUser.username} 
-        type="conversation" 
+        name={otherUser.displayname || otherUser.username}
+        otherUser={otherUser}
+        currentUser={user}
+        type="conversation"
       />
     </HeaderLayout>
   )

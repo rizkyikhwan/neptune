@@ -4,11 +4,10 @@ import { useChatQuery } from "@/app/hooks/useChatQuery"
 import useChatScroll from "@/app/hooks/useChatScroll"
 import { useChatSocket } from "@/app/hooks/useChatSocket"
 import { DirectMessage, User } from "@prisma/client"
-import { format } from "date-fns"
+import { formatDistance } from "date-fns"
 import { Loader2, ServerCrash } from "lucide-react"
-import { ElementRef, Fragment, useEffect, useRef, useState } from "react"
+import { ElementRef, Fragment, useRef } from "react"
 import ChatItem from "./chat-item"
-import { useSocket } from "../providers/socket-provider"
 
 const DATE_FORMAT = "d MMM yyyy, HH:mm"
 
@@ -33,12 +32,10 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
   const addKey = `chat:${chatId}:messages`
   const updateKey = `chat:${chatId}:messages:update`
 
-  const { socket } = useSocket()
   const chatRef = useRef<ElementRef<"div">>(null)
   const bottomRef = useRef<ElementRef<"div">>(null)
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useChatQuery({ queryKey, apiUrl, paramKey, paramValue })
-  
   useChatSocket({ addKey, updateKey, queryKey })
   useChatScroll({
     chatRef,
@@ -47,18 +44,6 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
     shouldLoadMore: !isFetchingNextPage && !!hasNextPage,
     count: data?.pages?.[0].items?.length ?? 0
   })
-
-  const [typing, setTyping] = useState("")
-
-  useEffect(() => {
-    socket.on("get-typing", (data: any) => {
-      setTyping(data)
-
-      setTimeout(() => {
-        setTyping("");
-      }, 5000);
-    })
-  }, [socket])
 
   if (status === "pending") {
     return (
@@ -83,7 +68,7 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
   }
 
   return (
-    <div ref={chatRef} className="flex flex-col flex-1 py-4 overflow-y-auto">
+    <div ref={chatRef} className="flex flex-col flex-1 pt-4 overflow-y-auto">
       {!hasNextPage && <div className="flex-1" />}
       {!hasNextPage && <p>Welcome chat soon</p>}
       {hasNextPage && (
@@ -101,7 +86,7 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
         {data?.pages.map((group, i) => (
           <Fragment key={i}>
             {group.items.map((message: MessageWithProfile) => (
-              <ChatItem 
+              <ChatItem
                 key={message.id}
                 id={message.id}
                 user={user}
@@ -109,7 +94,7 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
                 content={message.content}
                 fileUrl={message.fileUrl}
                 deleted={message.deleted}
-                timestamp={format(new Date(message.createdAt), DATE_FORMAT)}
+                timestamp={formatDistance(new Date(message.createdAt), new Date())}
                 isUpdated={message.updatedAt !== message.createdAt}
                 socketUrl={socketUrl}
                 socketQuery={socketQuery}
@@ -118,9 +103,6 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
           </Fragment>
         ))}
       </div>
-      {typing && (
-        <p>typing</p>
-      )}
       <div ref={bottomRef} />
     </div>
   )

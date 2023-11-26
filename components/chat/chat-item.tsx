@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
-import { Edit, Trash } from "lucide-react"
+import { Edit, Trash, X } from "lucide-react"
 
 interface ChatItemProps {
   id: string
@@ -85,7 +85,7 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
     <div className="relative flex items-center w-full p-4 transition group hover:bg-black/5">
       <div className="flex items-start w-full group gap-x-2">
         <div className="transition cursor-pointer hover:drop-shadow-md">
-          <UserAvatar initialName={otherUser.displayname || otherUser.username} bgColor={otherUser.hexColor} src={otherUser.avatar || ""} />
+          <UserAvatar id={otherUser.id} initialName={otherUser.displayname || otherUser.username} bgColor={otherUser.hexColor} src={otherUser.avatar || ""} />
         </div>
         <div className="flex flex-col w-full">
           <div className="flex items-center gap-x-2">
@@ -116,14 +116,14 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
           {!fileUrl && isEditing && (
             <Form {...form}>
               <form className="flex items-center w-full pt-2 gap-x-2" onSubmit={form.handleSubmit(onSubmit)}>
-                <FormField 
+                <FormField
                   control={form.control}
                   name="content"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
                         <div className="relative w-full">
-                          <Input 
+                          <Input
                             className="p-2 border-0 border-none bg-zinc-200/90 dark:bg-zinc-700/75 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-600 dark:text-zinc-200"
                             placeholder="Edited message"
                             disabled={isLoading}
@@ -145,14 +145,19 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
       </div>
       {isOwner && (
         <div className="absolute items-center hidden p-1 bg-white border rounded-sm group-hover:flex gap-x-2 -top-2 right-5 dark:bg-zinc-800">
-          {canEditMessage && (
+          {canEditMessage && !isEditing && (
             <ActionTooltip label="Edit">
               <Edit onClick={() => setIsEditing(true)} className="w-4 h-4 ml-auto transition cursor-pointer text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300" />
             </ActionTooltip>
           )}
+          {isEditing && (
+            <ActionTooltip label="Cancel">
+              <X onClick={() => !isLoading && setIsEditing(false)} className="w-4 h-4 ml-auto transition cursor-pointer text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300" />
+            </ActionTooltip>
+          )}
           <ActionTooltip label="Delete">
             <Trash
-              className="w-4 h-4 ml-auto transition cursor-pointer text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300" 
+              className="w-4 h-4 ml-auto transition cursor-pointer text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300"
             />
           </ActionTooltip>
         </div>

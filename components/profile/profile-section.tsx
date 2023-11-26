@@ -83,14 +83,15 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
         banner: value.banner === null ? null : previewBanner.includes("cloudinary") ? undefined : previewBanner
       }
 
-      const res = await axios.patch("/api/users", dataSubmit, { onUploadProgress: (progressEvent: any) => {
-        const { loaded, total } = progressEvent;
+      const res = await axios.patch("/api/users", dataSubmit, {
+        onUploadProgress: (progressEvent: any) => {
+          const { loaded, total } = progressEvent;
 
-        let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-        // const percentage = (loaded * 100) / total;
+          let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          // const percentage = (loaded * 100) / total;
           // setProgress(+percentage.toFixed(2));
           setProgress(percentCompleted);
-        } 
+        }
       })
       const data = res.data
 
@@ -210,6 +211,7 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
                         </DropdownMenu>
                         <div className="z-10 px-5 pb-3 space-y-2 mt-14">
                           <UserAvatar
+                            id={user.id}
                             initialName={user.displayname || user.username}
                             src={previewAvatar}
                             bgColor={getValues("hexColor")}

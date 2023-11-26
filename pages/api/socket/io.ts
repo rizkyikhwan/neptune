@@ -1,7 +1,7 @@
 import { ActiveUsersProps, NextApiResponseServerIo } from "@/lib/type"
 import { Server as NetServer } from "http"
-import { Server as ServerIO } from "socket.io"
 import { NextApiRequest } from "next"
+import { Server as ServerIO } from "socket.io"
 
 export const config = {
   api: {
@@ -18,8 +18,7 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
     const io = new ServerIO(httpServer, {
       path: path,
       // @ts-ignore
-      addTrailingSlash: false,
-      cors: { origin: "*" }
+      addTrailingSlash: false
     })
     res.socket.server.io = io
 
@@ -35,20 +34,28 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
       })
 
       socket.on("typing", (data) => {
-        io.to(data.socketId).emit("get-typing", data);
+        const user = activeUsers.find((user) => user.userId === data.receiverId);
+
+        user && io.to(user.socketId).emit("get-typing", data);
       });
 
-      socket.on("disconect", () => {
-        activeUsers = activeUsers.filter(user => user.socketId !== socket.id)
+      socket.on("set-notification", (data) => {
+        const user = activeUsers.find((user) => user.userId === data.receiverId);
 
-        io.emit("get-users", activeUsers)
+        user && io.to(user.socketId).emit("get-notification", data)
       })
+
+      socket.on("disconnect", () => {
+        activeUsers = activeUsers.filter((user) => user.socketId !== socket.id);
+
+        io.emit("get-users", activeUsers);
+      });
 
       socket.on("offline", (userId) => {
         activeUsers = activeUsers.filter(user => user.userId !== userId)
 
-        io.emit("get-users", activeUsers)
-      })
+        io.emit("get-users", activeUsers);
+      });
     })
   }
 

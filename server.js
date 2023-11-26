@@ -25,10 +25,15 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
-    console.log("A user disconnected:", socket.id);
+  socket.on("typing", (data) => {
+    const user = activeUsers.find((user) => user.userId === data.receiverId);
 
+    user && io.to(user.socketId).emit("get-typing", data);
+  });
+
+  socket.on("disconnect", () => {
     activeUsers = activeUsers.filter((user) => user.socketId !== socket.id);
+
     io.emit("get-users", activeUsers);
   });
 

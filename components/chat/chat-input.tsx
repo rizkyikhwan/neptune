@@ -10,11 +10,16 @@ import { z } from "zod"
 import { useSocket } from "../providers/socket-provider"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { Input } from "../ui/input"
+import { User } from "@prisma/client"
+import { useEffect, useState } from "react"
+import { AnimatePresence, motion } from "framer-motion"
 
 interface ChatInputProps {
   apiUrl: string
   query: Record<string, any>
   name: string
+  otherUser: any
+  currentUser: User
   type: "conversation" | "channel"
 }
 
@@ -22,9 +27,25 @@ const formSchema = z.object({
   content: z.string().min(1)
 })
 
-const ChatInput = ({ apiUrl, query, name, type }: ChatInputProps) => {
+const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatInputProps) => {
   const router = useRouter()
   const { socket } = useSocket()
+
+  const [typing, setTyping] = useState("")
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout
+
+    socket.on("get-typing", (data: any) => {
+      setTyping(`${data.typer} is typing...`)
+
+      clearTimeout(timer)
+
+      timer = setTimeout(() => {
+        setTyping("");
+      }, 1000);
+    })
+  }, [socket])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,34 +73,53 @@ const ChatInput = ({ apiUrl, query, name, type }: ChatInputProps) => {
   }
 
   const handleKeyDown = () => {
-    socket.emit("typing", "user is typing")
+    socket.emit("typing", {
+      receiverId: otherUser.id,
+      typer: currentUser.displayname || currentUser.username
+    })
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <FormField 
+        <FormField
           control={form.control}
           name="content"
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <div className="relative p-4 pb-6">
-                  <button
-                    type="button"
-                    onClick={() => {}}
-                    className="absolute flex items-center justify-center w-6 h-6 p-1 transition rounded-full top-7 left-8 bg-zinc-500 dark:bg-zinc-400 hover:bg-zinc-600 dark:hover:bg-zinc-300"
-                  >
-                    <Plus className="text-white dark:text-[#313338]" />
-                  </button>
-                  <Input 
-                    className="py-6 break-words border-0 border-none px-14 bg-zinc-200/90 dark:bg-zinc-700/75 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-600 dark:text-zinc-200"
-                    placeholder={`Message ${type === "conversation" ? name : "#" + name}`}
-                    autoComplete="off"
-                    disabled={isLoading}
-                    onKeyDown={handleKeyDown}
-                    {...field}
-                  />
+                <div className="relative p-4 py-6 shadow-[0_-2px_2px_0_rgba(0,0,0,0.05)]">
+                  <AnimatePresence initial={false} mode="popLayout">
+                    {typing && (
+                      <motion.div
+                        key="user_typing"
+                        initial={{ y: 3, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 3, opacity: 0 }}
+                        transition={{ type: "keyframes" }}
+                        className="absolute left-0 w-full px-4 top-1"
+                      >
+                        <p className="text-xs italic text-zinc-400">{typing}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => { }}
+                      className="absolute flex items-center justify-center w-6 h-6 p-1 transition rounded-full top-3 left-4 bg-zinc-500 dark:bg-zinc-400 hover:bg-zinc-600 dark:hover:bg-zinc-300"
+                    >
+                      <Plus className="text-white dark:text-[#313338]" />
+                    </button>
+                    <Input
+                      className="py-6 break-words border-0 border-none px-14 bg-zinc-200/90 dark:bg-zinc-700/75 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-600 dark:text-zinc-200"
+                      placeholder={`Message ${type === "conversation" ? name : "#" + name}`}
+                      autoComplete="off"
+                      disabled={isLoading}
+                      onKeyDown={handleKeyDown}
+                      {...field}
+                    />
+                  </div>
                 </div>
               </FormControl>
             </FormItem>

@@ -23,7 +23,6 @@ export const useChatSocket = ({ addKey, updateKey, queryKey }: ChatSocketProps) 
     }
 
     socket.on(updateKey, (message: MessageWithProfile) => {
-      console.log("upadate", message);
       queryClient.setQueryData([queryKey], (oldData: any) => {
         if (!oldData || !oldData.pages || oldData.pages.length === 0) {
           return oldData

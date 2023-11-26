@@ -1,7 +1,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { cn, initialText } from "@/lib/utils"
+import { cn, initialText, userIsOnline } from "@/lib/utils"
+import { useSocket } from "../providers/socket-provider"
 
 interface UserAvatarProps {
+  id: string
   src?: string
   className?: string
   classNameFallback?: string
@@ -10,7 +12,9 @@ interface UserAvatarProps {
   onlineIndicator?: boolean
 }
 
-const UserAvatar = ({ src, className, classNameFallback, bgColor, initialName, onlineIndicator }: UserAvatarProps) => {
+const UserAvatar = ({ id, src, className, classNameFallback, bgColor, initialName, onlineIndicator }: UserAvatarProps) => {
+  const { onlineUsers } = useSocket()
+
   return (
     <div className="relative pointer-events-none">
       <Avatar className={cn("h-10 w-10", className)}>
@@ -22,7 +26,10 @@ const UserAvatar = ({ src, className, classNameFallback, bgColor, initialName, o
           {initialText(initialName)}
         </AvatarFallback>
       </Avatar>
-      {onlineIndicator && (
+      {/* {onlineIndicator && (
+        <div className="absolute w-2 h-2 border rounded-full bottom-px right-1 bg-emerald-500 bg-background" />
+      )} */}
+      {onlineIndicator && userIsOnline(onlineUsers, id) && (
         <div className="absolute w-2 h-2 border rounded-full bottom-px right-1 bg-emerald-500 bg-background" />
       )}
     </div>

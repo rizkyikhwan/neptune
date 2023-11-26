@@ -3,8 +3,6 @@
 import MobileMenu from "@/components/mobile-menu"
 import { Hash } from "lucide-react"
 import UserAvatar from "../user/user-avatar"
-import { userIsOnline } from "@/lib/utils"
-import { useSocket } from "../providers/socket-provider"
 import SocketIndicator from "../socket-indicator"
 
 interface ChatHeaderProps {
@@ -13,8 +11,6 @@ interface ChatHeaderProps {
 }
 
 const ChatHeader = ({ user, type }: ChatHeaderProps) => {
-  const { onlineUsers } = useSocket()
-
   return (
     <section className="min-h-[48px] shadow py-2 px-4 border-b flex items-center relative">
       <div className="md:hidden">
@@ -25,9 +21,9 @@ const ChatHeader = ({ user, type }: ChatHeaderProps) => {
           <Hash className="w-5 h-5 mr-2 text-zinc-500 dark:text-zinc-400" />
         )}
         {type === "conversation" && (
-          <UserAvatar initialName={user.displayname || user.username} bgColor={user.hexColor} src={user.avatar} className="w-8 h-8" onlineIndicator={userIsOnline(onlineUsers, user.id)} />
+          <UserAvatar id={user.id} initialName={user.displayname || user.username} bgColor={user.hexColor} src={user.avatar} className="w-8 h-8" onlineIndicator />
         )}
-        <p className="font-semibold text-black dark:text-white">
+        <p className="font-semibold tracking-wide text-black dark:text-white">
           {user.displayname || user.username}
         </p>
       </div>
