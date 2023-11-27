@@ -3,16 +3,16 @@
 import useCountdown from "@/app/hooks/useCountdown"
 import CardForm from "@/components/card/card-form"
 import FormInput from "@/components/form/form-input"
+import Loading from "@/components/loading"
 import { Button } from "@/components/ui/button"
 import { Form, FormField } from "@/components/ui/form"
-import { useToast } from "@/components/ui/use-toast"
 import { zodResolver } from "@hookform/resolvers/zod"
 import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { z } from "zod"
-import Loading from "@/components/loading"
 
 const formSchema = z.object({
   password: z.string().min(5, "Enter at least 5 characters."),
@@ -29,7 +29,6 @@ interface FormResetPasswordProps {
 
 const FormResetPassword = ({ token, userId }: FormResetPasswordProps) => {
   const router = useRouter()
-  const { toast } = useToast()
   const { secondsLeft, start } = useCountdown()
 
   const [isDisabled, setIsDisabled] = useState(false)
@@ -48,11 +47,7 @@ const FormResetPassword = ({ token, userId }: FormResetPasswordProps) => {
     try {
       await axios.patch(`/api/auth/reset-password/${token}`, { ...values, userId })
 
-      toast({
-        variant: "success",
-        title: "Success update password",
-        description: "Your password has been successfully update."
-      })
+      toast("Your password has been successfully update.")
 
       start(3)
 
@@ -64,10 +59,8 @@ const FormResetPassword = ({ token, userId }: FormResetPasswordProps) => {
       }, 3000)
     } catch (error: any) {
       console.log(error)
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description: error.response.data.message,
+      toast.error("Something went wrong", {
+        description: error.response.data.message
       })
     }
   }

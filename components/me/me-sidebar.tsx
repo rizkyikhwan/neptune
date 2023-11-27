@@ -79,40 +79,41 @@ const MeSidebar = ({ user, conversation }: MeSidebarProps) => {
 
               if (item.directMessages.length > 0) {
                 return (
-                  <button
+                  <motion.button
                     key={item.id}
+                    initial={{ x: -150, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -150, opacity: 0 }}
                     className={cn(pathname?.includes(otherUser.id) && "bg-zinc-300/50 dark:bg-zinc-600/50", "flex items-center p-2 h-12 rounded space-x-3 w-full hover:bg-zinc-400/50 hover:dark:bg-zinc-700/50")}
                     onClick={() => router.push(`/me/conversation/${otherUser.id}`)}
                   >
                     <div className="flex items-center space-x-2">
-                      <div className="flex items-center space-x-2">
-                        <UserAvatar
-                          id={otherUser.id}
-                          initialName={otherUser.displayname || otherUser.username}
-                          bgColor={otherUser.hexColor}
-                          src={otherUser.avatar || ""}
-                          className="w-8 h-8"
-                          onlineIndicator
-                        />
-                        <div className="flex flex-col">
-                          <p className="text-sm">{otherUser.username}</p>
-                          <AnimatePresence mode="wait">
-                            {typing && (
-                              <motion.p
-                                key={typing ? "user_typing" : "user_not_typing"}
-                                initial={onEnter}
-                                animate={animate}
-                                exit={onLeave}
-                                className="text-[10px] italic text-zinc-400 text-left"
-                              >
-                                {typing}
-                              </motion.p>
-                            )}
-                          </AnimatePresence>
-                        </div>
+                      <UserAvatar
+                        id={otherUser.id}
+                        initialName={otherUser.displayname || otherUser.username}
+                        bgColor={otherUser.hexColor}
+                        src={otherUser.avatar || ""}
+                        className="w-8 h-8"
+                        onlineIndicator
+                      />
+                      <div className="flex flex-col">
+                        <p className="text-sm">{otherUser.username}</p>
+                        <AnimatePresence mode="wait">
+                          {typing && (
+                            <motion.p
+                              key={typing ? "user_typing" : "user_not_typing"}
+                              initial={onEnter}
+                              animate={animate}
+                              exit={onLeave}
+                              className="text-[10px] italic text-zinc-400 text-left"
+                            >
+                              {typing}
+                            </motion.p>
+                          )}
+                        </AnimatePresence>
                       </div>
                     </div>
-                  </button>
+                  </motion.button>
                 )
               }
             })}

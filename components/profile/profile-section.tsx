@@ -12,7 +12,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
-import { toast } from "@/components/ui/use-toast"
 import UserAvatar from "@/components/user/user-avatar"
 import { formSchemaEditProfile } from "@/lib/type"
 import { convertBase64 } from "@/lib/utils"
@@ -27,6 +26,7 @@ import { useEffect, useState } from "react"
 import { ColorPicker, useColor } from "react-color-palette"
 import "react-color-palette/css"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { z } from "zod"
 
 interface ProfileSectionProps {
@@ -83,23 +83,16 @@ const ProfileSection = ({ user, isMobile }: ProfileSectionProps) => {
         banner: value.banner === null ? null : previewBanner.includes("cloudinary") ? undefined : previewBanner
       }
 
-      const res = await axios.patch("/api/users", dataSubmit, {
+      await axios.patch("/api/users", dataSubmit, {
         onUploadProgress: (progressEvent: any) => {
-          const { loaded, total } = progressEvent;
-
           let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          // const percentage = (loaded * 100) / total;
-          // setProgress(+percentage.toFixed(2));
+          
           setProgress(percentCompleted);
         }
       })
-      const data = res.data
 
-      toast({
-        variant: "success",
-        description: data.message,
-      })
-
+      toast.success("Profile updated")
+      
       router.refresh()
     } catch (error) {
       console.log(error)

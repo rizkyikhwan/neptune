@@ -1,14 +1,14 @@
 import { useModal } from "@/app/hooks/useModalStore"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog"
-import { z } from "zod"
-import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Form, FormField, FormItem } from "../ui/form"
-import FormInput from "../form/form-input"
-import { Button } from "../ui/button"
-import { useToast } from "../ui/use-toast"
 import axios from "axios"
 import { Loader2 } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { toast } from "sonner"
+import { z } from "zod"
+import FormInput from "../form/form-input"
+import { Button } from "../ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog"
+import { Form, FormField, FormItem } from "../ui/form"
 
 const formSchema = z.object({
   email: z.string().min(1, "This field has to be filled.").email("This is not a valid email.")
@@ -16,7 +16,6 @@ const formSchema = z.object({
 
 const ResetPasswordModal = () => {
   const { isOpen, onClose, type } = useModal()
-  const { toast } = useToast()
 
   const isModalOpen = isOpen && type === "resetPassowrd"
 
@@ -37,17 +36,14 @@ const ResetPasswordModal = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.patch("/api/auth/reset-password/verify", values)
-      toast({
-        variant: "success",
-        title: "Check your email",
+      
+      toast.success("Check your email", {
         description: "We sent you instructions to reset your password."
       })
     } catch (error: any) {
       console.log(error)
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description: error.response.data.message,
+      toast.error("Something went wrong", {
+        description: error.response.data.message
       })
     }
   }

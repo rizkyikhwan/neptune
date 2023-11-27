@@ -13,8 +13,8 @@ import { motion } from "framer-motion"
 import { UserPlus } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { z } from "zod"
-import { useToast } from "../ui/use-toast"
 import LoadingItem from "./loading-item"
 
 interface AddFriendPageProps {
@@ -26,8 +26,6 @@ const formSchema = z.object({
 })
 
 const AddFriendPage = ({ type }: AddFriendPageProps) => {
-  const { toast } = useToast()
-
   const [dataSearch, setDataSearch] = useState<SearchUser[]>([])
   const [requestLoading, setRequestLoading] = useState(false)
 
@@ -47,10 +45,7 @@ const AddFriendPage = ({ type }: AddFriendPageProps) => {
       await axios.post(`/api/users/friend-request`, { userId: id })
     } catch (error: any) {
       console.log(error)
-      toast({
-        variant: "destructive",
-        description: error.response.data.message,
-      })
+      toast.error(error.response.data.message)
     } finally {
       setRequestLoading(false)
     }

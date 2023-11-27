@@ -5,7 +5,6 @@ import FormInput from "@/components/form/form-input"
 import Loading from "@/components/loading"
 import { Button } from "@/components/ui/button"
 import { Form, FormField } from "@/components/ui/form"
-import { useToast } from "@/components/ui/use-toast"
 import { VariantAuth } from "@/lib/type"
 import NeptuneLogoDark from "@/public/logo/logo-dark.svg"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -14,6 +13,7 @@ import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import * as z from "zod"
 
 const formSchema = z.object({
@@ -32,7 +32,6 @@ const formSchema = z.object({
 
 const FormSignup = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAction<VariantAuth>> }) => {
   const router = useRouter()
-  const { toast } = useToast()
 
   const [isDisabled, setIsDisabled] = useState(false)
 
@@ -69,10 +68,8 @@ const FormSignup = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateA
       router.refresh()
     } catch (error: any) {
       console.log(error)
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description: error.response.data.message,
+      toast.error("Something went error.", {
+        description: error.response.data.message
       })
     }
   }

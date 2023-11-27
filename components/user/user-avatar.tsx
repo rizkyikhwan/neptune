@@ -26,9 +26,6 @@ const UserAvatar = ({ id, src, className, classNameFallback, bgColor, initialNam
           {initialText(initialName)}
         </AvatarFallback>
       </Avatar>
-      {/* {onlineIndicator && (
-        <div className="absolute w-2 h-2 border rounded-full bottom-px right-1 bg-emerald-500 bg-background" />
-      )} */}
       {onlineIndicator && userIsOnline(onlineUsers, id) && (
         <div className="absolute w-2 h-2 border rounded-full bottom-px right-1 bg-emerald-500 bg-background" />
       )}

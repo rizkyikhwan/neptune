@@ -65,6 +65,12 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
 
       await axios.post(url, value)
 
+      socket.emit("set-notification", {
+        message: value.content, 
+        receiver: otherUser, 
+        sender: currentUser
+      })
+
       form.reset()
       router.refresh()
     } catch (error) {

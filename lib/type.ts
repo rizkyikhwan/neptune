@@ -1,7 +1,7 @@
 import { NextApiResponse } from "next";
 import { Server as NetServer, Socket } from "net"
 import { Server as SocketIOServer } from "socket.io"
-import { User } from "@prisma/client";
+import { DirectMessage, User } from "@prisma/client";
 import { z } from "zod";
 import { convertBase64 } from "./utils";
 
@@ -40,6 +40,16 @@ export type ChildrenType = {
 export type VariantAuth = "LOGIN" | "SIGNUP"
 
 export type EmailType = "Verify Email" | "Reset Password" | "Verify Code" | "New Email"
+
+export type ChatSocketProps = {
+  addKey: string
+  updateKey: string
+  queryKey: string
+}
+
+export type MessageWithProfile = DirectMessage & {
+  user: User
+}
 
 export enum EmailEnum {
   VerifyEmail = "Verify Email",

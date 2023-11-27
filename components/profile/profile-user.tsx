@@ -12,13 +12,14 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Separator } from "@/components/ui/separator"
 import { signOut } from "next-auth/react"
 import AccountSettingsSection from "./account-settings-section"
+import useMobileView from "@/app/hooks/useMobileView"
 
 const ProfileUser = ({ user }: { user: User }) => {
   const router = useRouter()
-  const [isMobile, setIsMobile] = useState(false)
   const [onOpen, setOnOpen] = useState(false)
 
   const { onClose, routerTab } = useModal()
+  const { isMobile } = useMobileView()
 
   useEffect(() => {
     const handleKeyDown = (event: any) => {
@@ -29,24 +30,10 @@ const ProfileUser = ({ user }: { user: User }) => {
 
     onClose()
 
-    const windowWidth = () => {
-      if (window.innerWidth < 768) {
-        setIsMobile(true)
-      } else {
-        setIsMobile(false)
-      }
-    }
-
-    windowWidth()
-
     window.addEventListener("keydown", handleKeyDown)
-    window.addEventListener("resize", windowWidth)
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-      window.removeEventListener("resize", windowWidth)
-    }
-  }, [isMobile])
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [])
 
   return (
     <Tabs defaultValue={routerTab === "account-settings" ? "account-settings" : "profile"} orientation="vertical" className="flex px-5 py-2 md:space-x-5 md:p-2">

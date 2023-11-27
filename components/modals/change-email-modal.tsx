@@ -5,7 +5,6 @@ import AnimateLayoutProvider from "@/components/providers/animate-layout-provide
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Form, FormField } from "@/components/ui/form"
-import { useToast } from "@/components/ui/use-toast"
 import { zodResolver } from "@hookform/resolvers/zod"
 import axios from "axios"
 import { AnimatePresence, Spring, motion } from "framer-motion"
@@ -13,6 +12,7 @@ import { Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { z } from "zod"
 
 const formSchemaCode = z.object({
@@ -25,7 +25,6 @@ const formSchemaEmail = z.object({
 
 const ChangeEmailModal = () => {
   const { isOpen, onClose, type, data } = useModal()
-  const { toast } = useToast()
   const router = useRouter()
 
   const { data: user } = data
@@ -90,10 +89,8 @@ const ChangeEmailModal = () => {
       setStep(3)
     } catch (error: any) {
       console.log(error)
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description: error.response.data.message,
+      toast.error("Something went error", {
+        description: error.response.data.message
       })
     }
   }
@@ -103,21 +100,15 @@ const ChangeEmailModal = () => {
       
       await axios.patch(`/api/users/change-email`, values)
 
-      toast({
-        variant: "success",
-        title: "Email changed.",
-        description: "Check your inbox for your newest email",
+      toast.success("Email changed", {
+        description: "Check your inbox for your newest email"
       })
-
+      
       setIsSuccess(true)
-
-      // router.refresh()
     } catch (error: any) {
       console.log(error)
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description: error.response.data.message,
+      toast.error("Something went wrong", {
+        description: error.response.data.message
       })
     }
   }

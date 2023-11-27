@@ -2,9 +2,9 @@ import AuthContext from '@/app/context/AuthContext'
 import ModalProvider from '@/components/providers/modal-provider'
 import ProgressBarProvider from '@/components/providers/progressbar-provider'
 import QueryProvider from '@/components/providers/query-provider'
+import ToasterProvider from '@/components/providers/toaster-provider'
 import { SocketProvider } from '@/components/providers/socket-provider'
 import { ThemeProvider } from '@/components/providers/theme-provider'
-import { Toaster } from '@/components/ui/toaster'
 import { ChildrenType, ProvidersType } from '@/lib/type'
 import { cn } from '@/lib/utils'
 import type { Metadata } from 'next'
@@ -57,7 +57,7 @@ export default function RootLayout({
         <ProvidersTree>
           <ModalProvider />
           {children}
-          <Toaster />
+          <ToasterProvider />
         </ProvidersTree>
       </body>
     </html>

@@ -3,17 +3,17 @@
 import { useModal } from "@/app/hooks/useModalStore"
 import CardForm from "@/components/card/card-form"
 import FormInput from "@/components/form/form-input"
+import Loading from "@/components/loading"
 import { Button } from "@/components/ui/button"
 import { Form, FormField, FormItem } from "@/components/ui/form"
-import { useToast } from "@/components/ui/use-toast"
 import { VariantAuth } from "@/lib/type"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import * as z from "zod"
-import Loading from "@/components/loading"
 
 const formSchema = z.object({
   email: z.string().min(1, "This field has to be filled.").email("This is not a valid email."),
@@ -22,7 +22,6 @@ const formSchema = z.object({
 
 const FormLogin = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAction<VariantAuth>> }) => {
   const router = useRouter()
-  const { toast } = useToast()
   const { onOpen } = useModal()
 
   const [isDisabled, setIsDisabled] = useState(false)
@@ -49,11 +48,7 @@ const FormLogin = ({ setVariant }: { setVariant: React.Dispatch<React.SetStateAc
       })
       
       if (res?.error) {
-        toast({
-          variant: "destructive",
-          title: "Something went wrong.",
-          description: res.error,
-        })
+        toast.error(res.error)
       }
       
       if (res?.url) {

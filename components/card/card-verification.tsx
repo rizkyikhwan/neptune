@@ -9,7 +9,7 @@ import { Loader2, LogOut } from "lucide-react"
 import { signOut } from "next-auth/react"
 import { useState } from "react"
 import ActionTooltip from "../action-tooltip"
-import { useToast } from "../ui/use-toast"
+import { toast } from "sonner"
 
 interface CardVerificationProps {
   email: string
@@ -17,7 +17,6 @@ interface CardVerificationProps {
 
 const CardVerification = ({ email }: CardVerificationProps) => {
   const { secondsLeft, start } = useCountdown()
-  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
 
   const handleResendEmail = async () => {
@@ -26,11 +25,7 @@ const CardVerification = ({ email }: CardVerificationProps) => {
       await axios.patch("/api/auth/verifyemail/resend")
     } catch (error: any) {
       console.log(error)
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description: error.response.data.message,
-      })
+      toast.error(error.response.data.message)
     } finally {
       start(60)
       setIsLoading(false)

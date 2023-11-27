@@ -33,6 +33,11 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
         }
       })
 
+      socket.conn.on("upgrade", (transport) => {
+        console.log(`transport upgraded to ${transport.name}`);
+      });
+    
+
       socket.on("typing", (data) => {
         const user = activeUsers.find((user) => user.userId === data.receiverId);
 
@@ -40,7 +45,7 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
       });
 
       socket.on("set-notification", (data) => {
-        const user = activeUsers.find((user) => user.userId === data.receiverId);
+        const user = activeUsers.find((user) => user.userId === data.receiver.id);
 
         user && io.to(user.socketId).emit("get-notification", data)
       })

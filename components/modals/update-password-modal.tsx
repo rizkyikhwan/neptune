@@ -4,10 +4,10 @@ import Loading from "@/components/loading"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Form, FormField } from "@/components/ui/form"
-import { useToast } from "@/components/ui/use-toast"
 import { zodResolver } from "@hookform/resolvers/zod"
 import axios from "axios"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { z } from "zod"
 
 const formSchema = z.object({
@@ -21,7 +21,6 @@ const formSchema = z.object({
 
 const UpdatePasswordModal = () => {
   const { isOpen, onClose, type } = useModal()
-  const { toast } = useToast()
 
   const isModalOpen = isOpen && type === "updatePassword"
 
@@ -46,20 +45,15 @@ const UpdatePasswordModal = () => {
       const res = await axios.patch("/api/users/update-password", values)
       const data = res.data
       
-      toast({
-        variant: "success",
-        description: data.message
-      })
+      toast.success(data.message)
 
       onClose()
     } catch (error: any) {
       console.log(error)
 
       if (error.response.status !== 401) {
-        toast({
-          variant: "destructive",
-          title: "Something went wrong.",
-          description: error.response.data.message,
+        toast.error("Something went wrong", {
+          description: error.response.data.message
         })
       } else {
         form.setError("current_password", { message: error.response.data.message })
