@@ -1,24 +1,25 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { User } from "@prisma/client"
 import axios from "axios"
+import { AnimatePresence, motion } from "framer-motion"
 import { Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
 import qs from "query-string"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useSocket } from "../providers/socket-provider"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { Input } from "../ui/input"
-import { User } from "@prisma/client"
-import { useEffect, useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
+import { useUserTyping } from "@/app/hooks/useUserTypingStore"
 
 interface ChatInputProps {
   apiUrl: string
   query: Record<string, any>
   name: string
-  otherUser: any
+  otherUser: Omit<User, "password" | "verifyToken" | "verifyTokenExpiry" | "friendsRequestIDs" | "resetPasswordToken" | "resetPasswordTokenExpiry">
   currentUser: User
   type: "conversation" | "channel"
 }
@@ -30,22 +31,50 @@ const formSchema = z.object({
 const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatInputProps) => {
   const router = useRouter()
   const { socket } = useSocket()
-
   const [typing, setTyping] = useState("")
+  const { userTyping, setUserTyping, removeUserTyping } = useUserTyping()
 
   useEffect(() => {
     let timer: NodeJS.Timeout
+    let timerTyping: NodeJS.Timeout
 
+    // socket.on("get-typing", (data: any) => {
+    //   if (data.typer.id === otherUser.id) {
+    //     setTyping(`${data.typer.displayname || data.typer.username} is typing...`)
+  
+    //     clearTimeout(timer)
+  
+    //     timer = setTimeout(() => {
+    //       setTyping("");
+    //     }, 2000);
+    //   }
+
+    //   if (!userTyping.includes(data.typer.id)) {
+    //     setUserTyping(data.typer.id)
+
+    //     clearTimeout(timerTyping)
+
+    //     timerTyping = setTimeout(() => {
+    //       removeUserTyping(data.typer.id)
+    //     }, 2000)
+    //   }
+    // })
     socket.on("get-typing", (data: any) => {
-      setTyping(`${data.typer} is typing...`)
+      otherUser.id === data.typer.id && setTyping(`${data.typer.displayname || data.typer.username} is typing...`)
+      
+      !userTyping.includes(data.typer.id) && data.typer && setUserTyping(data.typer.id)
 
       clearTimeout(timer)
-
+      
       timer = setTimeout(() => {
-        setTyping("");
-      }, 1000);
+        // removeUserTyping(data.typer.id)
+        setTyping("")
+      }, 2000);
+
     })
-  }, [socket])
+
+    return () => socket.off("get-typing")
+  }, [socket, userTyping])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -81,7 +110,8 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
   const handleKeyDown = () => {
     socket.emit("typing", {
       receiverId: otherUser.id,
-      typer: currentUser.displayname || currentUser.username
+      typer: currentUser,
+      conversationId: query.conversationId
     })
   }
 

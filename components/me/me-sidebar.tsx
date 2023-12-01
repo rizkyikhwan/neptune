@@ -1,22 +1,23 @@
 "use client"
 
+import { useUserTyping } from "@/app/hooks/useUserTypingStore"
 import LayoutChannelsSidebar from "@/components/layout-channels-sidebar"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { cn } from "@/lib/utils"
 import { Conversation, DirectMessage, User } from "@prisma/client"
+import { AnimatePresence, motion } from "framer-motion"
 import { Users } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useRouter } from "next13-progressbar"
-import { useEffect, useState } from "react"
-import { useSocket } from "../providers/socket-provider"
+import { useState } from "react"
 import UserAvatar from "../user/user-avatar"
-import { AnimatePresence, motion } from "framer-motion"
 
 type ConversationUser = Conversation & {
   userOne: User
   userTwo: User,
-  directMessages: DirectMessage[]
+  directMessages: DirectMessage[],
+  isTyping?: boolean
 }
 
 interface MeSidebarProps {
@@ -27,28 +28,14 @@ interface MeSidebarProps {
 const MeSidebar = ({ user, conversation }: MeSidebarProps) => {
   const pathname = usePathname()
   const router = useRouter()
-  const { socket } = useSocket()
-
+  
   const [open, setOpen] = useState(false)
-  const [typing, setTyping] = useState("")
+  const [conversationList, setConversationList] = useState<any>(conversation)
+  const { userTyping } = useUserTyping()
 
   const onEnter = { height: 0, opacity: 0 }
   const animate = { height: "auto", opacity: 1 }
   const onLeave = { height: 0, opacity: 0 }
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout
-
-    socket.on("get-typing", () => {
-      setTyping(`typing...`)
-
-      clearTimeout(timer)
-
-      timer = setTimeout(() => {
-        setTyping("");
-      }, 1000);
-    })
-  }, [socket])
 
   return (
     <>
@@ -72,7 +59,7 @@ const MeSidebar = ({ user, conversation }: MeSidebarProps) => {
           </div>
           <div className="flex flex-col space-y-2">
             <p className="text-xs font-semibold tracking-wider uppercase select-none text-zinc-400 hover:text-zinc-500 hover:dark:text-white">Direct Messages</p>
-            {conversation.map((item) => {
+            {conversationList.map((item: ConversationUser) => {
               const { userOne, userTwo } = item
 
               const otherUser = userOne.id === user.id ? userTwo : userOne
@@ -99,15 +86,15 @@ const MeSidebar = ({ user, conversation }: MeSidebarProps) => {
                       <div className="flex flex-col">
                         <p className="text-sm">{otherUser.username}</p>
                         <AnimatePresence mode="wait">
-                          {typing && (
+                          {userTyping.includes(otherUser.id) && (
                             <motion.p
-                              key={typing ? "user_typing" : "user_not_typing"}
+                              key={userTyping ? "user_typing" : "user_not_typing"}
                               initial={onEnter}
                               animate={animate}
                               exit={onLeave}
                               className="text-[10px] italic text-zinc-400 text-left"
                             >
-                              {typing}
+                              typing...
                             </motion.p>
                           )}
                         </AnimatePresence>

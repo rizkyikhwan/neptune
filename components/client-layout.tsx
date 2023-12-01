@@ -6,7 +6,6 @@ import dynamic from "next/dynamic"
 import React, { useEffect, useState } from "react"
 import { useSocket } from "./providers/socket-provider"
 import ToastNotifocation from "./toast-notification"
-import Notif from "@/public/audio/notif.mp3"
 
 const SplashScreen = dynamic(() => import('@/components/splash-screen'), {
   ssr: false,
@@ -21,25 +20,15 @@ export default function ClientLayoutContext({ children, className }: ClientLayou
   const { status } = useSession()
   const { socket } = useSocket()
   const [isShown, setIsShown] = useState(true)
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
 
   useEffect(() => {
     if (!socket) {
       return
     }
 
-    setAudio(new Audio(Notif))
-
     socket.on("get-notification", (data: any) => {
       ToastNotifocation({ user: data.sender, message: data.message })
-
-      if (audio) {
-        audio.play()
-        audio.volume = 0.5
-      }
     })
-
-    return () => setAudio(null)
   }, [socket])
 
   useEffect(() => {
