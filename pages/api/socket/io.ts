@@ -35,8 +35,8 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
 
       socket.on("typing", (data) => {
         const user = activeUsers.find((user) => user.userId === data.receiverId);
-        
-        user && io.to(user.socketId).emit("get-typing", {...data, socketId: user.socketId})
+
+        user && io.to(user.socketId).emit("get-typing", { ...data, socketId: user.socketId })
       });
 
       socket.on("set-notification", (data) => {

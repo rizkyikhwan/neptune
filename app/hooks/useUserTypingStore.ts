@@ -1,22 +1,21 @@
-import { set } from "date-fns"
 import { create } from "zustand"
 
 interface UserTypingStore {
+  typing: string
   isTyping: boolean
-  conversationTyping: string
   userTyping: string[]
+  setTyping: (typing: string) => void
   setIsTyping: (isTyping: boolean) => void
-  setConversationTyping: (conversationTyping: string) => void
   setUserTyping: (typingId: string) => void
   removeUserTyping: (typingId: string) => void
 }
 
 export const useUserTyping = create<UserTypingStore>((set) => ({
+  typing: "",
   isTyping: false,
-  conversationTyping: "",
   userTyping: [],
+  setTyping: (typing) => set({ typing }),
   setIsTyping: (isTyping) => set({ isTyping }),
-  setConversationTyping: (conversationTyping) => set({ conversationTyping }),
   setUserTyping: (typingId) => {
     set(state => ({
       userTyping: [

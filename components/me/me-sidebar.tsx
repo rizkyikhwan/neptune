@@ -10,8 +10,9 @@ import { AnimatePresence, motion } from "framer-motion"
 import { Users } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useRouter } from "next13-progressbar"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import UserAvatar from "../user/user-avatar"
+import { useSocket } from "../providers/socket-provider"
 
 type ConversationUser = Conversation & {
   userOne: User
@@ -28,14 +29,63 @@ interface MeSidebarProps {
 const MeSidebar = ({ user, conversation }: MeSidebarProps) => {
   const pathname = usePathname()
   const router = useRouter()
-  
+  const { socket } = useSocket()
+  const { typing, userTyping, setTyping, setUserTyping, removeUserTyping } = useUserTyping()
+
   const [open, setOpen] = useState(false)
   const [conversationList, setConversationList] = useState<any>(conversation)
-  const { userTyping } = useUserTyping()
 
   const onEnter = { height: 0, opacity: 0 }
   const animate = { height: "auto", opacity: 1 }
   const onLeave = { height: 0, opacity: 0 }
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout
+    let timerTyping: NodeJS.Timeout
+
+    // socket.on("get-typing", (data: any) => {
+    //   if (data.typer.id === otherUser.id) {
+    //     setTyping(`${data.typer.displayname || data.typer.username} is typing...`)
+
+    //     clearTimeout(timer)
+
+    //     timer = setTimeout(() => {
+    //       setTyping("");
+    //     }, 2000);
+    //   }
+
+    //   if (!userTyping.includes(data.typer.id)) {
+    //     setUserTyping(data.typer.id)
+
+    //     clearTimeout(timerTyping)
+
+    //     timerTyping = setTimeout(() => {
+    //       removeUserTyping(data.typer.id)
+    //     }, 2000)
+    //   }
+    // })
+    socket.on("get-typing", (data: any) => {
+      conversation.map((item) => {
+        const { userOne, userTwo } = item
+        const otherUser = userOne.id === user.id ? userTwo : userOne
+
+        return otherUser.id === data.typer.id && setTyping(`${data.typer.displayname || data.typer.username} is typing...`)
+      })
+
+      !userTyping.includes(data.typer.id) && setUserTyping(data.typer.id)
+
+      clearTimeout(timer)
+
+      timer = setTimeout(() => {
+        setTyping("")
+        removeUserTyping(data.typer.id)
+      }, 2000);
+
+    })
+
+    return () => socket.off("get-typing")
+  }, [socket, userTyping])
+
 
   return (
     <>
@@ -59,7 +109,7 @@ const MeSidebar = ({ user, conversation }: MeSidebarProps) => {
           </div>
           <div className="flex flex-col space-y-2">
             <p className="text-xs font-semibold tracking-wider uppercase select-none text-zinc-400 hover:text-zinc-500 hover:dark:text-white">Direct Messages</p>
-            {conversationList.map((item: ConversationUser) => {
+            {conversation.map((item: ConversationUser) => {
               const { userOne, userTwo } = item
 
               const otherUser = userOne.id === user.id ? userTwo : userOne
