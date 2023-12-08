@@ -16,6 +16,11 @@ const findConversation = async (userOneId: string, userTwoId: string) => {
         },
         userTwo: {
           select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
+        },
+        directMessages: {
+          include: {
+            seen: true
+          }
         }
       }
     })
@@ -37,6 +42,11 @@ const createNewConversation = async (userOneId: string, userTwoId: string) => {
         },
         userTwo: {
           select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
+        },
+        directMessages: {
+          include: {
+            seen: true
+          }
         }
       }
     })

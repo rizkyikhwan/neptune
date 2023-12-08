@@ -43,6 +43,9 @@ model User {
 
   directMessages DirectMessage[]
 
+  seenMessageIds String[]        @db.ObjectId
+  seenMessages   DirectMessage[] @relation("Seen", fields: [seenMessageIds], references: [id])
+
   conversationsInitiated Conversation[] @relation("UserOne")
   conversationsReceived  Conversation[] @relation("UserTwo")
 
@@ -85,6 +88,8 @@ model Conversation {
 
   directMessages DirectMessage[]
 
+  lastMessageAt DateTime @default(now())
+
   @@unique([userOneId, userTwoId])
 }
 
@@ -98,6 +103,9 @@ model DirectMessage {
 
   conversationId String       @db.ObjectId
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  seenIds String[] @db.ObjectId
+  seen    User[]   @relation("Seen", fields: [seenIds], references: [id])
 
   deleted Boolean @default(false)
 

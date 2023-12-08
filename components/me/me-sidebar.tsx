@@ -1,92 +1,87 @@
 "use client"
 
-import { useUserTyping } from "@/app/hooks/useUserTypingStore"
 import LayoutChannelsSidebar from "@/components/layout-channels-sidebar"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { DirectMessageWithSeen } from "@/lib/type"
 import { cn } from "@/lib/utils"
-import { Conversation, DirectMessage, User } from "@prisma/client"
-import { AnimatePresence, motion } from "framer-motion"
+import { Conversation, User } from "@prisma/client"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import axios from "axios"
 import { Users } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useRouter } from "next13-progressbar"
 import { useEffect, useState } from "react"
-import UserAvatar from "../user/user-avatar"
+import ListDirectMessages from "../user/list-direct-messages"
+import LoadingItem from "./loading-item"
 import { useSocket } from "../providers/socket-provider"
 
 type ConversationUser = Conversation & {
   userOne: User
   userTwo: User,
-  directMessages: DirectMessage[],
+  directMessages: DirectMessageWithSeen[],
   isTyping?: boolean
 }
 
 interface MeSidebarProps {
   user: User
-  conversation: ConversationUser[]
 }
 
-const MeSidebar = ({ user, conversation }: MeSidebarProps) => {
+const MeSidebar = ({ user }: MeSidebarProps) => {
   const pathname = usePathname()
   const router = useRouter()
+  const queryClient = useQueryClient()
+
   const { socket } = useSocket()
-  const { typing, userTyping, setTyping, setUserTyping, removeUserTyping } = useUserTyping()
 
   const [open, setOpen] = useState(false)
-  const [conversationList, setConversationList] = useState<any>(conversation)
 
-  const onEnter = { height: 0, opacity: 0 }
-  const animate = { height: "auto", opacity: 1 }
-  const onLeave = { height: 0, opacity: 0 }
+  const { data: conversation, isLoading } = useQuery({ 
+    queryKey: ['conversation'], 
+    queryFn: async () => {
+      const data = await axios.get("/api/conversations")
+      return data.data
+    }
+  })
 
   useEffect(() => {
-    let timer: NodeJS.Timeout
-    let timerTyping: NodeJS.Timeout
-
-    // socket.on("get-typing", (data: any) => {
-    //   if (data.typer.id === otherUser.id) {
-    //     setTyping(`${data.typer.displayname || data.typer.username} is typing...`)
-
-    //     clearTimeout(timer)
-
-    //     timer = setTimeout(() => {
-    //       setTyping("");
-    //     }, 2000);
-    //   }
-
-    //   if (!userTyping.includes(data.typer.id)) {
-    //     setUserTyping(data.typer.id)
-
-    //     clearTimeout(timerTyping)
-
-    //     timerTyping = setTimeout(() => {
-    //       removeUserTyping(data.typer.id)
-    //     }, 2000)
-    //   }
-    // })
-    socket.on("get-typing", (data: any) => {
-      conversation.map((item) => {
-        const { userOne, userTwo } = item
-        const otherUser = userOne.id === user.id ? userTwo : userOne
-
-        return otherUser.id === data.typer.id && setTyping(`${data.typer.displayname || data.typer.username} is typing...`)
+    if (!conversation) {
+      socket.on("chat:conversation:new", (newData: any) => {
+        if (newData.userOneId === user.id || newData.userTwoId === user.id) {
+          queryClient.setQueryData(['conversation'], (oldData: any) => {
+            if (!oldData) {
+              return oldData
+            }
+            
+            return { data: [...oldData.data.filter((data: any) => data.id !== newData.id), newData] }
+          })
+        }
       })
+      
+      return
+    }
 
-      !userTyping.includes(data.typer.id) && setUserTyping(data.typer.id)
-
-      clearTimeout(timer)
-
-      timer = setTimeout(() => {
-        setTyping("")
-        removeUserTyping(data.typer.id)
-      }, 2000);
-
+    conversation.data.map((item: ConversationUser) => {
+      socket.on(`chat:${item.id}:conversation:update`, (data: any) => {
+        queryClient.setQueryData(['conversation'], (oldData: any) => {
+          if (!oldData) {
+            return oldData
+          }
+          
+          const newData = oldData.data.map((item: any) => {
+            if (item.id === data.id) {
+              return { ...item, lastMessageAt: data.lastMessageAt }
+            }
+  
+            return item
+          })
+          
+          return { data: newData }
+        })
+      })
     })
-
-    return () => socket.off("get-typing")
-  }, [socket, userTyping])
-
-
+  }, [socket, queryClient, conversation])
+  
   return (
     <>
       <LayoutChannelsSidebar
@@ -109,51 +104,20 @@ const MeSidebar = ({ user, conversation }: MeSidebarProps) => {
           </div>
           <div className="flex flex-col space-y-2">
             <p className="text-xs font-semibold tracking-wider uppercase select-none text-zinc-400 hover:text-zinc-500 hover:dark:text-white">Direct Messages</p>
-            {conversation.map((item: ConversationUser) => {
-              const { userOne, userTwo } = item
-
-              const otherUser = userOne.id === user.id ? userTwo : userOne
-
-              if (item.directMessages.length > 0) {
-                return (
-                  <motion.button
-                    key={item.id}
-                    initial={{ x: -150, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: -150, opacity: 0 }}
-                    className={cn(pathname?.includes(otherUser.id) && "bg-zinc-300/50 dark:bg-zinc-600/50", "flex items-center p-2 h-12 rounded space-x-3 w-full hover:bg-zinc-400/50 hover:dark:bg-zinc-700/50")}
-                    onClick={() => router.push(`/me/conversation/${otherUser.id}`)}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <UserAvatar
-                        id={otherUser.id}
-                        initialName={otherUser.displayname || otherUser.username}
-                        bgColor={otherUser.hexColor}
-                        src={otherUser.avatar || ""}
-                        className="w-8 h-8"
-                        onlineIndicator
-                      />
-                      <div className="flex flex-col">
-                        <p className="text-sm">{otherUser.username}</p>
-                        <AnimatePresence mode="wait">
-                          {userTyping.includes(otherUser.id) && (
-                            <motion.p
-                              key={userTyping ? "user_typing" : "user_not_typing"}
-                              initial={onEnter}
-                              animate={animate}
-                              exit={onLeave}
-                              className="text-[10px] italic text-zinc-400 text-left"
-                            >
-                              typing...
-                            </motion.p>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </div>
-                  </motion.button>
-                )
-              }
-            })}
+            {isLoading ? (
+              <>
+                {[...Array(5)].map((_, i) => (
+                  <LoadingItem key={i} />
+                ))}
+              </>
+              ) : (
+              conversation.data.sort((a: any, b: any) => new Date(b.lastMessageAt).valueOf() - new Date(a.lastMessageAt).valueOf()).map((data: ConversationUser) => (
+                <ListDirectMessages
+                  key={data.id}
+                  data={data}
+                  user={user}
+                />
+              )))}
           </div>
         </div>
       </LayoutChannelsSidebar>

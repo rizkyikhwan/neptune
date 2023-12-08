@@ -6,8 +6,9 @@ import { useChatSocket } from "@/app/hooks/useChatSocket"
 import { DirectMessage, User } from "@prisma/client"
 import { formatDistance } from "date-fns"
 import { Loader2, ServerCrash } from "lucide-react"
-import { ElementRef, Fragment, useRef } from "react"
+import { ElementRef, Fragment, useEffect, useRef } from "react"
 import ChatItem from "./chat-item"
+import axios from "axios"
 
 const DATE_FORMAT = "d MMM yyyy, HH:mm"
 
@@ -36,7 +37,7 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
   const bottomRef = useRef<ElementRef<"div">>(null)
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useChatQuery({ queryKey, apiUrl, paramKey, paramValue })
-  useChatSocket({ addKey, updateKey, queryKey })
+  useChatSocket({ addKey, updateKey, queryKey, chatId })
   useChatScroll({
     chatRef,
     bottomRef,
@@ -44,6 +45,10 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
     shouldLoadMore: !isFetchingNextPage && !!hasNextPage,
     count: data?.pages?.[0].items?.length ?? 0
   })
+
+  useEffect(() => {
+    axios.post(`/api/socket/conversations/${chatId}/seen`)
+  }, [chatId])
 
   if (status === "pending") {
     return (

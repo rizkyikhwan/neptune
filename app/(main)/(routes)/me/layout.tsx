@@ -4,6 +4,8 @@ import { currentUser } from "@/lib/currentUser"
 import { db } from "@/lib/db"
 import { redirect } from "next/navigation"
 
+export const dynamic = "force-dynamic";
+
 const LayoutMe = async ({ children }: { children: React.ReactNode }) => {
   const user = await currentUser()
 
@@ -25,7 +27,11 @@ const LayoutMe = async ({ children }: { children: React.ReactNode }) => {
     include: {
       userOne: true,
       userTwo: true,
-      directMessages: true
+      directMessages: {
+        include: {
+          seen: true
+        }
+      }
     }
   })
 
@@ -37,7 +43,7 @@ const LayoutMe = async ({ children }: { children: React.ReactNode }) => {
     <ClientContextProvider user={user} conversations={conversation}>
       <div className="h-full">
         <div className="fixed inset-y-0 flex-col hidden h-full md:flex w-60">
-          <MeSidebar user={user} conversation={conversation} />
+          <MeSidebar user={user} />
         </div>
         <div className="h-full md:pl-60">
           {children}

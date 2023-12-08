@@ -1,9 +1,10 @@
 import { useSocket } from "@/components/providers/socket-provider"
 import { ChatSocketProps, MessageWithProfile } from "@/lib/type"
 import { useQueryClient } from "@tanstack/react-query"
+import axios from "axios"
 import { useEffect } from "react"
 
-export const useChatSocket = ({ addKey, updateKey, queryKey }: ChatSocketProps) => {
+export const useChatSocket = ({ addKey, updateKey, queryKey, chatId }: ChatSocketProps) => {
   const { socket } = useSocket()
   const queryClient = useQueryClient()
 
@@ -47,6 +48,8 @@ export const useChatSocket = ({ addKey, updateKey, queryKey }: ChatSocketProps) 
             }]
           }
         }
+
+        axios.post(`/api/socket/conversations/${chatId}/seen`)
 
         const newData = [...oldData.pages]
 

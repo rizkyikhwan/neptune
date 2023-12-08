@@ -1,4 +1,3 @@
-import { currentUser } from "@/lib/currentUser";
 import { currentUserPages } from "@/lib/currentUserrPages";
 import { db } from "@/lib/db";
 import { NextApiResponseServerIo } from "@/lib/type";
@@ -36,7 +35,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
       },
       include: {
         userOne: true,
-        userTwo: true
+        userTwo: true,
+        directMessages: {
+          include: {
+            seen: true
+          }
+        }
       }
     })
 
@@ -78,10 +82,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
         data: {
           fileUrl: null,
           content: "This message has been deleted.",
-          deleted: true
+          deleted: true,
+          seen: {
+            connect: {
+              id: currentUser.id
+            }
+          }
         },
         include: {
-          user: true
+          user: true,
+          seen: true
         }
       })
     }
@@ -96,17 +106,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
           id: directMessageId as string
         },
         data: {
-          content
+          content,
+          seen: {
+            connect: {
+              id: currentUser.id
+            }
+          }
         },
         include: {
-          user: true
+          user: true,
+          seen: true
         }
       })
     }
 
     const updateKey = `chat:${conversation.id}:messages:update`
+    const channelKeyMsg = `chat:${conversationId}:messages:new`
 
     res.socket.server.io.emit(updateKey, directMessage)
+    res.socket.server.io.emit(channelKeyMsg, directMessage)
 
     return res.status(200).json(directMessage)
   } catch (error) {

@@ -31,50 +31,50 @@ const formSchema = z.object({
 const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatInputProps) => {
   const router = useRouter()
   const { socket } = useSocket()
-  // const [typing, setTyping] = useState("")
-  const { typing, userTyping, setUserTyping, removeUserTyping } = useUserTyping()
+  const [typing, setTyping] = useState("")
+  const { userTyping, setUserTyping, removeUserTyping } = useUserTyping()
 
-  // useEffect(() => {
-  //   let timer: NodeJS.Timeout
-  //   let timerTyping: NodeJS.Timeout
+  useEffect(() => {
+    let timer: NodeJS.Timeout
+    let timerTyping: NodeJS.Timeout
 
-  //   // socket.on("get-typing", (data: any) => {
-  //   //   if (data.typer.id === otherUser.id) {
-  //   //     setTyping(`${data.typer.displayname || data.typer.username} is typing...`)
+    // socket.on("get-typing", (data: any) => {
+    //   if (data.typer.id === otherUser.id) {
+    //     setTyping(`${data.typer.displayname || data.typer.username} is typing...`)
+  
+    //     clearTimeout(timer)
+  
+    //     timer = setTimeout(() => {
+    //       setTyping("");
+    //     }, 2000);
+    //   }
 
-  //   //     clearTimeout(timer)
+    //   if (!userTyping.includes(data.typer.id)) {
+    //     setUserTyping(data.typer.id)
 
-  //   //     timer = setTimeout(() => {
-  //   //       setTyping("");
-  //   //     }, 2000);
-  //   //   }
+    //     clearTimeout(timerTyping)
 
-  //   //   if (!userTyping.includes(data.typer.id)) {
-  //   //     setUserTyping(data.typer.id)
+    //     timerTyping = setTimeout(() => {
+    //       removeUserTyping(data.typer.id)
+    //     }, 2000)
+    //   }
+    // })
+    socket.on("get-typing", (data: any) => {
+      otherUser.id === data.typer.id && setTyping(`${data.typer.displayname || data.typer.username} is typing...`)
+      
+      !userTyping.includes(data.typer.id) && data.typer && setUserTyping(data.typer.id)
 
-  //   //     clearTimeout(timerTyping)
+      clearTimeout(timer)
+      
+      timer = setTimeout(() => {
+        // removeUserTyping(data.typer.id)
+        setTyping("")
+      }, 2000);
 
-  //   //     timerTyping = setTimeout(() => {
-  //   //       removeUserTyping(data.typer.id)
-  //   //     }, 2000)
-  //   //   }
-  //   // })
-  //   socket.on("get-typing", (data: any) => {
-  //     otherUser.id === data.typer.id && setTyping(`${data.typer.displayname || data.typer.username} is typing...`)
+    })
 
-  //     !userTyping.includes(data.typer.id) && setUserTyping(data.typer.id)
-
-  //     clearTimeout(timer)
-
-  //     timer = setTimeout(() => {
-  //       removeUserTyping(data.typer.id)
-  //       setTyping("")
-  //     }, 2000);
-
-  //   })
-
-  //   return () => socket.off("get-typing")
-  // }, [socket, userTyping])
+    return () => socket.off("get-typing")
+  }, [socket, userTyping])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -95,8 +95,8 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
       await axios.post(url, value)
 
       socket.emit("set-notification", {
-        message: value.content,
-        receiver: otherUser,
+        message: value.content, 
+        receiver: otherUser, 
         sender: currentUser
       })
 

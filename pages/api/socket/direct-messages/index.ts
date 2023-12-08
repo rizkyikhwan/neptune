@@ -58,16 +58,53 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
         content,
         fileUrl,
         conversationId: conversationId as string,
-        userId: currentUser.id
+        userId: currentUser.id,
+        seen: {
+          connect: {
+            id: currentUser.id
+          }
+        }
       },
       include: {
         user: true
       }
     })
 
+    const updatedConversation = await db.conversation.upsert({
+      where: {
+        id: conversationId as string
+      },
+      create: {
+        userOneId: conversation.userOneId,
+        userTwoId: conversation.userTwoId,
+        directMessages: {
+          connect: {
+            id: message.id
+          }
+        }
+      },
+      update: {
+        lastMessageAt: new Date()
+      },
+      include: {
+        userOne: true,
+        userTwo: true,
+        directMessages: {
+          include: {
+            seen: true
+          }
+        }
+      }
+    })
+
     const channelKey = `chat:${conversationId}:messages`
+    const channelKeyMsg = `chat:${conversationId}:messages:new`
+    const conversationKeyMsg = `chat:${conversationId}:conversation:update`
 
     res.socket.server.io.emit(channelKey, message)
+    res.socket.server.io.emit(channelKeyMsg, message)
+    res.socket.server.io.emit(conversationKeyMsg, updatedConversation)
+    res.socket.server.io.emit("chat:conversation:new", updatedConversation)
 
     return res.status(200).json({ message: "Message sended" })
   } catch (error) {

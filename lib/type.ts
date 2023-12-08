@@ -45,10 +45,15 @@ export type ChatSocketProps = {
   addKey: string
   updateKey: string
   queryKey: string
+  chatId?: string
 }
 
 export type MessageWithProfile = DirectMessage & {
   user: User
+}
+
+export type DirectMessageWithSeen = DirectMessage & {
+  seen: User[]
 }
 
 export enum EmailEnum {
