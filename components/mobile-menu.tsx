@@ -6,8 +6,8 @@ import NavigationSidebar from "@/components/navigation/navigation-sidebar"
 import { useClientContext } from "@/app/context/ClientContext"
 
 const MobileMenu = () => {
-  const { user, conversations } = useClientContext()
-  
+  const { user } = useClientContext()
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -19,7 +19,7 @@ const MobileMenu = () => {
         <div className="w-20">
           <NavigationSidebar user={user} />
         </div>
-        <MeSidebar user={user} conversation={conversations} />
+        <MeSidebar user={user} />
       </SheetContent>
     </Sheet>
   )

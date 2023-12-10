@@ -34,7 +34,7 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
   const pathname = usePathname()
   const router = useRouter()
   const queryClient = useQueryClient()
-  
+
   const { socket } = useSocket()
 
   const onEnter = { height: 0, opacity: 0 }
@@ -47,7 +47,7 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
         if (!oldData) {
           return oldData
         }
-        
+
         const newData = oldData.data.map((item: any) => {
           if (item.id === data.conversationId) {
             return { ...item, directMessages: [...item.directMessages, data] }
@@ -55,7 +55,7 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
 
           return item
         })
-        
+
         return { data: newData }
       })
     })
@@ -65,7 +65,7 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
         if (!oldData) {
           return oldData
         }
-        
+
         const newData = oldData.data.map((item: any) => {
           if (item.id === data.conversationId) {
             return { ...item, directMessages: [...item.directMessages, data] }
@@ -73,7 +73,7 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
 
           return item
         })
-        
+
         return { data: newData }
       })
     })
@@ -90,7 +90,7 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
 
   const lastMessage = useMemo(() => {
     const directMessage = data.directMessages
-    
+
     return directMessage[directMessage.length - 1]
   }, [data.directMessages])
 
@@ -104,7 +104,7 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
     if (!user) {
       return false
     }
-    
+
     return seenArray.filter((currentUser) => currentUser.email === user.email).length !== 0
   }, [user, lastMessage])
 
@@ -116,9 +116,9 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
     if (lastMessage?.content) {
       return lastMessage?.content
     }
-  }, [lastMessage])              
+  }, [lastMessage])
 
-  const isOwn = lastMessage.userId === user.id  
+  const isOwn = lastMessage.userId === user.id
 
   return (
     <motion.button
@@ -141,8 +141,7 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
         />
         <div className={cn(!hasSeen && !isOwn && "font-semibold tracking-wide", "flex flex-col items-start")}>
           <p className="text-sm">
-            {/* {otherUser.displayname || otherUser.username} */}
-            {otherUser.displayname ? otherUser.displayname.length > 14 ? `${otherUser.displayname.slice(0, 14)}...`: otherUser.displayname : otherUser.username.length > 14 ? `${otherUser.username.slice(0, 14)}...`: otherUser.username}
+            {otherUser.displayname ? otherUser.displayname.length > 14 ? `${otherUser.displayname.slice(0, 14)}...` : otherUser.displayname : otherUser.username.length > 14 ? `${otherUser.username.slice(0, 14)}...` : otherUser.username}
           </p>
           <AnimatePresence mode="wait">
             {lastMessageText && (
@@ -150,17 +149,16 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
                 initial={onEnter}
                 animate={animate}
                 exit={onLeave}
-                className="text-[10px] text-zinc-400 text-left space-x-1"
+                className={cn(lastMessage.deleted && "italic", "text-[10px] text-zinc-400 text-left space-x-1")}
               >
                 {isOwn && <span>You:</span>}
                 <span>{lastMessageText.length > 15 ? `${lastMessageText.slice(0, 15)}...` : lastMessageText}</span>
-                {/* <span>{lastMessageText}</span> */}
               </motion.p>
             )}
           </AnimatePresence>
         </div>
       </div>
-      {!hasSeen && !isOwn && <div className="w-2 h-2 rounded-full bg-sky-500" />}
+      {!hasSeen && !isOwn && <div className="flex-none w-2 h-2 rounded-full bg-sky-500" />}
     </motion.button>
   )
 }

@@ -6,7 +6,8 @@ import RemoveFriendModal from "@/components/modals/remove-friend-modal"
 import ResetPasswordModal from "@/components/modals/reset-password-modal"
 import UpdatePasswordModal from "@/components/modals/update-password-modal"
 import { useEffect, useState } from "react"
-import ChangeEmailModal from "../modals/change-email-modal"
+import ChangeEmailModal from "@/components/modals/change-email-modal"
+import DeleteMessageModal from "@/components/modals/delete-message-modal"
 
 const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false)
@@ -27,6 +28,7 @@ const ModalProvider = () => {
       <ProfileModalUser />
       <UpdatePasswordModal />
       <ChangeEmailModal />
+      <DeleteMessageModal />
     </>
   )
 }

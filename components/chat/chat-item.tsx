@@ -14,6 +14,7 @@ import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { Edit, Trash, X } from "lucide-react"
+import { useModal } from "@/app/hooks/useModalStore"
 
 interface ChatItemProps {
   id: string
@@ -33,6 +34,7 @@ const formSchema = z.object({
 })
 
 const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, isUpdated, socketUrl, socketQuery }: ChatItemProps) => {
+  const { onOpen } = useModal()
   const [isEditing, setIsEditing] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -157,6 +159,7 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
           )}
           <ActionTooltip label="Delete">
             <Trash
+              onClick={() => !isLoading && onOpen("deleteMessage", { apiUrl: `${socketUrl}/${id}`, query: socketQuery })}
               className="w-4 h-4 ml-auto transition cursor-pointer text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300"
             />
           </ActionTooltip>

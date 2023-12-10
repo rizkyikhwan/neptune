@@ -37,7 +37,7 @@ export async function GET(req: Request) {
         lastMessageAt: "desc"
       }
     })
-  
+
     if (!conversation) {
       return null
     }

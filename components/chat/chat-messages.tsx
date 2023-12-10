@@ -9,6 +9,7 @@ import { Loader2, ServerCrash } from "lucide-react"
 import { ElementRef, Fragment, useEffect, useRef } from "react"
 import ChatItem from "./chat-item"
 import axios from "axios"
+import { useMessagesStore } from "@/app/hooks/useMessagesStore"
 
 const DATE_FORMAT = "d MMM yyyy, HH:mm"
 
@@ -36,6 +37,8 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
   const chatRef = useRef<ElementRef<"div">>(null)
   const bottomRef = useRef<ElementRef<"div">>(null)
 
+  const { setIsLoading } = useMessagesStore()
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useChatQuery({ queryKey, apiUrl, paramKey, paramValue })
   useChatSocket({ addKey, updateKey, queryKey, chatId })
   useChatScroll({
@@ -48,7 +51,9 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
 
   useEffect(() => {
     axios.post(`/api/socket/conversations/${chatId}/seen`)
-  }, [chatId])
+
+    status === "pending" ? setIsLoading(true) : setIsLoading(false)
+  }, [chatId, status])
 
   if (status === "pending") {
     return (

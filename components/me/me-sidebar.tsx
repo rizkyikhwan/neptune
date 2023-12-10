@@ -15,6 +15,7 @@ import { useEffect, useState } from "react"
 import ListDirectMessages from "../user/list-direct-messages"
 import LoadingItem from "./loading-item"
 import { useSocket } from "../providers/socket-provider"
+import UserAvatar from "../user/user-avatar"
 
 type ConversationUser = Conversation & {
   userOne: User
@@ -36,13 +37,33 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
 
   const [open, setOpen] = useState(false)
 
-  const { data: conversation, isLoading } = useQuery({ 
-    queryKey: ['conversation'], 
+  const { data: conversation, isLoading } = useQuery({
+    queryKey: ['conversation'],
     queryFn: async () => {
       const data = await axios.get("/api/conversations")
       return data.data
     }
   })
+
+  // const result = useQueries({
+  //   queries: [
+  //     {
+  //       queryKey: ['conversation'],
+  //       queryFn: async () => {
+  //         const data = await axios.get("/api/conversations")
+  //         return data.data
+  //       }
+  //     },
+  //     {
+  //       queryKey: ['conversation'],
+  //       queryFn: async () => {
+  //         const data = await axios.get("/api/users")
+  //         return data.data
+  //       }
+  //     },
+  //   ]
+  // })
+  // console.log(result);
 
   useEffect(() => {
     if (!conversation) {
@@ -52,12 +73,12 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
             if (!oldData) {
               return oldData
             }
-            
+
             return { data: [...oldData.data.filter((data: any) => data.id !== newData.id), newData] }
           })
         }
       })
-      
+
       return
     }
 
@@ -67,21 +88,23 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
           if (!oldData) {
             return oldData
           }
-          
+
           const newData = oldData.data.map((item: any) => {
             if (item.id === data.id) {
               return { ...item, lastMessageAt: data.lastMessageAt }
             }
-  
+
             return item
           })
-          
+
           return { data: newData }
         })
       })
     })
+
+    return () => socket.off("chat:conversation:new")
   }, [socket, queryClient, conversation])
-  
+
   return (
     <>
       <LayoutChannelsSidebar
@@ -110,7 +133,7 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
                   <LoadingItem key={i} />
                 ))}
               </>
-              ) : (
+            ) : (
               conversation.data.sort((a: any, b: any) => new Date(b.lastMessageAt).valueOf() - new Date(a.lastMessageAt).valueOf()).map((data: ConversationUser) => (
                 <ListDirectMessages
                   key={data.id}
@@ -137,15 +160,43 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
               <span>Tes server</span>
             </CommandItem>
           </CommandGroup>
-          <CommandGroup heading={"Direct Messages"}>
-            <CommandItem className="space-x-2 cursor-pointer">
-              <Avatar className="w-6 h-6">
-                <AvatarFallback className="text-sm text-zinc-100 bg-zinc-600">
-                  T
-                </AvatarFallback>
-              </Avatar>
-              <span>Tes User</span>
-            </CommandItem>
+          <CommandGroup heading={"Direct Messages"} >
+            {isLoading ? (
+              <>
+                {[...Array(5)].map((_, i) => (
+                  <LoadingItem key={i} />
+                ))}
+              </>
+            ) : (
+              conversation.data.sort((a: any, b: any) => new Date(b.lastMessageAt).valueOf() - new Date(a.lastMessageAt).valueOf()).map((data: ConversationUser) => {
+                const { userOne, userTwo } = data
+
+                const otherUser = userOne.id === user.id ? userTwo : userOne
+
+                return (
+                  <CommandItem
+                    className="space-x-2 cursor-pointer"
+                    key={data.id}
+                    onSelect={() => {
+                      router.push(`/me/conversation/${otherUser.id}`)
+                      setOpen(false)
+                    }}
+                  >
+                    <UserAvatar
+                      id={otherUser.id}
+                      initialName={otherUser.displayname || otherUser.username}
+                      bgColor={otherUser.hexColor}
+                      src={otherUser.avatar || ""}
+                      className="w-8 h-8"
+                      onlineIndicator
+                    />
+                    <div className="flex flex-col">
+                      <p>{otherUser.displayname || otherUser.username}</p>
+                      <p className="text-xs text-zinc-400">{otherUser.username}</p>
+                    </div>
+                  </CommandItem>
+                )
+              }))}
           </CommandGroup>
         </CommandList>
       </CommandDialog>

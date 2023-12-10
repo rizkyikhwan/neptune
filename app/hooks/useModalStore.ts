@@ -1,11 +1,13 @@
 import { User } from "@prisma/client"
 import { create } from "zustand"
 
-export type ModalType = "resetPassowrd" | "updatePassword" | "changeEmail" | "infoApp" | "removeFriend" | "profileUser" | "avatarCrop" | "bannerCrop"
+export type ModalType = "resetPassowrd" | "updatePassword" | "changeEmail" | "infoApp" | "removeFriend" | "profileUser" | "avatarCrop" | "bannerCrop" | "deleteMessage"
 
 interface ModalData {
   data?: User & { friends?: User[] }
   image?: string
+  apiUrl?: string
+  query?: Record<string, any>
 }
 
 interface ModalStore {

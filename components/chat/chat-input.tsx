@@ -13,7 +13,7 @@ import { z } from "zod"
 import { useSocket } from "../providers/socket-provider"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { Input } from "../ui/input"
-import { useUserTyping } from "@/app/hooks/useUserTypingStore"
+import { useMessagesStore } from "@/app/hooks/useMessagesStore"
 
 interface ChatInputProps {
   apiUrl: string
@@ -31,50 +31,26 @@ const formSchema = z.object({
 const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatInputProps) => {
   const router = useRouter()
   const { socket } = useSocket()
+  const { isLoading: loadingMessage } = useMessagesStore()
+
   const [typing, setTyping] = useState("")
-  const { userTyping, setUserTyping, removeUserTyping } = useUserTyping()
 
   useEffect(() => {
     let timer: NodeJS.Timeout
-    let timerTyping: NodeJS.Timeout
 
-    // socket.on("get-typing", (data: any) => {
-    //   if (data.typer.id === otherUser.id) {
-    //     setTyping(`${data.typer.displayname || data.typer.username} is typing...`)
-  
-    //     clearTimeout(timer)
-  
-    //     timer = setTimeout(() => {
-    //       setTyping("");
-    //     }, 2000);
-    //   }
-
-    //   if (!userTyping.includes(data.typer.id)) {
-    //     setUserTyping(data.typer.id)
-
-    //     clearTimeout(timerTyping)
-
-    //     timerTyping = setTimeout(() => {
-    //       removeUserTyping(data.typer.id)
-    //     }, 2000)
-    //   }
-    // })
     socket.on("get-typing", (data: any) => {
       otherUser.id === data.typer.id && setTyping(`${data.typer.displayname || data.typer.username} is typing...`)
-      
-      !userTyping.includes(data.typer.id) && data.typer && setUserTyping(data.typer.id)
 
       clearTimeout(timer)
-      
+
       timer = setTimeout(() => {
-        // removeUserTyping(data.typer.id)
         setTyping("")
       }, 2000);
 
     })
 
     return () => socket.off("get-typing")
-  }, [socket, userTyping])
+  }, [socket])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -95,8 +71,8 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
       await axios.post(url, value)
 
       socket.emit("set-notification", {
-        message: value.content, 
-        receiver: otherUser, 
+        message: value.content,
+        receiver: otherUser,
         sender: currentUser
       })
 
@@ -151,7 +127,7 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
                       className="py-6 break-words border-0 border-none px-14 bg-zinc-200/90 dark:bg-zinc-700/75 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-600 dark:text-zinc-200"
                       placeholder={`Message ${type === "conversation" ? name : "#" + name}`}
                       autoComplete="off"
-                      disabled={isLoading}
+                      disabled={loadingMessage || isLoading}
                       onKeyDown={handleKeyDown}
                       {...field}
                     />
