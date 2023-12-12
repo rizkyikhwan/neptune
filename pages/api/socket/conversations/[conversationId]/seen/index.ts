@@ -1,13 +1,14 @@
 import { currentUserPages } from "@/lib/currentUserrPages";
 import { db } from "@/lib/db";
 import { NextApiResponseServerIo } from "@/lib/type";
+import { prismaExclude } from "@/lib/utils";
 import { NextApiRequest } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponseServerIo) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" })
   }
-  
+
   try {
     const user = await currentUserPages(req, res)
     const { conversationId } = req.query
@@ -25,8 +26,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
         id: conversationId as string
       },
       include: {
-        userOne: true,
-        userTwo: true,
+        users: {
+          select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
+        },
         directMessages: {
           include: {
             seen: true
@@ -51,7 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
       },
       include: {
         seen: true,
-        user: true
+        sender: true
       },
       data: {
         seen: {

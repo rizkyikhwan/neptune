@@ -1,6 +1,7 @@
 import { currentUserPages } from "@/lib/currentUserrPages";
 import { db } from "@/lib/db";
 import { NextApiResponseServerIo } from "@/lib/type";
+import { prismaExclude } from "@/lib/utils";
 import { NextApiRequest } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponseServerIo) {
@@ -28,18 +29,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     const conversation = await db.conversation.findFirst({
       where: {
         id: conversationId as string,
-        OR: [
-          {
-            userOneId: user.id
-          },
-          {
-            userTwoId: user.id
-          }
-        ]
+        userIds: {
+          hasSome: [user.id, user.id]
+        }
       },
       include: {
-        userOne: true,
-        userTwo: true
+        users: {
+          select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
+        }
       }
     })
 
@@ -47,7 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
       return res.status(404).json({ message: "Conversation not found" })
     }
 
-    const currentUser = conversation.userOne.id === user.id ? conversation.userOne : conversation.userTwo
+    const currentUser = conversation.userIds[0].includes(user.id) ? conversation.users[0] : conversation.users[1]
 
     if (!currentUser) {
       return res.status(404).json({ message: "User not found" })
@@ -58,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
         content,
         fileUrl,
         conversationId: conversationId as string,
-        userId: currentUser.id,
+        senderId: currentUser.id,
         seen: {
           connect: {
             id: currentUser.id
@@ -66,7 +63,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
         }
       },
       include: {
-        user: true
+        sender: {
+          select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
+        }
       }
     })
 
@@ -75,8 +74,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
         id: conversationId as string
       },
       create: {
-        userOneId: conversation.userOneId,
-        userTwoId: conversation.userTwoId,
+        userIds: {
+          set: conversation.userIds
+        },
         directMessages: {
           connect: {
             id: message.id
@@ -87,8 +87,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
         lastMessageAt: new Date()
       },
       include: {
-        userOne: true,
-        userTwo: true,
+        users: {
+          select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
+        },
         directMessages: {
           include: {
             seen: true

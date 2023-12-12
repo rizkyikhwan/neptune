@@ -81,6 +81,7 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
   }, [content])
 
   const isOwner = otherUser.id === user.id
+  const canDeleteMessage = !deleted && isOwner
   const canEditMessage = !deleted && isOwner && !fileUrl
 
   return (
@@ -145,7 +146,7 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
           )}
         </div>
       </div>
-      {isOwner && (
+      {canDeleteMessage && (
         <div className="absolute items-center hidden p-1 bg-white border rounded-sm group-hover:flex gap-x-2 -top-2 right-5 dark:bg-zinc-800">
           {canEditMessage && !isEditing && (
             <ActionTooltip label="Edit">

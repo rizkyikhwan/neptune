@@ -18,8 +18,7 @@ import { useSocket } from "../providers/socket-provider"
 import UserAvatar from "../user/user-avatar"
 
 type ConversationUser = Conversation & {
-  userOne: User
-  userTwo: User,
+  users: User[]
   directMessages: DirectMessageWithSeen[],
   isTyping?: boolean
 }
@@ -45,30 +44,10 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
     }
   })
 
-  // const result = useQueries({
-  //   queries: [
-  //     {
-  //       queryKey: ['conversation'],
-  //       queryFn: async () => {
-  //         const data = await axios.get("/api/conversations")
-  //         return data.data
-  //       }
-  //     },
-  //     {
-  //       queryKey: ['conversation'],
-  //       queryFn: async () => {
-  //         const data = await axios.get("/api/users")
-  //         return data.data
-  //       }
-  //     },
-  //   ]
-  // })
-  // console.log(result);
-
   useEffect(() => {
     if (!conversation) {
-      socket.on("chat:conversation:new", (newData: any) => {
-        if (newData.userOneId === user.id || newData.userTwoId === user.id) {
+      socket.on("chat:conversation:new", (newData: Conversation) => {
+        if (newData.userIds.includes(user.id)) {
           queryClient.setQueryData(['conversation'], (oldData: any) => {
             if (!oldData) {
               return oldData
@@ -81,6 +60,20 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
 
       return
     }
+
+    socket.on("chat:conversation:new", (newData: Conversation) => {
+      if (!conversation.data.includes(newData.id) && newData.userIds.includes(user.id)) {
+        queryClient.setQueryData(['conversation'], (oldData: any) => {
+          if (!oldData) {
+            return oldData
+          }
+
+          return { data: [...oldData.data.filter((data: any) => data.id !== newData.id), newData] }
+        })
+
+        return
+      }
+    })
 
     conversation.data.map((item: ConversationUser) => {
       socket.on(`chat:${item.id}:conversation:update`, (data: any) => {
@@ -135,12 +128,13 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
               </>
             ) : (
               conversation.data.sort((a: any, b: any) => new Date(b.lastMessageAt).valueOf() - new Date(a.lastMessageAt).valueOf()).map((data: ConversationUser) => (
-                <ListDirectMessages
-                  key={data.id}
-                  data={data}
-                  user={user}
-                />
-              )))}
+                data.directMessages.length > 0 && (
+                  <ListDirectMessages
+                    key={data.id}
+                    data={data}
+                    user={user}
+                  />
+                ))))}
           </div>
         </div>
       </LayoutChannelsSidebar>
@@ -169,9 +163,9 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
               </>
             ) : (
               conversation.data.sort((a: any, b: any) => new Date(b.lastMessageAt).valueOf() - new Date(a.lastMessageAt).valueOf()).map((data: ConversationUser) => {
-                const { userOne, userTwo } = data
+                const currentUserId = user.id
 
-                const otherUser = userOne.id === user.id ? userTwo : userOne
+                const otherUser = data.users.filter(user => user.id !== currentUserId)[0]
 
                 return (
                   <CommandItem

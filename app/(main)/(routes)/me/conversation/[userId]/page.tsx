@@ -25,9 +25,9 @@ const UserIdConversation = async ({ params }: UserIdConversationProps) => {
     return redirect("/me/channels")
   }
 
-  const { userOne, userTwo } = conversation
+  const currentUserId = user.id
 
-  const otherUser = userOne.id === user.id ? userTwo : userOne
+  const otherUser = conversation.users.filter(user => user.id !== currentUserId)[0]
 
   return (
     <HeaderLayout>

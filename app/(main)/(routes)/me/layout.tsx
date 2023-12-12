@@ -15,18 +15,12 @@ const LayoutMe = async ({ children }: { children: React.ReactNode }) => {
 
   const conversation = await db.conversation.findMany({
     where: {
-      OR: [
-        {
-          userOneId: user.id
-        },
-        {
-          userTwoId: user.id
-        },
-      ]
+      userIds: {
+        hasSome: [user.id, user.id]
+      }
     },
     include: {
-      userOne: true,
-      userTwo: true,
+      users: true,
       directMessages: {
         include: {
           seen: true

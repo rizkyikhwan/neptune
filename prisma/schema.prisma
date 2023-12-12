@@ -46,8 +46,8 @@ model User {
   seenMessageIds String[]        @db.ObjectId
   seenMessages   DirectMessage[] @relation("Seen", fields: [seenMessageIds], references: [id])
 
-  conversationsInitiated Conversation[] @relation("UserOne")
-  conversationsReceived  Conversation[] @relation("UserTwo")
+  conversationIds String[]       @db.ObjectId
+  conversations   Conversation[] @relation(fields: [conversationIds], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -78,19 +78,12 @@ model EmailVerifyCode {
 model Conversation {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  userOneId               String  @db.ObjectId
-  userOne                 User    @relation("UserOne", fields: [userOneId], references: [id], onDelete: Cascade)
-  userOneOpenConversation Boolean @default(true)
-
-  userTwoId               String  @db.ObjectId
-  userTwo                 User    @relation("UserTwo", fields: [userTwoId], references: [id], onDelete: Cascade)
-  userTwoOpenConversation Boolean @default(false)
+  userIds String[] @db.ObjectId
+  users   User[]   @relation(fields: [userIds], references: [id])
 
   directMessages DirectMessage[]
 
   lastMessageAt DateTime @default(now())
-
-  @@unique([userOneId, userTwoId])
 }
 
 model DirectMessage {
@@ -98,14 +91,14 @@ model DirectMessage {
   content String  @db.String
   fileUrl String? @db.String
 
-  userId String @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   conversationId String       @db.ObjectId
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   seenIds String[] @db.ObjectId
   seen    User[]   @relation("Seen", fields: [seenIds], references: [id])
+
+  senderId String @db.ObjectId
+  sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
   deleted Boolean @default(false)
 

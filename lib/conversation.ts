@@ -5,16 +5,21 @@ const findConversation = async (userOneId: string, userTwoId: string) => {
   try {
     return await db.conversation.findFirst({
       where: {
-        AND: [
-          { userOneId },
-          { userTwoId }
+        OR: [
+          {
+            userIds: {
+              equals: [userOneId, userTwoId]
+            }
+          },
+          {
+            userIds: {
+              equals: [userTwoId, userOneId]
+            }
+          }
         ]
       },
       include: {
-        userOne: {
-          select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
-        },
-        userTwo: {
+        users: {
           select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
         },
         directMessages: {
@@ -33,14 +38,19 @@ const createNewConversation = async (userOneId: string, userTwoId: string) => {
   try {
     return await db.conversation.create({
       data: {
-        userOneId,
-        userTwoId
+        users: {
+          connect: [
+            {
+              id: userOneId
+            },
+            {
+              id: userTwoId
+            },
+          ]
+        }
       },
       include: {
-        userOne: {
-          select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
-        },
-        userTwo: {
+        users: {
           select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
         },
         directMessages: {
@@ -56,7 +66,7 @@ const createNewConversation = async (userOneId: string, userTwoId: string) => {
 }
 
 export const getOrCreateConversation = async (userOneId: string, userTwoId: string) => {
-  let conversation = await findConversation(userOneId, userTwoId) || await findConversation(userTwoId, userOneId)
+  let conversation = await findConversation(userOneId, userTwoId)
 
   if (!conversation) {
     conversation = await createNewConversation(userOneId, userTwoId)

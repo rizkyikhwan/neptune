@@ -14,7 +14,7 @@ import { useMessagesStore } from "@/app/hooks/useMessagesStore"
 const DATE_FORMAT = "d MMM yyyy, HH:mm"
 
 type MessageWithProfile = DirectMessage & {
-  user: User
+  sender: User
 }
 
 interface ChatMessagesProps {
@@ -100,7 +100,7 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
                 key={message.id}
                 id={message.id}
                 user={user}
-                otherUser={message.user}
+                otherUser={message.sender}
                 content={message.content}
                 fileUrl={message.fileUrl}
                 deleted={message.deleted}

@@ -1,5 +1,6 @@
 import { currentUser } from "@/lib/currentUser"
 import { db } from "@/lib/db"
+import { prismaExclude } from "@/lib/utils"
 import { DirectMessage } from "@prisma/client"
 import { NextResponse } from "next/server"
 
@@ -35,7 +36,9 @@ export async function GET(req: Request) {
           conversationId
         },
         include: {
-          user: true
+          sender: {
+            select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
+          }
         },
         orderBy: {
           createdAt: "desc"
@@ -48,7 +51,9 @@ export async function GET(req: Request) {
           conversationId
         },
         include: {
-          user: true
+          sender: {
+            select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
+          }
         },
         orderBy: {
           createdAt: "desc"

@@ -12,8 +12,7 @@ import { useSocket } from "../providers/socket-provider"
 import UserAvatar from "./user-avatar"
 
 type ConversationUser = Conversation & {
-  userOne: User
-  userTwo: User,
+  users: User[]
   directMessages: DirectMessageWithSeen[],
   isTyping?: boolean
 }
@@ -84,9 +83,9 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
     }
   }, [socket, data, channelKey, queryClient])
 
-  const { userOne, userTwo } = data
+  const currentUserId = user.id
 
-  const otherUser = userOne.id === user.id ? userTwo : userOne
+  const otherUser = data.users.filter(user => user.id !== currentUserId)[0]
 
   const lastMessage = useMemo(() => {
     const directMessage = data.directMessages
@@ -118,7 +117,7 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
     }
   }, [lastMessage])
 
-  const isOwn = lastMessage.userId === user.id
+  const isOwn = lastMessage?.senderId === user.id
 
   return (
     <motion.button
