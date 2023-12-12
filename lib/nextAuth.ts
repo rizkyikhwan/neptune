@@ -70,10 +70,10 @@ export const authOptions: NextAuthOptions = {
             email: token.email
           }
         })
-        
+
         if (db_user) {
           token.id = db_user.id
-          token.isNewUser = db_user.createdAt > new Date(Date.now() - 5 * 60 * 1000) ? true : false
+          token.isNewUser = db_user.createdAt > new Date(Date.now() - 1 * 60 * 1000) ? true : false
         }
       }
 
@@ -87,7 +87,7 @@ export const authOptions: NextAuthOptions = {
         session.user.image = token.picture
         session.user.isNewUser = token.isNewUser
       }
-      
+
       return session
     }
   },
@@ -95,5 +95,5 @@ export const authOptions: NextAuthOptions = {
 }
 
 export const getAuthSession = () => {
- return getServerSession(authOptions) 
+  return getServerSession(authOptions)
 }

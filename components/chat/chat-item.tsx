@@ -1,20 +1,20 @@
 "use client"
 
+import { useModal } from "@/app/hooks/useModalStore"
+import { cn } from "@/lib/utils"
 import { User } from "@prisma/client"
 import axios from "axios"
+import { Edit, Trash, X } from "lucide-react"
+import Image from "next/image"
 import qs from "query-string"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import UserAvatar from "../user/user-avatar"
 import ActionTooltip from "../action-tooltip"
-import Image from "next/image"
-import { cn } from "@/lib/utils"
+import { Button } from "../ui/button"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { Input } from "../ui/input"
-import { Button } from "../ui/button"
-import { Edit, Trash, X } from "lucide-react"
-import { useModal } from "@/app/hooks/useModalStore"
+import UserAvatar from "../user/user-avatar"
 
 interface ChatItemProps {
   id: string
@@ -25,6 +25,7 @@ interface ChatItemProps {
   fileUrl: string | null
   deleted: boolean
   isUpdated: boolean
+  markNewMessage: boolean
   socketUrl: string
   socketQuery: Record<string, string>
 }
@@ -33,7 +34,7 @@ const formSchema = z.object({
   content: z.string().min(1)
 })
 
-const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, isUpdated, socketUrl, socketQuery }: ChatItemProps) => {
+const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, isUpdated, markNewMessage, socketUrl, socketQuery }: ChatItemProps) => {
   const { onOpen } = useModal()
   const [isEditing, setIsEditing] = useState(false)
 
@@ -86,6 +87,15 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
 
   return (
     <div className="relative flex items-center w-full p-4 transition group hover:bg-black/5">
+      {markNewMessage && (
+        <div className="absolute top-0 left-0 w-[calc(100%-20px)] h-px mx-2 bg-rose-500">
+          <div className="absolute inset-x-0 flex justify-center rounded-sm -top-2">
+            <div className="flex items-center text-[10px] text-white">
+              <span className="px-1 tracking-wide uppercase rounded-sm bg-rose-500">New</span>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex items-start w-full group gap-x-2">
         <div className="transition cursor-pointer hover:drop-shadow-md">
           <UserAvatar id={otherUser.id} initialName={otherUser.displayname || otherUser.username} bgColor={otherUser.hexColor} src={otherUser.avatar || ""} />

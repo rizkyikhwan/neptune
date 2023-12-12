@@ -87,6 +87,13 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
 
   const otherUser = data.users.filter(user => user.id !== currentUserId)[0]
 
+  const unreadMessages = useMemo(() => {
+    const lengthMessages = data.directMessages.length
+    const newLengthMessages = data.directMessages.flatMap(item => item.seenIds).filter(userId => userId === user.id).length
+
+    return lengthMessages - newLengthMessages
+  }, [data.directMessages])
+
   const lastMessage = useMemo(() => {
     const directMessage = data.directMessages
 
@@ -157,7 +164,11 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
           </AnimatePresence>
         </div>
       </div>
-      {!hasSeen && !isOwn && <div className="flex-none w-2 h-2 rounded-full bg-sky-500" />}
+      {!hasSeen && !isOwn && unreadMessages > 0 && (
+        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-rose-500">
+          <p className="text-[10px] text-white">{unreadMessages > 99 ? "99+" : unreadMessages}</p>
+        </div>
+      )}
     </motion.button>
   )
 }

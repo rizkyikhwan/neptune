@@ -93,8 +93,10 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
         </div>
       )}
       <div className="flex flex-col-reverse mt-auto">
-        {data?.pages.map((group, i) => (
-          <Fragment key={i}>
+        {data?.pages.map((group, i) => {
+          const newFirstMessage = group.items.filter((item: MessageWithProfile) => !item.seenIds.includes(user.id) && item)
+
+          return <Fragment key={i}>
             {group.items.map((message: MessageWithProfile) => (
               <ChatItem
                 key={message.id}
@@ -105,13 +107,14 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
                 fileUrl={message.fileUrl}
                 deleted={message.deleted}
                 timestamp={formatDistance(new Date(message.createdAt), new Date())}
-                isUpdated={message.updatedAt !== message.createdAt}
+                isUpdated={message.messageUpdatedAt !== message.createdAt}
+                markNewMessage={newFirstMessage[newFirstMessage.length - 1]?.id === message.id}
                 socketUrl={socketUrl}
                 socketQuery={socketQuery}
               />
             ))}
           </Fragment>
-        ))}
+        })}
       </div>
       <div ref={bottomRef} />
     </div>

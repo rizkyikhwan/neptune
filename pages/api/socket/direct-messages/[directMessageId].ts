@@ -86,7 +86,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
             connect: {
               id: currentUser.id
             }
-          }
+          },
+          messageUpdatedAt: new Date()
         },
         include: {
           sender: {
@@ -112,7 +113,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
             connect: {
               id: currentUser.id
             }
-          }
+          },
+          messageUpdatedAt: new Date()
         },
         include: {
           sender: {

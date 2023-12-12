@@ -102,6 +102,7 @@ model DirectMessage {
 
   deleted Boolean @default(false)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime @default(now())
+  messageUpdatedAt DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }

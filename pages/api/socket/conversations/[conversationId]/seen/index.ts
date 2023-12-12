@@ -64,6 +64,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
       }
     })
 
+    await db.directMessage.updateMany({
+      where: {
+        conversationId: conversationId as string,
+        NOT: {
+          seenIds: {
+            has: user.id
+          }
+        }
+      },
+      data: {
+        seenIds: {
+          push: user.id
+        },
+      }
+    })
+
     if (lastMessage.seenIds.indexOf(user.id) !== -1) {
       return res.json({ message: "OK" })
     }

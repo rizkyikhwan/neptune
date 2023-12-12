@@ -103,8 +103,8 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
       <LayoutChannelsSidebar
         channelHeader={
           <div className="flex-1 px-2">
-            <button type="button" onClick={() => setOpen(true)} className="flex items-center w-full px-2 py-1 text-sm transition rounded group gap-x-2 dark:bg-zinc-900/80 bg-zinc-200 dark:text-zinc-400">
-              Find Server
+            <button type="button" onClick={() => setOpen(true)} className="flex items-center w-full px-2 py-1 text-xs transition rounded group gap-x-2 dark:bg-zinc-900/80 bg-zinc-200 dark:text-zinc-400">
+              Find Server & Direct Messages
             </button>
           </div>
         }
@@ -119,7 +119,10 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
             </button>
           </div>
           <div className="flex flex-col space-y-2">
-            <p className="text-xs font-semibold tracking-wider uppercase select-none text-zinc-400 hover:text-zinc-500 hover:dark:text-white">Direct Messages</p>
+            <div className="flex items-center space-x-1 group">
+              <p className="text-xs font-semibold tracking-wider uppercase select-none text-zinc-400 whitespace-nowrap group-hover:text-zinc-500 group-hover:dark:text-white">Direct Messages</p>
+              <div className="w-full h-0.5 bg-zinc-400 rounded-full group-hover:bg-zinc-500 group-hover:dark:bg-white" />
+            </div>
             {isLoading ? (
               <>
                 {[...Array(5)].map((_, i) => (
@@ -127,14 +130,15 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
                 ))}
               </>
             ) : (
-              conversation.data.sort((a: any, b: any) => new Date(b.lastMessageAt).valueOf() - new Date(a.lastMessageAt).valueOf()).map((data: ConversationUser) => (
-                data.directMessages.length > 0 && (
+              conversation.data.sort((a: any, b: any) => new Date(b.lastMessageAt).valueOf() - new Date(a.lastMessageAt).valueOf()).map((data: ConversationUser) => {
+                return data.directMessages.length > 0 && (
                   <ListDirectMessages
                     key={data.id}
                     data={data}
                     user={user}
                   />
-                ))))}
+                )
+              }))}
           </div>
         </div>
       </LayoutChannelsSidebar>
@@ -167,7 +171,7 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
 
                 const otherUser = data.users.filter(user => user.id !== currentUserId)[0]
 
-                return (
+                return data.directMessages.length > 0 && (
                   <CommandItem
                     className="space-x-2 cursor-pointer"
                     key={data.id}
