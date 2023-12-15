@@ -20,6 +20,8 @@ export type SearchUser = {
   id: string
   avatar?: string
   username: string
+  friendIDs: string[]
+  friendsRequestIDs: string[]
 }
 
 export type UsersProps = User & {

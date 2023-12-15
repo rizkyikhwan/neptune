@@ -34,7 +34,7 @@ const UserIdConversation = async ({ params }: UserIdConversationProps) => {
       <ChatHeader user={otherUser} type="conversation" />
       <ChatMessages
         user={user}
-        name={user.displayname || user.username}
+        name={otherUser.displayname || otherUser.username}
         chatId={conversation.id}
         type="conversation"
         apiUrl="/api/direct-messages"

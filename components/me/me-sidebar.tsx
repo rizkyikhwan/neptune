@@ -12,10 +12,10 @@ import { Users } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useRouter } from "next13-progressbar"
 import { useEffect, useState } from "react"
-import ListDirectMessages from "../user/list-direct-messages"
+import { useSocket } from "@/components/providers/socket-provider"
+import ListDirectMessages from "@/components/user/list-direct-messages"
+import UserAvatar from "@/components/user/user-avatar"
 import LoadingItem from "./loading-item"
-import { useSocket } from "../providers/socket-provider"
-import UserAvatar from "../user/user-avatar"
 
 type ConversationUser = Conversation & {
   users: User[]
@@ -118,7 +118,7 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
               </div>
             </button>
           </div>
-          <div className="flex flex-col space-y-2">
+          <div className="flex flex-col space-y-1">
             <div className="flex items-center space-x-1 group">
               <p className="text-xs font-semibold tracking-wider uppercase select-none text-zinc-400 whitespace-nowrap group-hover:text-zinc-500 group-hover:dark:text-white">Direct Messages</p>
               <div className="w-full h-0.5 bg-zinc-400 rounded-full group-hover:bg-zinc-500 group-hover:dark:bg-white" />
@@ -130,9 +130,10 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
                 ))}
               </>
             ) : (
-              conversation.data.sort((a: any, b: any) => new Date(b.lastMessageAt).valueOf() - new Date(a.lastMessageAt).valueOf()).map((data: ConversationUser) => {
+              conversation.data.sort((a: any, b: any) => new Date(b.lastMessageAt).valueOf() - new Date(a.lastMessageAt).valueOf()).map((data: ConversationUser, index: number) => {
                 return data.directMessages.length > 0 && (
                   <ListDirectMessages
+                    index={index}
                     key={data.id}
                     data={data}
                     user={user}
@@ -161,7 +162,7 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
           <CommandGroup heading={"Direct Messages"} >
             {isLoading ? (
               <>
-                {[...Array(5)].map((_, i) => (
+                {[...Array(3)].map((_, i) => (
                   <LoadingItem key={i} />
                 ))}
               </>

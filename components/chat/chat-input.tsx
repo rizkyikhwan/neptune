@@ -4,10 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { User } from "@prisma/client"
 import axios from "axios"
 import { AnimatePresence, motion } from "framer-motion"
-import { Plus } from "lucide-react"
+import { Loader, Loader2, Plus, SendHorizonal } from "lucide-react"
 import { useRouter } from "next/navigation"
 import qs from "query-string"
-import { useEffect, useState } from "react"
+import { FormEvent, useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useSocket } from "../providers/socket-provider"
@@ -29,6 +29,7 @@ const formSchema = z.object({
 })
 
 const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatInputProps) => {
+  const text = useRef('')
   const router = useRouter()
   const { socket } = useSocket()
   const { isLoading: loadingMessage } = useMessagesStore()
@@ -78,6 +79,10 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
 
       form.reset()
       router.refresh()
+      // console.log(value);
+      const inputChat = document.getElementById("input-chat")
+      inputChat?.firstChild && inputChat.removeChild(inputChat.firstChild)
+
     } catch (error) {
       console.log(error);
     }
@@ -91,14 +96,36 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
     })
   }
 
+  function removeNewlines(str: string) {
+    // Remove leading and trailing newlines using trim()
+    str = str.trim();
+
+    // Remove newline from the beginning of the string
+    if (str.startsWith('\n')) {
+      str = str.slice(1);
+    }
+
+    // Remove newline from the end of the string
+    if (str.endsWith('\n')) {
+      str = str.slice(0, -1);
+    }
+
+    return str;
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
           name="content"
-          render={({ field }) => (
-            <FormItem>
+          render={({ field: { onChange, ...field }, formState: { isValid, isSubmitting, isSubmitSuccessful } }) => {
+            const onInput = (e: FormEvent<HTMLElement>) => {
+              const value = (e.target as any).innerText
+              onChange(removeNewlines(value))
+            }
+
+            return <FormItem>
               <FormControl>
                 <div className="relative p-4 py-6 shadow-[0_-2px_2px_0_rgba(0,0,0,0.05)]">
                   <AnimatePresence initial={false} mode="popLayout">
@@ -123,19 +150,42 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
                     >
                       <Plus className="text-white dark:text-[#313338]" />
                     </button>
-                    <Input
-                      className="py-6 break-words border-0 border-none px-14 bg-zinc-200/90 dark:bg-zinc-700/75 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-600 dark:text-zinc-200"
+                    {/* <Input
+                      className="py-6 pr-10 break-words border-0 border-none pl-14 bg-zinc-200/90 dark:bg-zinc-700/75 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-600 dark:text-zinc-200"
                       placeholder={`Message ${type === "conversation" ? name : "#" + name}`}
                       autoComplete="off"
                       disabled={loadingMessage || isLoading}
                       onKeyDown={handleKeyDown}
                       {...field}
+                    /> */}
+                    <div
+                      role="textbox"
+                      aria-autocomplete="list"
+                      spellCheck="true"
+                      contentEditable
+                      id="input-chat"
+                      className="py-6 pr-10 break-words border-0 border-none pl-14 bg-zinc-200/90 dark:bg-zinc-700/75 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-600 dark:text-zinc-200 contentEditable:focus:border-none contentEditable:focus:outline-none contentEditable:active:border-none contentEditable:active:outline-none"
+                      onInput={onInput}
+                      onKeyDown={(event) => {
+                        handleKeyDown()
+
+                        if (event.key === 'Enter' && !event.shiftKey) {
+                          event.preventDefault()
+                          isValid && onSubmit({ content: field.value })
+                        }
+                      }}
+                      {...field}
                     />
+                    <div className="absolute inset-y-0 flex items-center right-3">
+                      <button type="submit" className="flex items-center justify-center w-6 h-6" disabled={loadingMessage || isLoading || isSubmitting}>
+                        {isLoading || isSubmitting ? <Loader2 size={20} className="animate-spin text-zinc-500 dark:text-zinc-400" /> : <SendHorizonal size={20} className="text-zinc-500 dark:text-zinc-400" />}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </FormControl>
             </FormItem>
-          )}
+          }}
         />
       </form>
     </Form>

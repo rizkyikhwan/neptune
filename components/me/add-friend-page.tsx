@@ -16,6 +16,8 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 import LoadingItem from "./loading-item"
+import { variants } from "@/lib/variantMotions"
+import { useSession } from "next-auth/react"
 
 interface AddFriendPageProps {
   type: VariantFriend
@@ -26,6 +28,8 @@ const formSchema = z.object({
 })
 
 const AddFriendPage = ({ type }: AddFriendPageProps) => {
+  const { data } = useSession()
+
   const [dataSearch, setDataSearch] = useState<SearchUser[]>([])
   const [requestLoading, setRequestLoading] = useState(false)
 
@@ -103,13 +107,21 @@ const AddFriendPage = ({ type }: AddFriendPageProps) => {
             </>
           ) : (
             <>
-              {dataSearch.map((item) => (
-                <motion.div
+              {dataSearch.map((item) => {
+                const isFriend = (userId: string) => {
+                  const friendList = item.friendIDs
+                  const friendRequest = item.friendsRequestIDs
+
+                  return friendList.includes(userId) || friendRequest.includes(userId)
+                }
+
+                return <motion.div
                   layout
                   key={item.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
+                  variants={variants}
+                  initial="onFadeEnter"
+                  animate="fadeAnimate"
+                  exit="onFadeExit"
                   className="flex items-center justify-between px-2 py-2 mb-1 rounded-md cursor-pointer select-none border-zinc-200 dark:border-zinc-700 hover:bg-zinc-300/20 hover:dark:bg-zinc-400/10"
                   tabIndex={0}
                 >
@@ -121,13 +133,21 @@ const AddFriendPage = ({ type }: AddFriendPageProps) => {
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <Button variant={"ghost"} onClick={() => handleFriendRequest(item.id)} disabled={requestLoading} className="flex items-center justify-center bg-accent hover:bg-emerald-500 hover:text-white disabled:cursor-pointer">
+                    <Button
+                      variant={"ghost"}
+                      onClick={() => handleFriendRequest(item.id)}
+                      disabled={data && isFriend(data.user.id) || requestLoading}
+                      className="flex items-center justify-center bg-accent hover:bg-emerald-500 hover:text-white disabled:cursor-pointer"
+                    >
                       <UserPlus className="block md:hidden" size={20} />
-                      <span className="hidden md:block">Send Friend Request</span>
+                      <span className="hidden md:block">
+                        {data && item.friendIDs.includes(data.user.id) ? "Already Friends" : data && item.friendsRequestIDs.includes(data.user.id) ? "Already Request" : "Send Friend Request"}
+                        {/* Send Friend Request */}
+                      </span>
                     </Button>
                   </div>
                 </motion.div>
-              ))}
+              })}
             </>
           )}
         </ScrollArea>

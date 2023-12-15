@@ -22,9 +22,9 @@ const ChatHeader = ({ user, type }: ChatHeaderProps) => {
           <Hash className="w-5 h-5 mr-2 text-zinc-500 dark:text-zinc-400" />
         )}
         {type === "conversation" && (
-          <UserAvatar id={user.id} initialName={user.displayname || user.username} bgColor={user.hexColor} src={user.avatar || ""} className="w-8 h-8" onlineIndicator />
+          <UserAvatar id={user.id} initialName={user.displayname || user.username} bgColor={user.hexColor} src={user.avatar || ""} className="w-7 h-7" onlineIndicator />
         )}
-        <p className="font-semibold tracking-wide text-black dark:text-white">
+        <p className="text-sm font-semibold tracking-wide text-black dark:text-white">
           {user.displayname || user.username}
         </p>
       </div>

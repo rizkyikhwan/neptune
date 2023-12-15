@@ -10,6 +10,7 @@ import { ElementRef, Fragment, useEffect, useRef } from "react"
 import ChatItem from "./chat-item"
 import axios from "axios"
 import { useMessagesStore } from "@/app/hooks/useMessagesStore"
+import ChatWelcome from "./chat-welcome"
 
 const DATE_FORMAT = "d MMM yyyy, HH:mm"
 
@@ -80,7 +81,7 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
   return (
     <div ref={chatRef} className="flex flex-col flex-1 pt-4 overflow-y-auto">
       {!hasNextPage && <div className="flex-1" />}
-      {!hasNextPage && <p>Welcome chat soon</p>}
+      {!hasNextPage && <ChatWelcome name={name} />}
       {hasNextPage && (
         <div className="flex justify-center">
           {isFetchingNextPage ? (
@@ -96,24 +97,26 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
         {data?.pages.map((group, i) => {
           const newFirstMessage = group.items.filter((item: MessageWithProfile) => !item.seenIds.includes(user.id) && item)
 
-          return <Fragment key={i}>
-            {group.items.map((message: MessageWithProfile) => (
-              <ChatItem
-                key={message.id}
-                id={message.id}
-                user={user}
-                otherUser={message.sender}
-                content={message.content}
-                fileUrl={message.fileUrl}
-                deleted={message.deleted}
-                timestamp={formatDistance(new Date(message.createdAt), new Date())}
-                isUpdated={message.messageUpdatedAt !== message.createdAt}
-                markNewMessage={newFirstMessage[newFirstMessage.length - 1]?.id === message.id}
-                socketUrl={socketUrl}
-                socketQuery={socketQuery}
-              />
-            ))}
-          </Fragment>
+          return (
+            <Fragment key={i}>
+              {group.items.map((message: MessageWithProfile) => (
+                <ChatItem
+                  key={message.id}
+                  id={message.id}
+                  user={user}
+                  otherUser={message.sender}
+                  content={message.content}
+                  fileUrl={message.fileUrl}
+                  deleted={message.deleted}
+                  timestamp={formatDistance(new Date(message.createdAt), new Date())}
+                  isUpdated={message.messageUpdatedAt !== message.createdAt}
+                  markNewMessage={newFirstMessage[newFirstMessage.length - 1]?.id === message.id}
+                  socketUrl={socketUrl}
+                  socketQuery={socketQuery}
+                />
+              ))}
+            </Fragment>
+          )
         })}
       </div>
       <div ref={bottomRef} />

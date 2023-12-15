@@ -17,6 +17,7 @@ import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator,
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import LoadingItem from "./loading-item"
 import { useRouter } from "next13-progressbar"
+import { variants } from "@/lib/variantMotions"
 
 type ActionRequest = "ACCEPT" | "REJECT"
 
@@ -108,9 +109,10 @@ const FriendsPage = ({ users, isLoading, type }: FriendsPageProps) => {
               <motion.div
                 layout
                 key={user.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+                variants={variants}
+                initial="onFadeEnter"
+                animate="fadeAnimate"
+                exit="onFadeExit"
                 tabIndex={0}
               >
                 <ContextMenu>

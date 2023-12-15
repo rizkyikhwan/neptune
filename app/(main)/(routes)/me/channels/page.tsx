@@ -33,29 +33,33 @@ const MeChannelsPage = () => {
     resetData()
   }, [status])
 
-  const getFriends = async () => {
-    try {
-      setIsLoading(true)
-      const resFriends = await axios.get("/api/users/friends")
-      const dataFriends = resFriends.data
-
-      const resFriendRequest = await axios.get("/api/users/friend-request")
-      const dataFriendRequest = resFriendRequest.data
-
-      const friendRequestData = dataFriendRequest.data.map((item: FriendRequest & { userRequest: User }) => item.userRequest)
-
-      setFriends(dataFriends.data)
-      setFriendRequest(friendRequestData)
-    } catch (error) {
-      console.log(error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
 
   useEffect(() => {
+    const abortCotroller = new AbortController()
+
+    const getFriends = async () => {
+      try {
+        setIsLoading(true)
+        const resFriends = await axios.get("/api/users/friends", { signal: abortCotroller.signal })
+        const dataFriends = resFriends.data
+
+        const resFriendRequest = await axios.get("/api/users/friend-request", { signal: abortCotroller.signal })
+        const dataFriendRequest = resFriendRequest.data
+
+        const friendRequestData = dataFriendRequest.data.map((item: FriendRequest & { userRequest: User }) => item.userRequest)
+
+        setFriends(dataFriends.data)
+        setFriendRequest(friendRequestData)
+      } catch (error) {
+        console.log(error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
     getFriends()
+
+    return () => abortCotroller.abort()
   }, [])
 
   const variantFriend: VariantFriend[] = ["ONLINE", "ALL", "PENDING", "ADD_FRIEND"]
@@ -83,7 +87,11 @@ const MeChannelsPage = () => {
               }}
             >
               {item.includes("_") ? capitalizeLetter(item.split("_").join(" ")) : capitalizeLetter(item)}
-              {item === "PENDING" && friendRequest.length > 0 && <span className="flex items-center justify-center px-1.5 ml-2 text-xs text-white rounded-full bg-rose-500">{friendRequest.length > 99 ? "99+" : friendRequest.length}</span>}
+              {item === "PENDING" && friendRequest.length > 0 && (
+                <div className="flex items-center justify-center w-5 h-5 ml-2 rounded-full bg-rose-500">
+                  <p className="text-[10px] text-white">{friendRequest.length > 99 ? "99+" : friendRequest.length}</p>
+                </div>
+              )}
             </Button>
           ))}
         </div>

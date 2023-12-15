@@ -33,11 +33,15 @@ const ProfileModalUser = () => {
   const isModalOpen = isOpen && type === "profileUser"
 
   useEffect(() => {
+    const abortCotroller = new AbortController()
+
     if (isModalOpen) {
       (async () => {
         try {
           setIsLoading(true)
-          const res = await axios.get(`/api/users/friends/mutuals/${user?.id}`)
+          const res = await axios.get(`/api/users/friends/mutuals/${user?.id}`, {
+            signal: abortCotroller.signal
+          })
           const data = res.data
 
           setMutualFriends(data.data)
@@ -48,6 +52,8 @@ const ProfileModalUser = () => {
         }
       })()
     }
+
+    return () => abortCotroller.abort()
   }, [user])
 
   return (

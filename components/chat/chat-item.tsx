@@ -89,9 +89,9 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
     <div className="relative flex items-center w-full p-4 transition group hover:bg-black/5">
       {markNewMessage && (
         <div className="absolute top-0 left-0 w-[calc(100%-20px)] h-px mx-2 bg-rose-500">
-          <div className="absolute inset-x-0 flex justify-center rounded-sm -top-2">
+          <div className="absolute top-0 right-0 rounded-sm">
             <div className="flex items-center text-[10px] text-white">
-              <span className="px-1 tracking-wide uppercase rounded-sm bg-rose-500">New</span>
+              <span className="px-1 tracking-wide uppercase rounded-b-sm bg-rose-500">New</span>
             </div>
           </div>
         </div>
@@ -117,7 +117,7 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
             </div>
           )}
           {!fileUrl && !isEditing && (
-            <p className={cn("text-sm text-zinc-600 dark:text-zinc-300 break-all", deleted && "italic text-zinc-500 dark:text-zinc-400 text-xs mt-1")}>
+            <p className={cn("text-sm text-zinc-600 dark:text-zinc-300 break-all whitespace-pre-line", deleted && "italic text-zinc-500 dark:text-zinc-400 text-xs mt-1")}>
               {content}
               {isUpdated && !deleted && (
                 <span className="text-[10px] mx-2 text-zinc-500 dark:text-zinc-400">

@@ -21,7 +21,7 @@ export async function GET(req: Request) {
           contains: search ? search : undefined
         }
       },
-      select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
+      select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "resetPasswordToken", "resetPasswordTokenExpiry"])
     })
 
     const filterUser = allUsers.filter(item => item.id !== user.id)

@@ -6,6 +6,7 @@ import dynamic from "next/dynamic"
 import React, { useEffect, useState } from "react"
 import { useSocket } from "./providers/socket-provider"
 import ToastNotifocation from "./toast-notification"
+import { variants } from "@/lib/variantMotions"
 
 const SplashScreen = dynamic(() => import('@/components/splash-screen'), {
   ssr: false,
@@ -47,9 +48,10 @@ export default function ClientLayoutContext({ children, className }: ClientLayou
         <SplashScreen />
       ) : (
         <motion.main
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          variants={variants}
+          initial="onFadeEnter"
+          animate="fadeAnimate"
+          exit="onFadeExit"
           className={className}
         >
           {children}

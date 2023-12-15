@@ -72,7 +72,7 @@ export async function POST(req: Request) {
       }
     })
 
-    if (checkUserAlreadyFriend) {     
+    if (checkUserAlreadyFriend) {
       return NextResponse.json({ message: "Already become friends" }, { status: 409 })
     }
 
@@ -91,8 +91,8 @@ export async function POST(req: Request) {
       }
     })
 
-    if (checkUserAlreadyRequest) {     
-      return NextResponse.json({ message: "Already send friend request to this user" }, { status: 409 })
+    if (checkUserAlreadyRequest) {
+      return NextResponse.json({ message: "Already send friend request" }, { status: 409 })
     }
 
     const checkUserHasRequest = await db.friendRequest.findFirst({
@@ -160,11 +160,11 @@ export async function PATCH(req: Request) {
   }
 
   try {
-   const body = await req.json() 
-   const { userId } = body
+    const body = await req.json()
+    const { userId } = body
 
-   if (!userId) {
-    return NextResponse.json({ message: "User ID is Missing" }, { status: 404 })
+    if (!userId) {
+      return NextResponse.json({ message: "User ID is Missing" }, { status: 404 })
     }
 
     const userFriendRequest = await db.friendRequest.findFirst({
@@ -181,7 +181,7 @@ export async function PATCH(req: Request) {
         ]
       }
     })
-    
+
     if (!userFriendRequest) {
       return NextResponse.json({ message: "Friend request not found" }, { status: 404 })
     }

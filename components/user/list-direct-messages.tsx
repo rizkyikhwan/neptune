@@ -10,6 +10,7 @@ import { useRouter } from "next13-progressbar"
 import { useEffect, useMemo } from "react"
 import { useSocket } from "../providers/socket-provider"
 import UserAvatar from "./user-avatar"
+import { variants } from "@/lib/variantMotions"
 
 type ConversationUser = Conversation & {
   users: User[]
@@ -20,9 +21,10 @@ type ConversationUser = Conversation & {
 interface ListDirectMessagesProps {
   user: User
   data: ConversationUser
+  index?: number
 }
 
-const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
+const ListDirectMessages = ({ data, user, index }: ListDirectMessagesProps) => {
   if (!data) {
     return
   }
@@ -129,9 +131,10 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
   return (
     <motion.button
       layout
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      variants={variants}
+      initial="onFadeEnter"
+      animate="fadeAnimate"
+      exit="onFadeExit"
       className={cn(pathname?.includes(otherUser.id) ? "bg-zinc-300/50 dark:bg-zinc-600/50" : "dark:bg-dark-tertiary bg-[#F2F3F5]", "flex items-center justify-between p-2 h-12 rounded space-x-3 w-full hover:bg-zinc-400/50 hover:dark:bg-zinc-700/50")}
       onClick={() => router.push(`/me/conversation/${otherUser.id}`)}
       type="button"
