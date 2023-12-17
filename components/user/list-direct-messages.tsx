@@ -21,10 +21,9 @@ type ConversationUser = Conversation & {
 interface ListDirectMessagesProps {
   user: User
   data: ConversationUser
-  index?: number
 }
 
-const ListDirectMessages = ({ data, user, index }: ListDirectMessagesProps) => {
+const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
   if (!data) {
     return
   }

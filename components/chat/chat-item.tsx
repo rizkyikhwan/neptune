@@ -4,7 +4,7 @@ import { useModal } from "@/app/hooks/useModalStore"
 import { cn } from "@/lib/utils"
 import { User } from "@prisma/client"
 import axios from "axios"
-import { Edit, Trash, X } from "lucide-react"
+import { Edit, SendHorizonal, Trash, X } from "lucide-react"
 import Image from "next/image"
 import qs from "query-string"
 import { useEffect, useState } from "react"
@@ -15,6 +15,7 @@ import { Button } from "../ui/button"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { Input } from "../ui/input"
 import UserAvatar from "../user/user-avatar"
+import { Textarea } from "../ui/textarea"
 
 interface ChatItemProps {
   id: string
@@ -37,6 +38,7 @@ const formSchema = z.object({
 const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, isUpdated, markNewMessage, socketUrl, socketQuery }: ChatItemProps) => {
   const { onOpen } = useModal()
   const [isEditing, setIsEditing] = useState(false)
+  const [isShowMore, setIsShowMore] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
@@ -52,11 +54,12 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
         url: `${socketUrl}/${id}`,
         query: socketQuery
       })
+      console.log(value);
 
-      await axios.patch(url, value)
+      // await axios.patch(url, value)
 
-      form.reset()
-      setIsEditing(false)
+      // form.reset()
+      // setIsEditing(false)
     } catch (error) {
       console.log(error)
     }
@@ -117,41 +120,64 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
             </div>
           )}
           {!fileUrl && !isEditing && (
-            <p className={cn("text-sm text-zinc-600 dark:text-zinc-300 break-all whitespace-pre-line", deleted && "italic text-zinc-500 dark:text-zinc-400 text-xs mt-1")}>
-              {content}
-              {isUpdated && !deleted && (
-                <span className="text-[10px] mx-2 text-zinc-500 dark:text-zinc-400">
-                  (edited)
-                </span>
+            <>
+              <p className={cn("text-sm text-zinc-600 dark:text-zinc-300 break-all whitespace-pre-line", deleted && "italic text-zinc-500 dark:text-zinc-400 text-xs mt-1")}>
+                {content.length > 200 && !isShowMore ? `${content.substring(0, 200)}...` : content}
+                {isUpdated && !deleted && (
+                  <span className="text-[10px] mx-2 text-zinc-500 dark:text-zinc-400">
+                    (edited)
+                  </span>
+                )}
+              </p>
+              {content.length > 200 && (
+                <div tabIndex={0} role="button" className="text-xs text-indigo-400 underline underline-offset-2" onClick={() => setIsShowMore(!isShowMore)}>{isShowMore ? "Show less" : "Show more"}</div>
               )}
-            </p>
+            </>
           )}
           {!fileUrl && isEditing && (
             <Form {...form}>
-              <form className="flex items-center w-full pt-2 gap-x-2" onSubmit={form.handleSubmit(onSubmit)}>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
                 <FormField
                   control={form.control}
                   name="content"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="relative w-full">
-                          <Input
-                            className="p-2 border-0 border-none bg-zinc-200/90 dark:bg-zinc-700/75 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-600 dark:text-zinc-200"
-                            placeholder="Edited message"
-                            disabled={isLoading}
-                            {...field}
-                          />
-                        </div>
-                      </FormControl>
-                    </FormItem>
+                    <div className="flex items-start w-full pt-2 gap-x-2">
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <div className="relative w-full">
+                            <Textarea
+                              className="p-2 border-0 border-none resize-none bg-zinc-200/90 dark:bg-zinc-700/75 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-600 dark:text-zinc-200"
+                              placeholder="Edited message"
+                              disabled={isLoading}
+                              {...field}
+                            />
+                          </div>
+                        </FormControl>
+                      </FormItem>
+                      <Button size="icon" variant="primary" disabled={isLoading || !field.value}>
+                        <SendHorizonal size={18} />
+                      </Button>
+                    </div>
                   )}
                 />
-                <Button size="sm" variant="primary" disabled={isLoading}>
-                  Save
-                </Button>
               </form>
-              <span className="text-[10px] mt-1 text-zinc-400">Press escape to cancel, enter to save</span>
+              <div className="text-[10px] mt-1 text-zinc-400 flex">
+                Press
+                <button
+                  type="reset"
+                  onClick={() => {
+                    if (!isLoading) {
+                      setIsEditing(false)
+                      form.reset()
+                    }
+                  }}
+                  className="text-indigo-400 transition hover:text-indigo-500"
+                  disabled={isLoading}
+                >
+                  &nbsp;escape&nbsp;
+                </button>
+                to cancel
+              </div>
             </Form>
           )}
         </div>
@@ -165,7 +191,15 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
           )}
           {isEditing && (
             <ActionTooltip label="Cancel">
-              <X onClick={() => !isLoading && setIsEditing(false)} className="w-4 h-4 ml-auto transition cursor-pointer text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300" />
+              <X
+                onClick={() => {
+                  if (!isLoading) {
+                    setIsEditing(false)
+                    form.reset()
+                  }
+                }}
+                className="w-4 h-4 ml-auto transition cursor-pointer text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300"
+              />
             </ActionTooltip>
           )}
           <ActionTooltip label="Delete">

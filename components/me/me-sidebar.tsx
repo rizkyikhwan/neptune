@@ -119,7 +119,7 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
             </button>
           </div>
           <div className="flex flex-col space-y-1">
-            <div className="flex items-center space-x-1 group">
+            <div className="flex items-center mb-2 space-x-1 group">
               <p className="text-xs font-semibold tracking-wider uppercase select-none text-zinc-400 whitespace-nowrap group-hover:text-zinc-500 group-hover:dark:text-white">Direct Messages</p>
               <div className="w-full h-0.5 bg-zinc-400 rounded-full group-hover:bg-zinc-500 group-hover:dark:bg-white" />
             </div>
@@ -130,10 +130,9 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
                 ))}
               </>
             ) : (
-              conversation.data.sort((a: any, b: any) => new Date(b.lastMessageAt).valueOf() - new Date(a.lastMessageAt).valueOf()).map((data: ConversationUser, index: number) => {
+              conversation.data.sort((a: any, b: any) => new Date(b.lastMessageAt).valueOf() - new Date(a.lastMessageAt).valueOf()).map((data: ConversationUser) => {
                 return data.directMessages.length > 0 && (
                   <ListDirectMessages
-                    index={index}
                     key={data.id}
                     data={data}
                     user={user}

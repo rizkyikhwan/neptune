@@ -27,6 +27,7 @@ const ProfileModalUser = () => {
 
   const [mutualFriends, setMutualFriends] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isShowMore, setIsShowMore] = useState(false)
 
   const userJoin = user && new Date(user.createdAt).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })
 
@@ -151,8 +152,11 @@ const ProfileModalUser = () => {
                   <div className="mt-2 space-y-1">
                     <p className="text-xs font-semibold tracking-wide uppercase">About me</p>
                     <p className="text-xs whitespace-pre-line">
-                      {user?.bio || "None"}
+                      {user?.bio ? user.bio.length > 50 && !isShowMore ? `${user.bio.substring(0, 50)}...` : user.bio : "None"}
                     </p>
+                    {user?.bio && user.bio.length > 50 && (
+                      <div tabIndex={0} role="button" className="text-xs text-indigo-400 underline underline-offset-2" onClick={() => setIsShowMore(!isShowMore)}>{isShowMore ? "Show less" : "Show more"}</div>
+                    )}
                   </div>
                   <div className="mt-5 space-y-1">
                     <p className="text-xs font-semibold tracking-wide uppercase">Neptune member since</p>

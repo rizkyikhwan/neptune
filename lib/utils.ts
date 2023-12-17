@@ -70,3 +70,20 @@ export function convertBase64(file: File) {
     });
   }
 }
+
+export function removeNewlines(str: string) {
+  // Remove leading and trailing newlines using trim()
+  str = str.trim();
+
+  // Remove newline from the beginning of the string
+  if (str.startsWith('\n')) {
+    str = str.slice(1);
+  }
+
+  // Remove newline from the end of the string
+  if (str.endsWith('\n')) {
+    str = str.slice(0, -1);
+  }
+
+  return str;
+}

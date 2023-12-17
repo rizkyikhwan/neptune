@@ -1,19 +1,19 @@
 "use client"
 
+import { useMessagesStore } from "@/app/hooks/useMessagesStore"
+import { removeNewlines } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { User } from "@prisma/client"
 import axios from "axios"
 import { AnimatePresence, motion } from "framer-motion"
-import { Loader, Loader2, Plus, SendHorizonal } from "lucide-react"
+import { Loader2, Plus, SendHorizonal } from "lucide-react"
 import { useRouter } from "next/navigation"
 import qs from "query-string"
-import { FormEvent, useEffect, useRef, useState } from "react"
+import { FormEvent, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useSocket } from "../providers/socket-provider"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
-import { Input } from "../ui/input"
-import { useMessagesStore } from "@/app/hooks/useMessagesStore"
 
 interface ChatInputProps {
   apiUrl: string
@@ -29,12 +29,12 @@ const formSchema = z.object({
 })
 
 const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatInputProps) => {
-  const text = useRef('')
   const router = useRouter()
   const { socket } = useSocket()
   const { isLoading: loadingMessage } = useMessagesStore()
 
   const [typing, setTyping] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     let timer: NodeJS.Timeout
@@ -64,6 +64,7 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
 
   const onSubmit = async (value: z.infer<typeof formSchema>) => {
     try {
+      setIsSubmitting(true)
       const url = qs.stringifyUrl({
         url: apiUrl,
         query
@@ -80,11 +81,14 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
       form.reset()
       router.refresh()
       // console.log(value);
-      const inputChat = document.getElementById("input-chat")
-      inputChat?.firstChild && inputChat.removeChild(inputChat.firstChild)
+      const inputChat = document.getElementById("content")
+      // inputChat?.firstChild && inputChat.removeChild(inputChat.firstChild)
+      inputChat && inputChat.replaceChildren()
 
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -96,30 +100,13 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
     })
   }
 
-  function removeNewlines(str: string) {
-    // Remove leading and trailing newlines using trim()
-    str = str.trim();
-
-    // Remove newline from the beginning of the string
-    if (str.startsWith('\n')) {
-      str = str.slice(1);
-    }
-
-    // Remove newline from the end of the string
-    if (str.endsWith('\n')) {
-      str = str.slice(0, -1);
-    }
-
-    return str;
-  }
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
           name="content"
-          render={({ field: { onChange, ...field }, formState: { isValid, isSubmitting, isSubmitSuccessful } }) => {
+          render={({ field: { onChange, ...field }, formState: { isValid } }) => {
             const onInput = (e: FormEvent<HTMLElement>) => {
               const value = (e.target as any).innerText
               onChange(removeNewlines(value))
@@ -146,7 +133,7 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
                     <button
                       type="button"
                       onClick={() => { }}
-                      className="absolute flex items-center justify-center w-6 h-6 p-1 transition rounded-full top-3 left-4 bg-zinc-500 dark:bg-zinc-400 hover:bg-zinc-600 dark:hover:bg-zinc-300"
+                      className="absolute flex items-center justify-center w-6 h-6 p-1 transition rounded-full top-3.5 left-4 bg-zinc-500 dark:bg-zinc-400 hover:bg-zinc-600 dark:hover:bg-zinc-300"
                     >
                       <Plus className="text-white dark:text-[#313338]" />
                     </button>
@@ -158,26 +145,33 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
                       onKeyDown={handleKeyDown}
                       {...field}
                     /> */}
-                    <div
-                      role="textbox"
-                      aria-autocomplete="list"
-                      spellCheck="true"
-                      contentEditable
-                      id="input-chat"
-                      className="py-6 pr-10 break-words border-0 border-none pl-14 bg-zinc-200/90 dark:bg-zinc-700/75 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-600 dark:text-zinc-200 contentEditable:focus:border-none contentEditable:focus:outline-none contentEditable:active:border-none contentEditable:active:outline-none"
-                      onInput={onInput}
-                      onKeyDown={(event) => {
-                        handleKeyDown()
+                    <div className="relative">
+                      {!field.value && (
+                        <div aria-hidden="true" className="absolute top-0 py-4 overflow-hidden text-sm pointer-events-none select-none left-14 text-ellipsis whitespace-nowrap text-zinc-400">
+                          {`Message ${type === "conversation" ? name : "#" + name}`}
+                        </div>
+                      )}
+                      <div
+                        role="textbox"
+                        aria-autocomplete="list"
+                        spellCheck="true"
+                        contentEditable={!isSubmitting}
+                        id={field.name}
+                        className="py-4 pr-10 overflow-y-auto text-sm break-words border-0 border-none rounded-md max-h-56 pl-14 bg-zinc-200/90 dark:bg-zinc-700/75 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-400 contentEditable:focus:border-none contentEditable:focus:outline-none contentEditable:active:border-none contentEditable:active:outline-none contentEditable:text-zinc-600 contentEditable:dark:text-zinc-200"
+                        onInput={onInput}
+                        onKeyDown={(event) => {
+                          handleKeyDown()
 
-                        if (event.key === 'Enter' && !event.shiftKey) {
-                          event.preventDefault()
-                          isValid && onSubmit({ content: field.value })
-                        }
-                      }}
-                      {...field}
-                    />
-                    <div className="absolute inset-y-0 flex items-center right-3">
-                      <button type="submit" className="flex items-center justify-center w-6 h-6" disabled={loadingMessage || isLoading || isSubmitting}>
+                          if (event.key === 'Enter' && !event.shiftKey) {
+                            event.preventDefault()
+                            isValid && !loadingMessage && onSubmit({ content: field.value })
+                          }
+                        }}
+                        {...field}
+                      />
+                    </div>
+                    <div className="absolute flex items-center top-3 right-3">
+                      <button type="submit" className="w-6 h-6 p-1" disabled={loadingMessage || isLoading || isSubmitting}>
                         {isLoading || isSubmitting ? <Loader2 size={20} className="animate-spin text-zinc-500 dark:text-zinc-400" /> : <SendHorizonal size={20} className="text-zinc-500 dark:text-zinc-400" />}
                       </button>
                     </div>
