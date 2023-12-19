@@ -103,7 +103,7 @@ const MeSidebar = ({ user }: MeSidebarProps) => {
       <LayoutChannelsSidebar
         channelHeader={
           <div className="flex-1 px-2">
-            <button type="button" onClick={() => setOpen(true)} className="flex items-center w-full px-2 py-1 text-xs transition rounded group gap-x-2 dark:bg-zinc-900/80 bg-zinc-200 dark:text-zinc-400">
+            <button type="button" onClick={() => setOpen(true)} className="flex items-center w-full px-2 py-1 text-xs transition rounded group gap-x-2 text-zinc-400 dark:bg-zinc-900/80 bg-zinc-200">
               Find Server & Direct Messages
             </button>
           </div>

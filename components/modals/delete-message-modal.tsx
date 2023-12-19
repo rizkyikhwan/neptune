@@ -35,7 +35,7 @@ const DeleteMessageModal = () => {
 
   return (
     <Dialog open={isModalOpen} onOpenChange={onClose}>
-      <DialogContent className="p-0 overflow-hidden text-black bg-white">
+      <DialogContent className="p-0 overflow-hidden dark:bg-dark-primary">
         <DialogHeader className="px-6 pt-8">
           <DialogTitle className="text-2xl font-bold text-center">
             Delete Message
@@ -45,7 +45,7 @@ const DeleteMessageModal = () => {
             The message will be permanently deleted.
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="px-6 py-4 bg-gray-100">
+        <DialogFooter className="px-6 py-4 bg-zinc-50 dark:bg-dark-tertiary">
           <div className="flex items-center justify-between w-full">
             <Button
               disabled={isLoading}

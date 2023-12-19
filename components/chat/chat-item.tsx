@@ -1,21 +1,21 @@
 "use client"
 
 import { useModal } from "@/app/hooks/useModalStore"
-import { cn } from "@/lib/utils"
+import ActionTooltip from "@/components/action-tooltip"
+import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
+import { Textarea } from "@/components/ui/textarea"
+import UserAvatar from "@/components/user/user-avatar"
+import { cn, removeNewlines } from "@/lib/utils"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { User } from "@prisma/client"
 import axios from "axios"
-import { Edit, SendHorizonal, Trash, X } from "lucide-react"
+import { Edit, Loader2, SendHorizonal, Trash, X } from "lucide-react"
 import Image from "next/image"
 import qs from "query-string"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import ActionTooltip from "../action-tooltip"
-import { Button } from "../ui/button"
-import { Form, FormControl, FormField, FormItem } from "../ui/form"
-import { Input } from "../ui/input"
-import UserAvatar from "../user/user-avatar"
-import { Textarea } from "../ui/textarea"
 
 interface ChatItemProps {
   id: string
@@ -32,7 +32,7 @@ interface ChatItemProps {
 }
 
 const formSchema = z.object({
-  content: z.string().min(1)
+  content: z.string().transform(data => removeNewlines(data)).pipe(z.string().min(1))
 })
 
 const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, isUpdated, markNewMessage, socketUrl, socketQuery }: ChatItemProps) => {
@@ -41,9 +41,10 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
   const [isShowMore, setIsShowMore] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       content: content
-    }
+    },
   })
 
   const isLoading = form.formState.isSubmitting
@@ -54,12 +55,11 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
         url: `${socketUrl}/${id}`,
         query: socketQuery
       })
-      console.log(value);
 
-      // await axios.patch(url, value)
+      await axios.patch(url, value)
 
-      // form.reset()
-      // setIsEditing(false)
+      form.reset()
+      setIsEditing(false)
     } catch (error) {
       console.log(error)
     }
@@ -154,8 +154,8 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
                           </div>
                         </FormControl>
                       </FormItem>
-                      <Button size="icon" variant="primary" disabled={isLoading || !field.value}>
-                        <SendHorizonal size={18} />
+                      <Button size="icon" variant="primary" disabled={isLoading}>
+                        {isLoading ? <Loader2 size={20} className="animate-spin" /> : <SendHorizonal size={18} />}
                       </Button>
                     </div>
                   )}

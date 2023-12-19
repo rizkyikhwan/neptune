@@ -34,15 +34,11 @@ const ProfileModalUser = () => {
   const isModalOpen = isOpen && type === "profileUser"
 
   useEffect(() => {
-    const abortCotroller = new AbortController()
-
     if (isModalOpen) {
       (async () => {
         try {
           setIsLoading(true)
-          const res = await axios.get(`/api/users/friends/mutuals/${user?.id}`, {
-            signal: abortCotroller.signal
-          })
+          const res = await axios.get(`/api/users/friends/mutuals/${user?.id}`)
           const data = res.data
 
           setMutualFriends(data.data)
@@ -53,8 +49,6 @@ const ProfileModalUser = () => {
         }
       })()
     }
-
-    return () => abortCotroller.abort()
   }, [user])
 
   return (
@@ -139,11 +133,11 @@ const ProfileModalUser = () => {
             </div>
             <Tabs defaultValue="user-info">
               <TabsList className="items-stretch justify-start w-full p-0 bg-transparent border-b rounded-none border-border dark:border-zinc-500/30">
-                <TabsTrigger value="user-info" className="data-[state=active]:border-b data-[state=active]:border-foreground data-[state=active]:bg-transparent rounded-none">User Info</TabsTrigger>
+                <TabsTrigger value="user-info" className="data-[state=active]:border-b data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none">User Info</TabsTrigger>
                 {currentUser?.user.id !== user?.id && (
                   <>
-                    <TabsTrigger value="mutual-servers" className="data-[state=active]:border-b data-[state=active]:border-foreground data-[state=active]:bg-transparent rounded-none">Mutual Servers</TabsTrigger>
-                    <TabsTrigger value="mutual-friends" className="data-[state=active]:border-b data-[state=active]:border-foreground data-[state=active]:bg-transparent rounded-none">Mutual Friends</TabsTrigger>
+                    <TabsTrigger value="mutual-servers" className="data-[state=active]:border-b data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none">Mutual Servers</TabsTrigger>
+                    <TabsTrigger value="mutual-friends" className="data-[state=active]:border-b data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none">Mutual Friends</TabsTrigger>
                   </>
                 )}
               </TabsList>

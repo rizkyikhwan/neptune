@@ -4,7 +4,7 @@ import { useChatQuery } from "@/app/hooks/useChatQuery"
 import useChatScroll from "@/app/hooks/useChatScroll"
 import { useChatSocket } from "@/app/hooks/useChatSocket"
 import { DirectMessage, User } from "@prisma/client"
-import { formatDistance } from "date-fns"
+import { format, formatDistance, formatDistanceToNowStrict } from "date-fns"
 import { Loader2, ServerCrash } from "lucide-react"
 import { ElementRef, Fragment, useEffect, useRef } from "react"
 import ChatItem from "./chat-item"
@@ -16,6 +16,7 @@ const DATE_FORMAT = "d MMM yyyy, HH:mm"
 
 type MessageWithProfile = DirectMessage & {
   sender: User
+  seen: User[]
 }
 
 interface ChatMessagesProps {
@@ -99,22 +100,26 @@ const ChatMessages = ({ name, user, chatId, apiUrl, socketUrl, socketQuery, para
 
           return (
             <Fragment key={i}>
-              {group.items.map((message: MessageWithProfile) => (
-                <ChatItem
-                  key={message.id}
-                  id={message.id}
-                  user={user}
-                  otherUser={message.sender}
-                  content={message.content}
-                  fileUrl={message.fileUrl}
-                  deleted={message.deleted}
-                  timestamp={formatDistance(new Date(message.createdAt), new Date())}
-                  isUpdated={message.messageUpdatedAt !== message.createdAt}
-                  markNewMessage={newFirstMessage[newFirstMessage.length - 1]?.id === message.id}
-                  socketUrl={socketUrl}
-                  socketQuery={socketQuery}
-                />
-              ))}
+              {group.items.map((message: MessageWithProfile) => {
+                const greaterThanOneWeek = new Date(message.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+
+                return (
+                  <ChatItem
+                    key={message.id}
+                    id={message.id}
+                    user={user}
+                    otherUser={message.sender}
+                    content={message.content}
+                    fileUrl={message.fileUrl}
+                    deleted={message.deleted}
+                    timestamp={greaterThanOneWeek ? formatDistanceToNowStrict(new Date(message.createdAt), { addSuffix: true }) : format(new Date(message.createdAt), DATE_FORMAT)}
+                    isUpdated={message.messageUpdatedAt !== message.createdAt}
+                    markNewMessage={newFirstMessage[newFirstMessage.length - 1]?.id === message.id}
+                    socketUrl={socketUrl}
+                    socketQuery={socketQuery}
+                  />
+                )
+              })}
             </Fragment>
           )
         })}

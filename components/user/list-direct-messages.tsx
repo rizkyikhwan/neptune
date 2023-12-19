@@ -48,9 +48,17 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
           return oldData
         }
 
-        const newData = oldData.data.map((item: any) => {
+        const newData = oldData.data.map((item: ConversationUser) => {
           if (item.id === data.conversationId) {
-            return { ...item, directMessages: [...item.directMessages, data] }
+            const newDirectMessages = item.directMessages.map(message => {
+              if (message.id === data.id) {
+                return { ...message, data }
+              }
+
+              return message
+            })
+
+            return { ...item, directMessages: newDirectMessages }
           }
 
           return item
@@ -148,8 +156,8 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
           onlineIndicator
         />
         <div className={cn(!hasSeen && !isOwn && "font-semibold tracking-wide", "flex flex-col items-start")}>
-          <p className="text-sm">
-            {otherUser.displayname ? otherUser.displayname.length > 14 ? `${otherUser.displayname.slice(0, 14)}...` : otherUser.displayname : otherUser.username.length > 14 ? `${otherUser.username.slice(0, 14)}...` : otherUser.username}
+          <p className="max-w-[8.5rem] text-sm truncate">
+            {otherUser.displayname || otherUser.username}
           </p>
           <AnimatePresence mode="wait">
             {lastMessageText && (
@@ -157,10 +165,10 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
                 initial={onEnter}
                 animate={animate}
                 exit={onLeave}
-                className={cn(lastMessage.deleted && "italic", "text-[10px] text-zinc-400 text-left space-x-1")}
+                className={cn(lastMessage.deleted && "italic", "text-[10px] text-zinc-400 text-left space-x-1 max-w-[8.5rem] truncate")}
               >
                 {isOwn && <span>You:</span>}
-                <span>{lastMessageText.length > 15 ? `${lastMessageText.slice(0, 15)}...` : lastMessageText}</span>
+                <span>{lastMessageText}</span>
               </motion.p>
             )}
           </AnimatePresence>

@@ -38,6 +38,9 @@ export async function GET(req: Request) {
         include: {
           sender: {
             select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
+          },
+          seen: {
+            select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
           }
         },
         orderBy: {
@@ -52,6 +55,9 @@ export async function GET(req: Request) {
         },
         include: {
           sender: {
+            select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
+          },
+          seen: {
             select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
           }
         },
