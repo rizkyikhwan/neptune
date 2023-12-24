@@ -3,6 +3,9 @@ import { db } from "@/lib/db";
 import { NextApiResponseServerIo } from "@/lib/type";
 import { prismaExclude } from "@/lib/utils";
 import { NextApiRequest } from "next";
+import { UTApi } from "uploadthing/server";
+
+const utapi = new UTApi();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponseServerIo) {
   if (req.method !== "DELETE" && req.method !== "PATCH") {
@@ -74,6 +77,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     }
 
     if (req.method === "DELETE") {
+      const file = directMessage.fileUrl?.split("/").pop()
+      file && await utapi.deleteFiles(file)
+
       directMessage = await db.directMessage.update({
         where: {
           id: directMessageId as string

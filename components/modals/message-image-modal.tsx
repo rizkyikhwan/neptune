@@ -5,26 +5,26 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader } from "@/components/
 import { formSchemaEditProfile } from "@/lib/type"
 import { User } from "@prisma/client"
 import { Dispatch, SetStateAction, useRef } from "react"
-import { FixedCropper, FixedCropperRef, ImageRestriction, RectangleStencil } from 'react-advanced-cropper'
+import { CircleStencil, FixedCropper, FixedCropperRef, ImageRestriction } from 'react-advanced-cropper'
 import 'react-advanced-cropper/dist/style.css'
 import { UseFormResetField, UseFormSetValue } from "react-hook-form"
 import { z } from "zod"
 
-interface BannerCropModalProps {
+interface MessageImageModalProps {
   user: User,
   setValue: UseFormSetValue<z.infer<typeof formSchemaEditProfile>>
   resetField: UseFormResetField<z.infer<typeof formSchemaEditProfile>>
   setPreview: Dispatch<SetStateAction<string>>
 }
 
-const BannerCropModal = ({ user, resetField, setPreview }: BannerCropModalProps) => {
+const MessageImageModal = ({ user, resetField, setPreview }: MessageImageModalProps) => {
   const { isOpen, onClose, type, data } = useModal()
 
   const { image } = data
 
   const fixedCropperRef = useRef<FixedCropperRef>(null);
 
-  const isModalOpen = isOpen && type === "bannerCrop"
+  const isModalOpen = isOpen && type === "messageImage"
 
   const handleSetImage = () => {
     if (fixedCropperRef.current) {
@@ -39,25 +39,25 @@ const BannerCropModal = ({ user, resetField, setPreview }: BannerCropModalProps)
       open={isModalOpen}
       onOpenChange={() => {
         onClose()
-        !user.banner && setPreview("")
-        resetField("banner")
+        !user.avatar && setPreview("")
+        resetField("avatar")
       }}>
       <DialogContent
         onInteractOutside={() => {
           onClose()
-          !user.banner && setPreview("")
-          resetField("banner")
+          !user.avatar && setPreview("")
+          resetField("avatar")
         }}
         className="dark:bg-dark-tertiary"
       >
         <DialogHeader>
-          Change Banner
+          Change Avatar
         </DialogHeader>
         <FixedCropper
           src={image}
           ref={fixedCropperRef}
           className={"rounded-md h-96 border border-spacing-2"}
-          stencilComponent={RectangleStencil}
+          stencilComponent={CircleStencil}
           stencilProps={{
             handlers: false,
             lines: false,
@@ -67,8 +67,8 @@ const BannerCropModal = ({ user, resetField, setPreview }: BannerCropModalProps)
           }}
           imageRestriction={ImageRestriction.stencil}
           stencilSize={{
-            height: 160,
-            width: 576
+            height: 300,
+            width: 300
           }}
           wrapperComponent={CustomWrapper}
         />
@@ -78,8 +78,8 @@ const BannerCropModal = ({ user, resetField, setPreview }: BannerCropModalProps)
             type="reset"
             onClick={() => {
               onClose()
-              !user.banner && setPreview("")
-              resetField("banner")
+              !user.avatar && setPreview("")
+              resetField("avatar")
             }}>
             Cancel
           </Button>
@@ -89,4 +89,4 @@ const BannerCropModal = ({ user, resetField, setPreview }: BannerCropModalProps)
     </Dialog>
   )
 }
-export default BannerCropModal
+export default MessageImageModal

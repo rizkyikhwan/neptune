@@ -67,7 +67,7 @@ export enum EmailEnum {
 
 export type VariantFriend = "ONLINE" | "ALL" | "PENDING" | "ADD_FRIEND"
 
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/gif"]
+export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/gif"]
 
 export const formSchemaEditProfile = z.object({
   displayname: z.string().optional(),

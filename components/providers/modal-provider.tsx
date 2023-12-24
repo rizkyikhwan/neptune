@@ -8,6 +8,7 @@ import UpdatePasswordModal from "@/components/modals/update-password-modal"
 import { useEffect, useState } from "react"
 import ChangeEmailModal from "@/components/modals/change-email-modal"
 import DeleteMessageModal from "@/components/modals/delete-message-modal"
+import MessageFileModal from "@/components/modals/message-file-modal"
 
 const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false)
@@ -29,6 +30,7 @@ const ModalProvider = () => {
       <UpdatePasswordModal />
       <ChangeEmailModal />
       <DeleteMessageModal />
+      <MessageFileModal />
     </>
   )
 }

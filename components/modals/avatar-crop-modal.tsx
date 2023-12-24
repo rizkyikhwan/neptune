@@ -48,6 +48,7 @@ const AvatarCropModal = ({ user, resetField, setPreview }: AvatarCropModalProps)
           !user.avatar && setPreview("")
           resetField("avatar")
         }}
+        className="dark:bg-dark-tertiary"
       >
         <DialogHeader>
           Change Avatar
@@ -73,7 +74,7 @@ const AvatarCropModal = ({ user, resetField, setPreview }: AvatarCropModalProps)
         />
         <DialogFooter className="space-y-2 space-y-reverse sm:space-y-0">
           <Button
-            variant={"outline"}
+            variant={"ghost"}
             type="reset"
             onClick={() => {
               onClose()

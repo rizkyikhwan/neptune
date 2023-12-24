@@ -10,7 +10,7 @@ import { cn, removeNewlines } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { User } from "@prisma/client"
 import axios from "axios"
-import { Edit, Loader2, SendHorizonal, Trash, X } from "lucide-react"
+import { Edit, FileIcon, Loader2, SendHorizonal, Trash, X } from "lucide-react"
 import Image from "next/image"
 import qs from "query-string"
 import { useEffect, useState } from "react"
@@ -84,9 +84,13 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
     })
   }, [content])
 
+  const fileType = fileUrl?.split(".").pop()
+
   const isOwner = otherUser.id === user.id
   const canDeleteMessage = !deleted && isOwner
   const canEditMessage = !deleted && isOwner && !fileUrl
+  const isPDF = fileType === "pdf" && fileUrl
+  const isImage = !isPDF && fileUrl
 
   return (
     <div className="relative flex items-center w-full p-4 transition group hover:bg-black/5">
@@ -114,9 +118,17 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
               {timestamp}
             </span>
           </div>
-          {fileUrl && (
+          {isImage && (
             <div className="relative flex items-center w-48 h-48 mt-2 overflow-hidden border rounded-md aspect-square bg-secondary">
               <Image fill src={fileUrl} alt={content} className="object-cover" />
+            </div>
+          )}
+          {isPDF && (
+            <div className="relative flex items-center p-2 mt-2 rounded-md bg-background/10">
+              <FileIcon className="w-10 h-10 fill-indigo-200 stroke-indigo-400" />
+              <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="ml-2 text-sm text-indigo-500 dark:text-indigo-400 hover:underline">
+                PDF File
+              </a>
             </div>
           )}
           {!fileUrl && !isEditing && (
