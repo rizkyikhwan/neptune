@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import axios from "axios"
 import qs from "query-string"
 import { useState } from "react"
+import Loading from "../loading"
 
 const DeleteMessageModal = () => {
   const { isOpen, onClose, type, data } = useModal()
@@ -59,7 +60,7 @@ const DeleteMessageModal = () => {
               variant="primary"
               onClick={onClick}
             >
-              Confirm
+              {isLoading ? <Loading /> : "Confirm"}
             </Button>
           </div>
         </DialogFooter>

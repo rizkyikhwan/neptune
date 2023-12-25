@@ -3,12 +3,13 @@
 import { useMessagesStore } from "@/app/hooks/useMessagesStore"
 import { useModal } from "@/app/hooks/useModalStore"
 import ActionTooltip from "@/components/action-tooltip"
+import AnimateLayoutProvider from "@/components/providers/animate-layout-provider"
 import { useSocket } from "@/components/providers/socket-provider"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { ACCEPTED_IMAGE_TYPES } from "@/lib/type"
-import { convertBase64, removeNewlines } from "@/lib/utils"
+import { cn, convertBase64, removeNewlines } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { User } from "@prisma/client"
 import axios from "axios"
@@ -76,6 +77,7 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
     }
   })
 
+  const isError = form.formState.errors
   const isLoading = form.formState.isSubmitting
 
   const handleFileChange = async (files: FileList) => {
@@ -132,6 +134,7 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
     })
   }
 
+
   return (
     <div className="relative p-4 py-6 shadow-[0_-2px_2px_0_rgba(0,0,0,0.05)]">
       <AnimatePresence initial={false} mode="popLayout">
@@ -148,27 +151,36 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
           </motion.div>
         )}
       </AnimatePresence>
-      <AnimatePresence initial={false} mode="sync">
+      <AnimateLayoutProvider className={cn(msgImagePreview && "mb-2")}>
         {msgImagePreview && (
-          <motion.div initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="relative flex items-center my-2 overflow-hidden border rounded-md w-44 h-4w-44 aspect-square bg-secondary">
-            <Image fill src={msgImagePreview} alt="message-image" className="object-cover shadow-md" />
-            <ActionTooltip label="Remove Image">
-              <button
-                type="button"
-                className="absolute top-0 right-0 flex items-center justify-center w-6 h-6 p-px m-1 rounded-sm shadow bg-rose-500"
-                onClick={() => {
-                  form.setValue("fileUrl", null, { shouldDirty: true })
-                  setMsgImagePreview("")
-                }}>
-                <Trash size={14} className="text-white" />
-              </button>
-            </ActionTooltip>
-          </motion.div>
+          <>
+            <div className="relative flex items-center mb-1 overflow-hidden border rounded-md w-44 h-4w-44 aspect-square bg-secondary">
+              <Image
+                fill
+                src={msgImagePreview}
+                alt="message-image"
+                className={cn(isError.fileUrl && "border border-rose-500", "object-cover shadow-md rounded-md cursor-pointer")}
+                onClick={() => onOpen("messageImageView", { image: msgImagePreview })}
+              />
+              <ActionTooltip label="Remove Image">
+                <button
+                  type="button"
+                  className="absolute top-0 right-0 flex items-center justify-center w-6 h-6 p-px m-1 rounded-sm shadow bg-rose-500 disabled:opacity-50"
+                  onClick={() => {
+                    form.setValue("fileUrl", null, { shouldDirty: true })
+                    form.clearErrors("fileUrl")
+                    setMsgImagePreview("")
+                  }}
+                  disabled={loadingMessage || isLoading || isSubmitting}
+                >
+                  <Trash size={14} className="text-white" />
+                </button>
+              </ActionTooltip>
+            </div>
+            {isError.fileUrl && <p className="text-xs text-rose-500">{isError.fileUrl.message}</p>}
+          </>
         )}
-      </AnimatePresence>
+      </AnimateLayoutProvider>
       <div className="relative">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -177,10 +189,11 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
               name="fileUrl"
               render={({ field }) => (
                 <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-                  <DropdownMenuTrigger asChild>
+                  <DropdownMenuTrigger asChild disabled={loadingMessage || isLoading || isSubmitting}>
                     <button
                       type="button"
-                      className="absolute flex items-center justify-center w-6 h-6 p-1 transition rounded-full top-3.5 left-4 bg-zinc-500 dark:bg-zinc-400 hover:bg-zinc-600 dark:hover:bg-zinc-300 cursor-pointer z-10"
+                      className="absolute flex items-center justify-center w-6 h-6 p-1 transition rounded-full top-3.5 left-4 bg-zinc-500 dark:bg-zinc-400 hover:bg-zinc-600 dark:hover:bg-zinc-300 cursor-pointer z-10 disabled:opacity-50 disabled:cursor-default"
+                      disabled={loadingMessage || isLoading || isSubmitting}
                     >
                       <Plus className="text-white dark:text-[#313338]" />
                     </button>
