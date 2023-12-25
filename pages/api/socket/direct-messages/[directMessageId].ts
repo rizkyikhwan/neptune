@@ -1,3 +1,4 @@
+import cloudinary from "@/lib/cloudinary";
 import { currentUserPages } from "@/lib/currentUserrPages";
 import { db } from "@/lib/db";
 import { NextApiResponseServerIo } from "@/lib/type";
@@ -78,7 +79,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
     if (req.method === "DELETE") {
       const file = directMessage.fileUrl?.split("/").pop()
-      file && await utapi.deleteFiles(file)
+
+      if (directMessage.fileUrl?.includes("cloudinary")) {
+        await cloudinary.uploader.destroy(`neptune/messages/${user.username}/${file?.split(".")[0]}`)
+      } else {
+        file && await utapi.deleteFiles(file)
+      }
 
       directMessage = await db.directMessage.update({
         where: {

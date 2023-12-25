@@ -11,6 +11,7 @@ import { useEffect, useMemo } from "react"
 import { useSocket } from "../providers/socket-provider"
 import UserAvatar from "./user-avatar"
 import { variants } from "@/lib/variantMotions"
+import { File, ImageIcon } from "lucide-react"
 
 type ConversationUser = Conversation & {
   users: User[]
@@ -124,8 +125,15 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
   }, [user, lastMessage])
 
   const lastMessageText = useMemo(() => {
-    if (lastMessage?.fileUrl) {
-      return 'Sent an file'
+    const fileType = lastMessage.fileUrl?.split(".").pop()
+    const isPDF = fileType === "pdf"
+
+    if (lastMessage?.fileUrl === lastMessage.content) {
+      return <span className="flex items-start">{isPDF ? <File size={12} className="mr-px" /> : <ImageIcon size={12} className="mr-px" />} Sent an {isPDF ? "file" : "image"}</span>
+    }
+
+    if (lastMessage.content !== lastMessage?.fileUrl && lastMessage.fileUrl) {
+      return <span className="flex items-start"><ImageIcon size={12} className="mr-px" /> {lastMessage.content}</span>
     }
 
     if (lastMessage?.content) {
@@ -165,7 +173,7 @@ const ListDirectMessages = ({ data, user }: ListDirectMessagesProps) => {
                 initial={onEnter}
                 animate={animate}
                 exit={onLeave}
-                className={cn(lastMessage.deleted && "italic", "text-[10px] text-zinc-400 text-left space-x-1 max-w-[8.5rem] truncate")}
+                className={cn(lastMessage.deleted && "italic", "text-[10px] text-zinc-400 text-left space-x-1 max-w-[8.5rem] truncate flex items-center")}
               >
                 {isOwn && <span>You:</span>}
                 <span>{lastMessageText}</span>

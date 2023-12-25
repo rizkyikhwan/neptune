@@ -119,12 +119,29 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
             </span>
           </div>
           {isImage && (
-            <div className="relative flex items-center w-48 h-48 mt-2 overflow-hidden border rounded-md aspect-square bg-secondary">
-              <Image fill src={fileUrl} alt={content} className="object-cover" />
-            </div>
+            <>
+              <div className="relative flex items-center w-48 h-48 mt-2 overflow-hidden border rounded-md md:w-60 md:h-w-60 aspect-square bg-secondary">
+                <Image fill src={fileUrl} alt={content} sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover cursor-pointer" onClick={() => onOpen("messageImageView", { image: fileUrl })} />
+              </div>
+              {fileUrl !== content && (
+                <>
+                  <p className={cn("text-sm text-zinc-600 dark:text-zinc-300 break-all whitespace-pre-line", deleted && "italic text-zinc-500 dark:text-zinc-400 text-xs mt-1")}>
+                    {content.length > 200 && !isShowMore ? `${content.substring(0, 200)}...` : content}
+                    {isUpdated && !deleted && (
+                      <span className="text-[10px] mx-2 text-zinc-500 dark:text-zinc-400">
+                        (edited)
+                      </span>
+                    )}
+                  </p>
+                  {content.length > 200 && (
+                    <div tabIndex={0} role="button" className="text-xs text-indigo-400 underline underline-offset-2" onClick={() => setIsShowMore(!isShowMore)}>{isShowMore ? "Show less" : "Show more"}</div>
+                  )}
+                </>
+              )}
+            </>
           )}
           {isPDF && (
-            <div className="relative flex items-center p-2 mt-2 rounded-md bg-background/10">
+            <div className="relative flex items-center p-2 mt-2 rounded-md bg-[#edeff2] dark:bg-background/10">
               <FileIcon className="w-10 h-10 fill-indigo-200 stroke-indigo-400" />
               <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="ml-2 text-sm text-indigo-500 dark:text-indigo-400 hover:underline">
                 PDF File

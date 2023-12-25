@@ -1,3 +1,4 @@
+import cloudinary from "@/lib/cloudinary";
 import { currentUserPages } from "@/lib/currentUserrPages";
 import { db } from "@/lib/db";
 import { NextApiResponseServerIo } from "@/lib/type";
@@ -26,6 +27,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
       return res.status(400).json({ error: "Content is missing" })
     }
 
+    let msgImage
+
+    if (fileUrl?.includes("base64")) {
+      msgImage = await cloudinary.uploader.upload(fileUrl, {
+        folder: `neptune/messages/${user.username}`,
+        resource_type: "image",
+        transformation: {
+          quality: "auto"
+        }
+      })
+    }
+
     const conversation = await db.conversation.findFirst({
       where: {
         id: conversationId as string,
@@ -50,24 +63,67 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
       return res.status(404).json({ message: "User not found" })
     }
 
-    const message = await db.directMessage.create({
-      data: {
-        content,
-        fileUrl,
-        conversationId: conversationId as string,
-        senderId: currentUser.id,
-        seen: {
-          connect: {
-            id: currentUser.id
+    let message
+
+    if (content === fileUrl && msgImage) {
+      message = await db.directMessage.create({
+        data: {
+          content: msgImage ? msgImage?.secure_url : "",
+          fileUrl: msgImage ? msgImage.secure_url : undefined,
+          conversationId: conversationId as string,
+          senderId: currentUser.id,
+          seen: {
+            connect: {
+              id: currentUser.id
+            }
+          }
+        },
+        include: {
+          sender: {
+            select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
           }
         }
-      },
-      include: {
-        sender: {
-          select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
+      })
+    } else if (msgImage) {
+      message = await db.directMessage.create({
+        data: {
+          content,
+          fileUrl: msgImage ? msgImage.secure_url : undefined,
+          conversationId: conversationId as string,
+          senderId: currentUser.id,
+          seen: {
+            connect: {
+              id: currentUser.id
+            }
+          }
+        },
+        include: {
+          sender: {
+            select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
+          }
         }
-      }
-    })
+      })
+    } else {
+      message = await db.directMessage.create({
+        data: {
+          content,
+          fileUrl,
+          conversationId: conversationId as string,
+          senderId: currentUser.id,
+          seen: {
+            connect: {
+              id: currentUser.id
+            }
+          }
+        },
+        include: {
+          sender: {
+            select: prismaExclude("User", ["password", "verifyToken", "verifyTokenExpiry", "friendsRequestIDs", "resetPasswordToken", "resetPasswordTokenExpiry"])
+          }
+        }
+      })
+
+    }
 
     const updatedConversation = await db.conversation.upsert({
       where: {
