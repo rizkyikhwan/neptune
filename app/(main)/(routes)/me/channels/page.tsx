@@ -95,7 +95,7 @@ const MeChannelsPage = () => {
             </Button>
           ))}
         </div>
-        <div className="flex items-center ml-3 after:absolute after:top-0 after:right-[51px] after:w-2 after:h-full after:bg-gradient-to-l after:dark:from-dark-primary after:dark:via-dark-primary/90 after:from-white">
+        <div className="flex items-center ml-3 after:absolute after:top-0 after:right-[50px] after:w-2 after:h-full after:bg-gradient-to-l after:dark:from-dark-primary after:dark:via-dark-primary/90 after:from-white">
           <ActionTooltip label="What's is this?" align="end">
             <Button size="icon" variant="ghost" className="w-auto h-auto hover:bg-transparent" onClick={() => onOpen("infoApp")}>
               <HelpCircle />

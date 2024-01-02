@@ -121,7 +121,7 @@ const ChatItem = ({ id, content, user, otherUser, timestamp, fileUrl, deleted, i
           {isImage && (
             <>
               <div className="relative flex items-center w-48 h-48 mt-2 overflow-hidden border rounded-md md:w-60 md:h-w-60 aspect-square bg-secondary">
-                <Image fill src={fileUrl} alt={content} sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover cursor-pointer" onClick={() => onOpen("messageImageView", { image: fileUrl })} />
+                <Image fill src={fileUrl} blurDataURL={fileUrl} alt={content} sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover cursor-pointer" priority onClick={() => onOpen("messageImageView", { image: fileUrl })} />
               </div>
               {fileUrl !== content && (
                 <>
