@@ -250,9 +250,9 @@ const ChatInput = ({ apiUrl, query, name, otherUser, currentUser, type }: ChatIn
                           role="textbox"
                           aria-autocomplete="list"
                           spellCheck="true"
-                          contentEditable
+                          contentEditable={isSubmitting ? "false" : "true"}
                           id={field.name}
-                          className="py-4 pr-10 overflow-y-auto text-sm break-words border-0 border-none rounded-md max-h-56 pl-14 bg-zinc-200/90 dark:bg-zinc-700/75 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-400 contentEditable:focus:border-none contentEditable:focus:outline-none contentEditable:active:border-none contentEditable:active:outline-none contentEditable:text-zinc-600 contentEditable:dark:text-zinc-200"
+                          className={cn("py-[26px] pr-10 contentEditable:py-4 overflow-y-auto text-sm break-words border-0 border-none rounded-md max-h-56 pl-14 bg-zinc-200/90 dark:bg-zinc-700/75 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-400 contentEditable:focus:border-none contentEditable:focus:outline-none contentEditable:active:border-none contentEditable:active:outline-none contentEditable:text-zinc-600 contentEditable:dark:text-zinc-200")}
                           onInput={onInput}
                           onKeyDown={(event) => {
                             handleKeyDown()
