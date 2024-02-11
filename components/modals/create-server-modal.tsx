@@ -12,6 +12,9 @@ import { Plus, Trash } from "lucide-react"
 import FormInput from "../form/form-input"
 import { Button } from "../ui/button"
 import { ACCEPTED_IMAGE_TYPES } from "@/lib/type"
+import axios from "axios"
+import { useRouter } from "next/navigation"
+import Loading from "../loading"
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -26,6 +29,7 @@ const formSchema = z.object({
 })
 
 const CreateServerModal = () => {
+  const router = useRouter()
   const { isOpen, onClose, type } = useModal()
   const [imagePreview, setImagePreview] = useState("")
 
@@ -50,8 +54,16 @@ const CreateServerModal = () => {
     setImagePreview(imageDataUrl as string)
   }
 
-  const onSubmit = (value: z.infer<typeof formSchema>) => {
-    console.log(value);
+  const onSubmit = async (value: z.infer<typeof formSchema>) => {
+    try {
+      await axios.post("/api/servers", value)
+
+      form.reset()
+      router.refresh()
+      onClose()
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const handleClose = () => {
@@ -86,8 +98,10 @@ const CreateServerModal = () => {
                           <div
                             className="absolute top-0 right-0 z-10 flex-col items-center justify-center p-1 overflow-hidden text-white rounded-full cursor-pointer bg-rose-500"
                             onClick={() => {
-                              setImagePreview("")
-                              resetField("imageUrl")
+                              if (!isLoading) {
+                                setImagePreview("")
+                                resetField("imageUrl")
+                              }
                             }}
                             tabIndex={-1}
                           >
@@ -135,9 +149,9 @@ const CreateServerModal = () => {
                 )}
               />
             </div>
-            <DialogFooter className="px-6 py-4 bg-zinc-50 dark:bg-dark-tertiary">
+            <DialogFooter className="px-6 py-4 bg-zinc-50 dark:bg-dark-tertiary disabled:opacity-75">
               <Button variant={"primary"} disabled={isLoading}>
-                Create
+                {isLoading ? <Loading /> : "Create"}
               </Button>
             </DialogFooter>
           </form>
