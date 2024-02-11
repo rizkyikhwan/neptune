@@ -7,7 +7,7 @@ import axios from "axios"
 import Lottie from "lottie-react"
 import { Loader2, LogOut } from "lucide-react"
 import { signOut } from "next-auth/react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import ActionTooltip from "../action-tooltip"
 import { toast } from "sonner"
 
@@ -18,6 +18,10 @@ interface CardVerificationProps {
 const CardVerification = ({ email }: CardVerificationProps) => {
   const { secondsLeft, start } = useCountdown()
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    start(60)
+  }, [])
 
   const handleResendEmail = async () => {
     setIsLoading(true)

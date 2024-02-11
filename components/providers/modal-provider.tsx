@@ -10,6 +10,7 @@ import ChangeEmailModal from "@/components/modals/change-email-modal"
 import DeleteMessageModal from "@/components/modals/delete-message-modal"
 import MessageFileModal from "@/components/modals/message-file-modal"
 import ImageViewModal from "@/components/modals/image-view-modal"
+import CreateServerModal from "../modals/create-server-modal"
 
 const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false)
@@ -33,6 +34,7 @@ const ModalProvider = () => {
       <DeleteMessageModal />
       <MessageFileModal />
       <ImageViewModal />
+      <CreateServerModal />
     </>
   )
 }

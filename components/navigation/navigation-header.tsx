@@ -10,9 +10,11 @@ import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Button } from "../ui/button";
+import { useModal } from "@/app/hooks/useModalStore";
 
 const NavigationHeader = ({ pathname }: { pathname: string | null }) => {
   const { theme } = useTheme()
+  const { onOpen } = useModal()
   const [open, cycleOpen] = useCycle(false, true)
 
   const [isMounted, setIsMounted] = useState(false)
@@ -97,7 +99,7 @@ const NavigationHeader = ({ pathname }: { pathname: string | null }) => {
                   transition={transitionSpringPhysics}
                 >
                   <ActionTooltip side="right" align="center" label="Add a Server">
-                    <button className="flex items-center group">
+                    <button className="flex items-center group" onClick={() => onOpen("createServer")}>
                       <div className="flex items-center justify-center w-12 h-12 mx-3 overflow-hidden transition-all rounded-3xl group-hover:rounded-2xl bg-background dark:bg-neutral-700 group-hover:bg-emerald-500">
                         <Plus
                           className="transition group-hover:text-white text-emerald-500"
